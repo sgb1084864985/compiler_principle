@@ -37,25 +37,7 @@ public:
 };
 
 
-class TokenInput :public Iterator<SymbolValue*>{
-public:
-    void untake(SymbolValue* val);
-};
 
-class SymbolArgs :public Iterator<SymbolValue*>{
-private:
-    int begin;
-    vector<SymbolValue*>& stack;
-public:
-    SymbolArgs(vector<SymbolValue*>& stack,int begin):begin(begin),stack(stack){}
-    const SymbolValue& next() override{
-        return stack[begin];
-        begin++;
-    }
-    bool hasNext() override{
-        return begin==stack.size();
-    }
-};
 
 // class Production{
 //     public:
