@@ -1,2 +1,5 @@
 .idea/
 test.*
+*.o
+*.out
+cmake-build-debug/

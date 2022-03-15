@@ -1,4 +1,4 @@
-#include "compiler"
+#include "compiler.h"
 
 class TokenInput :public Iterator<SymbolValue*>{
 public:

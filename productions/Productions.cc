@@ -1,4 +1,4 @@
-#include "compiler.hpp"
+#include "compiler.h"
 
 #include <vector>
 using std::vector;
