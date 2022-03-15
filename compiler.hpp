@@ -53,9 +53,9 @@ public:
 class Production{
 private:
     int symbols_num;
+    function<void(Iterator<SymbolValue>&,Context&)> action;
 public:
     const char* left_hand_side;
     const char* right_hand_side;
     int size(){return  symbols_num;}
-    function<void(Iterator<SymbolValue>&,Context&)> action;
 };

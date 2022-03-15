@@ -3,27 +3,37 @@
 #include "compiler.hpp"
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 using std::vector;
 using std::unordered_map;
 
 class MyParser{
 public:
-    constexpr static int terminal_num=0;
-    constexpr static int symbol_num=0;
-    constexpr static int state_num=0;
-    constexpr static int production_num=0;
+//    constexpr static int terminal_num=0;
+//    constexpr static int symbol_num=0;
+//    constexpr static int state_num=0;
+//    constexpr static int production_num=0;
 
-    constexpr static int init_symbol=0;
-    constexpr static int start_state=0;
+//    constexpr static int init_symbol=0;
 
     constexpr static int UNDEFINED=-1;
     constexpr static int FINISHED=-2;
+
+    void setStartState();
+    void setTransitions();
+
+    MyParser(vector<Production>&actions):actions(actions){
+        setStartState();
+        setTransitions();
+    }
 private:
     // const char* symbol_table[symbol_num];
-    int nTermToProd[symbol_num-terminal_num];
-    Production actions[production_num];
-    int transitions[state_num][symbol_num];
+//    int nTermToProd[symbol_num-terminal_num];
+    vector<Production>& actions;
+
+    int start_state=0;
+    int** transitions= nullptr;
 
     class SymbolArgs :public Iterator<SymbolValue*>{
     private:
