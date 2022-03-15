@@ -1,3 +1,4 @@
+#include "compiler"
 
 class TokenInput :public Iterator<SymbolValue*>{
 public:
