@@ -1,9 +1,11 @@
 // MyParser.hpp
 
 #include "compiler.h"
+#include "TokenInput.h"
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 using std::vector;
 using std::unordered_map;
@@ -20,8 +22,11 @@ public:
     constexpr static int UNDEFINED=-1;
     constexpr static int FINISHED=-2;
 
-    void setStartState();
-    void setTransitions();
+    // TODO:implement
+    void setStartState(){
+        std::cout<<"this is a parser";
+    }
+    void setTransitions(){}
 
     MyParser(vector<Production>&actions):actions(actions){
         setStartState();
@@ -35,15 +40,14 @@ private:
     int start_state=0;
     int** transitions= nullptr;
 
-    class SymbolArgs :public Iterator<SymbolValue*>{
+    class SymbolArgs :public Iterator<SymbolValue>{
     private:
         int begin;
         vector<SymbolValue*>& stack;
     public:
         SymbolArgs(vector<SymbolValue*>& stack,int begin):begin(begin),stack(stack){}
-        const SymbolValue& next() override{
-            return stack[begin];
-            begin++;
+        SymbolValue& next() override{
+            return *stack[begin++];
         }
         bool hasNext() override{
             return begin==stack.size();
@@ -59,7 +63,7 @@ public:
 
         while (input.hasNext()){
             int current_state=state_stack.back();
-            SymbolValue& symbol=*(input.next());
+            SymbolValue& symbol=input.next();
             int transition=transitions[current_state][symbol.getID()];
 
             if(UNDEFINED==transition){
@@ -75,9 +79,8 @@ public:
             else{
                 Production& p=actions[transition];
                 int len=p.size();
-                SymbolArgs args(value_stack,value_stack.size()-len);
-                auto  f= p.action;
-                input.untake(f(args,con));
+                SymbolArgs args(value_stack,(int)value_stack.size()-len);
+                input.unput(p(args, con));
                 value_stack.resize(value_stack.size()-len);
                 state_stack.resize((value_stack.size()-len));
             }

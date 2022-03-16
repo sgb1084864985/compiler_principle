@@ -2,8 +2,13 @@
 // Created by zlz on 2022/3/15.
 //
 #include <iostream>
+#include "MyParser.hpp"
+#include "Productions.h"
+
 using namespace std;
 int main(){
-    cout<<"hello world"<<endl;
+    cout<<"This is main file"<<endl;
+    Productions p;
+    MyParser parser(p.getActions());
     return 0;
 }

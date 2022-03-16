@@ -1,9 +1,9 @@
 #include "compiler.h"
-
+#include "Productions.h"
 #include <vector>
+
 using std::vector;
 
-class Productions{
-public:
-    vector<Production>& getActions();
-};
+vector<Production> &Productions::getActions() {
+    return *new vector<Production>;
+}
