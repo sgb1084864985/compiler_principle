@@ -71,6 +71,7 @@ public:
                 exit(0);
             }
             if(transition&FINISHED){
+                std::cout<<"success!"<<std::endl;
                 break;
                 // TODO:end
             }
@@ -89,10 +90,6 @@ public:
                 value_stack.resize(value_stack.size()-len);
                 state_stack.resize((state_stack.size()-len));
             }
-        }
-        if(current_state != start_state){
-            // TODO:error
-            std::cout<<"error"<<std::endl;
         }
     }
 };

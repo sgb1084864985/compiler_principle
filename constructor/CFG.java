@@ -543,7 +543,7 @@ public class CFG{
                 if(core.completed()){
                     for(int lookahead:item.lookaheads){
 
-                        if(st.getID()==INIT_STATE && lookahead==EOF){
+                        if(core.nonTerminal==getInitSymbol() && lookahead==EOF){
                             state_array[st.getID()][lookahead+1]=VALID|FINISHED;
                             continue;
                         }
