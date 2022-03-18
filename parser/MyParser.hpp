@@ -53,7 +53,7 @@ private:
     };
 
 public:
-    void parse(TokenInput& input,Context& con){
+    symbol_ptr parse(TokenInput& input,Context& con){
         vector<symbol_ptr> value_stack;
         vector<int> state_stack;
 
@@ -91,6 +91,7 @@ public:
                 state_stack.resize((state_stack.size()-len));
             }
         }
+        return value_stack.back();
     }
 };
 

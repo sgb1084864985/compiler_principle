@@ -6,6 +6,7 @@
 #include "Productions.h"
 #include "compiler.h"
 #include "TokenInput.h"
+#include "symbols.hpp"
 
 using namespace std;
 int main(){
@@ -14,6 +15,8 @@ int main(){
     MyParser parser(p.getProductions());
     Context c;
     TokenInput input;
-    parser.parse(input,c);
+    symbol_ptr result=parser.parse(input,c);
+    auto output= dynamic_pointer_cast<OperandInt>(result);
+    cout<<output->getValue()<<endl;
     return 0;
 }

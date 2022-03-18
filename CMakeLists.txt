@@ -37,6 +37,7 @@ include_directories(
         "${PROJECT_SOURCE_DIR}/token "
         "${PROJECT_SOURCE_DIR}/productions"
         "${PROJECT_SOURCE_DIR}/parser"
+        "${PROJECT_SOURCE_DIR}/semantic"
 )
 
 LIST(APPEND SRC_LIST main.cpp token_data.cpp CFG_data.cpp)

@@ -3,16 +3,16 @@
 #include "compiler.h"
 
 class Token:public TerminalValue{
-    std::string text;
+    const std::string text;
     const char* type;
 public:
-    Token(int id,std::string text,const char* type):
-            text(std::move(text)),type(type){
+    Token(int id,const char* text,const char* type):
+            text(text),type(type){
         setID(id);
     }
 
-    const std::string& getText() override{
-        return text;
+    const char* getText() override{
+        return text.c_str();
     }
 
     const char* getType() override{

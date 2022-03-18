@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 #ifdef DEBUG
 #define DEBUG_TEST(x) do{x}while(0);
@@ -34,7 +35,7 @@ public:
     void setID(int i){
         this->id=i;
     }
-
+virtual void print(){std::cout<<"SymbolValue:id="<<id<<std::endl;}
 private:
     int id=-1;
 
@@ -50,7 +51,7 @@ public:
     virtual const char* getType()=0;
 
     // like "i","j","1.0","if"
-    virtual const std::string& getText()=0;
+    virtual const char * getText()=0;
 };
 
 using symbol_ptr=std::shared_ptr<SymbolValue>;
