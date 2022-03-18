@@ -485,13 +485,14 @@ public class CFG{
     int state_array[][];
 
     void LALR_to_DFA(){
-        LinkedList<LALR_Term> kernel=new LinkedList<>();
         addInitSymbol();
+        calculateFirstSets();
         final int init_symbol=getInitSymbol();
         LALR_Term init_term=new LALR_Term(new LR0Term(init_symbol, 0, 0));
         LALR_Set init_set=null;
         boolean init=true;
 
+        LinkedList<LALR_Term> kernel=new LinkedList<>();
         kernel.add(init_term);
         LinkedList<tempRecord> queue=new LinkedList<>();
         queue.addLast(new tempRecord(null,-1,kernel));
@@ -529,10 +530,10 @@ public class CFG{
 
     int [][] genArray()throws Exception{
         state_array=new int[setMap.size()][getNonTerminalNum()+terminals];
-        // final int INIT_STATE=0;
+        final int INIT_STATE=0;
         final int VALID=0x1;
         final int SHIFT_REDUCTION=0x2; // shift=2,reduction=0
-        // final int FINISHED=0x4;
+        final int FINISHED=0x4;
         // 0x8: reserved
         // other: reduction: which production ; shift: next state
         for(LALR_Set set:setMap.keySet()){
@@ -541,29 +542,33 @@ public class CFG{
                 LR0Term core=item.core;
                 if(core.completed()){
                     for(int lookahead:item.lookaheads){
-                        if(lookahead==EOF){
+
+                        if(st.getID()==INIT_STATE && lookahead==EOF){
+                            state_array[st.getID()][lookahead+1]=VALID|FINISHED;
                             continue;
                         }
-                        else{
-                            if(state_array[st.getID()][lookahead]!=0){
-                                throw new Exception("reduce-reduce conflict!");
-                            }
-                            state_array[st.getID()][lookahead]=
-                                VALID|
-                                (core.getProductionId()<<12)|
-                                (core.getProductionSize()<<4);
+
+                        if(state_array[st.getID()][lookahead+1]!=0){
+                            throw new Exception("reduce-reduce conflict!");
                         }
+                        state_array[st.getID()][lookahead+1]=
+                        // pro_id,nonterminal,pro_size,flags
+                        //    12,      8,        8,      4
+                            VALID|
+                            (core.getProductionId()<<20)|
+                            (core.nonTerminal<<12)|
+                            (core.getProductionSize()<<4);
                     }
                 }
             }
             st.forEach((k,v)->{
                 int symbol=k;
                 int next_state=setMap.get(v).getID();
-                if(state_array[st.getID()][symbol]!=0){
+                if(state_array[st.getID()][symbol+1]!=0){
                     System.out.println("shift-reduce conflict!");
-                    System.out.printf("before:%d,after:%d\n",state_array[st.getID()][symbol],VALID|SHIFT_REDUCTION|(next_state<<4));
+                    System.out.printf("before:%d,after:%d\n",state_array[st.getID()][symbol+1],VALID|SHIFT_REDUCTION|(next_state<<4));
                 }
-                state_array[st.getID()][symbol]=VALID|SHIFT_REDUCTION|(next_state<<4);
+                state_array[st.getID()][symbol+1]=VALID|SHIFT_REDUCTION|(next_state<<4);
             });
         }
         return state_array;

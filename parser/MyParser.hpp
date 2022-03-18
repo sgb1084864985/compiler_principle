@@ -38,13 +38,13 @@ private:
     int symbols=0;
     int* transitions= nullptr;
 
-    class SymbolArgs :public Iterator<SymbolValue*>{
+    class SymbolArgs :public Iterator<symbol_ptr>{
     private:
         int begin;
-        vector<SymbolValue*>& stack;
+        vector<symbol_ptr>& stack;
     public:
-        SymbolArgs(vector<SymbolValue*>& stack,int begin):begin(begin),stack(stack){}
-        SymbolValue* next() override{
+        SymbolArgs(vector<symbol_ptr>& stack,int begin):begin(begin),stack(stack){}
+        symbol_ptr next() override{
             return stack[begin++];
         }
         bool hasNext() override{
@@ -54,42 +54,46 @@ private:
 
 public:
     void parse(TokenInput& input,Context& con){
-        vector<SymbolValue*> value_stack;
+        vector<symbol_ptr> value_stack;
         vector<int> state_stack;
 
         state_stack.push_back(start_state);
 
         int current_state;
-        while (input.hasNext()){
+        while (true){
             current_state=state_stack.back();
-            SymbolValue& symbol=input.next();
-            int transition=transitions[symbols*current_state+symbol.getID()];
+            symbol_ptr symbol=input.top();
+            int transition=transitions[symbols*current_state+symbol->getID()+1]; //+1: for EOF(-1)
 
             if(!(transition&VALID)){
                 // TODO:error
                 std::cout<<"error"<<std::endl;
+                exit(0);
             }
             if(transition&FINISHED){
                 break;
                 // TODO:end
             }
             if(transition&SHIFT_REDUCE){
-                value_stack.push_back(&symbol);
+                value_stack.push_back(symbol);
                 state_stack.push_back(transition>>4);
+                input.next();
             }
             else{
-                Production& p=actions[transition>>12];
+                Production& p=actions[transition>>20];
                 int len=(transition>>4)&0xff;
                 SymbolArgs args(value_stack,(int)value_stack.size()-len);
-                input.unput(p(args, con));
+                symbol_ptr reducedSymbol=p(args,con);
+                reducedSymbol->setID((transition>>12)&0xff);
+                input.unget(reducedSymbol);
                 value_stack.resize(value_stack.size()-len);
-                state_stack.resize((value_stack.size()-len));
+                state_stack.resize((state_stack.size()-len));
             }
         }
-        if(!(transitions[current_state*symbols+EOF]&FINISHED)){
+        if(current_state != start_state){
+            // TODO:error
             std::cout<<"error"<<std::endl;
         }
-        // TODO:error
     }
 };
 

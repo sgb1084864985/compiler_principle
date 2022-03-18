@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.4)
 project(compiler)
 
+macro(DEBUG)
+endmacro()
+
 find_package(Java REQUIRED)
 
 include(UseJava)

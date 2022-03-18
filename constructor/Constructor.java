@@ -22,6 +22,7 @@ public class Constructor{
         if(args.length>=4){
             builder.setInputFile(args[2], args[3]);
         }
+
         counter cnt=new counter();
 
         builder.build(new Iterator<String>() {
@@ -83,7 +84,6 @@ public class Constructor{
         }
 
         // final int symbols=cfg.getNonTerminalNum()+terminals;
-        cfg.calculateFirstSets();
         cfg.LALR_to_DFA();
         writeCFG(cfg,writer);
         input2.close();

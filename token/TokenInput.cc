@@ -2,52 +2,36 @@
 
 #include "TokenInput.h"
 
-#include <utility>
 
 #include "scanner.h"
 
-class Token:public TerminalValue{
-    int id;
-    std::string text;
-    const char* type;
-public:
-    Token(int id,std::string text,const char* type):
-    id(id),text(std::move(text)),type(type){}
+#include "Token.hpp"
 
-    int getID() override{
-        return id;
-    }
-    const std::string& getText() override{
-        return text;
-    }
-
-    const char* getType() override{
-        return type;
-    }
-
-private:
-};
-
-void TokenInput::unput(SymbolValue *val) {
+void TokenInput::unget(const symbol_ptr& val) {
     unputCache.push_back(val);
 }
 
-SymbolValue& TokenInput::next() {
-    static Token cache(0,"", nullptr);
+symbol_ptr TokenInput::next() { // pop top, return new top
+    _next();
+    return top();
+}
 
+void TokenInput::_next() {
     if(!unputCache.empty()){
-        SymbolValue* ret=unputCache.back();
         unputCache.pop_back();
-        return *ret;
     }
+    else{
+        do{
+            SCANNER::nextToken();
+        }while (SCANNER::isWhite());
+        cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
+    }
+}
 
-    cache=Token(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
-    do{
-        SCANNER::nextToken();
-        if(SCANNER::isEOF()){
-            break;
-        }
-    }while (SCANNER::isWhite());
+symbol_ptr TokenInput::top() {
+    if(!unputCache.empty()){
+        return unputCache.back();
+    }
     return cache;
 }
 
@@ -55,12 +39,12 @@ bool TokenInput::hasNext() {
     return !SCANNER::isEOF();
 }
 
-TokenInput::TokenInput() {
+TokenInput::TokenInput(){
     SCANNER::startAnalyze();
+
     while (SCANNER::isWhite()){
         SCANNER::nextToken();
-        if(SCANNER::isEOF()){
-            break;
-        }
     }
+    cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
+
 }

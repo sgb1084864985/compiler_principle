@@ -4,3 +4,4 @@ test.*
 *.o
 *.out
 /cmake-build-debug/
+/test_input/

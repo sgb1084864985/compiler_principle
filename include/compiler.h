@@ -5,6 +5,14 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <memory>
+
+#ifdef DEBUG
+#define DEBUG_TEST(x) do{x}while(0);
+#else
+#define DEBUG_TEST(x)
+#endif
+
 using std::vector;
 using std::function;
 
@@ -20,7 +28,16 @@ class Context{
 
 class SymbolValue{
 public:
-    virtual int getID()=0;
+    int getID() const{
+        return id;
+    }
+    void setID(int i){
+        this->id=i;
+    }
+
+private:
+    int id=-1;
+
 };
 
 class TerminalValue:public SymbolValue{
@@ -36,8 +53,9 @@ public:
     virtual const std::string& getText()=0;
 };
 
-using symbol_iterator=Iterator<SymbolValue*>;
-using handler=function<SymbolValue*(symbol_iterator &,Context&)>;
+using symbol_ptr=std::shared_ptr<SymbolValue>;
+using symbol_iterator=Iterator<symbol_ptr>;
+using handler=function<symbol_ptr (symbol_iterator &,Context&)>;
 
 class Production{
 private:
@@ -45,7 +63,7 @@ private:
 public:
     const char* left_hand_side;
     const char* right_hand_side;
-    SymbolValue* operator()(symbol_iterator &it,Context&con){
+    symbol_ptr operator()(symbol_iterator &it,Context&con){
         return action(it,con);
     }
 

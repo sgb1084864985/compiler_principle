@@ -46,7 +46,7 @@ int isEOF(){
 }
 
 int isWhite(){
-    return current_char==5;
+    return current_token==5;
 }
 
 const char* getTokenType(){
@@ -62,13 +62,14 @@ void nextToken(){
 
     if(getChar()==EOF){
         pushChar('\0');
+        current_token=EOF;
         return;
     }
     while(1){
         state=nextState(getChar());
         if(isErrorState(state)){
             if(!isRecognizedToken(lastToken)){
-                pushChar(getChar());
+                if(!isEOF()) pushChar(getChar());
                 pushChar('\0');
                 printf("%s:unrecognized\n",getTokenString());
                 exit(0);
