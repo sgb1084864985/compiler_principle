@@ -36,13 +36,13 @@ public class CFG{
     //     return i+terminals;
     // }
     public void addInitSymbol(){
-        production p=new production();
-        p.add(start+terminals);
         NonTerminal nt=new NonTerminal();
-        nt.addProduction(p);
         NonTerminalInfo info=new NonTerminalInfo(nt);
-        info.followSet.add(EOF);
         nTermInfos.add(info);
+        production p=new production(getInitSymbol());
+        nt.addProduction(p);
+        p.add(start+terminals);
+        info.followSet.add(EOF);
     }
 
     public NonTerminalInfo getInitSymbolInfo(){
@@ -273,14 +273,14 @@ public class CFG{
         int position;
         int production_index;
         // TODO: add empty string
-    
+
         LR0Term(int nonTerminal,int position,int production_index){
             this.nonTerminal=nonTerminal;
             this.position=position;
             this.production_index=production_index;
         }
         boolean completed(){
-            return 
+            return
                 position==getNTerm(nonTerminal).productions.get(production_index).size();
         }
         int nextSymbol(){
@@ -530,7 +530,6 @@ public class CFG{
 
     int [][] genArray()throws Exception{
         state_array=new int[setMap.size()][getNonTerminalNum()+terminals];
-        final int INIT_STATE=0;
         final int VALID=0x1;
         final int SHIFT_REDUCTION=0x2; // shift=2,reduction=0
         final int FINISHED=0x4;
@@ -552,12 +551,10 @@ public class CFG{
                             throw new Exception("reduce-reduce conflict!");
                         }
                         state_array[st.getID()][lookahead+1]=
-                        // pro_id,nonterminal,pro_size,flags
-                        //    12,      8,        8,      4
+                        // pro_id,nonterminal  flags
+                        //    28                 4
                             VALID|
-                            (core.getProductionId()<<20)|
-                            (core.nonTerminal<<12)|
-                            (core.getProductionSize()<<4);
+                            (core.getProductionId()<<4);
                     }
                 }
             }

@@ -6,19 +6,9 @@
 
 namespace SCANNER{
 
-#define END_TOKEN (0)
-#define ERROR_STATE (-1)
-#define UNRECOGNIZED_TOKEN (-2)
-#define MAX_TOKEN_SIZE (80)
-#define CHAR_NUMS (128)
-
-extern const int START_STATE;
-extern int status[][CHAR_NUMS];
-extern int tokens[];
-
 static int current_token;
 static char current_char;
-static int current_state=START_STATE;
+static int current_state;
 
 static char current_string[MAX_TOKEN_SIZE];
 static int string_pointer;
@@ -29,6 +19,15 @@ static inline void pushChar(char c){
         exit(0);
     }
     current_string[string_pointer++]=c;
+}
+
+static inline void setChar(int pos){
+    string_pointer=pos;
+    current_string[string_pointer]='\0';
+}
+
+static inline int getStrPos(){
+    return string_pointer;
 }
 
 static inline void clearString(){
@@ -62,17 +61,15 @@ int isEOF(){
     return current_char==EOF;
 }
 
-int isWhite(){
-    return current_token==5;
-}
-
 const char* getTokenType(){
     return nullptr;
 }
 
 void nextToken(){
     int state;
-    int lastToken=tokens[current_state];
+    int lastToken=-1;
+    off_t lastRecognized=EOF;
+    int lastPos;
     int token;
 
     clearString();
@@ -82,29 +79,39 @@ void nextToken(){
         current_token=EOF;
         return;
     }
-    while(1){
+    while(true){
         state=nextState(getChar());
         if(isErrorState(state)){
-            if(!isRecognizedToken(lastToken)){
+            if(lastRecognized==EOF){
                 if(!isEOF()) pushChar(getChar());
                 pushChar('\0');
                 printf("%s:unrecognized\n",getTokenString());
                 exit(0);
             }
-            pushChar('\0');
+            setChar(lastPos);
             current_token=lastToken;
-            current_state=START_STATE;
+            current_state=getStartState();
+            if(ftello(stdin)!=lastRecognized){
+                fseeko(stdin,lastRecognized,SEEK_SET);
+            }
             break;
         }
 
         pushChar(getChar());
         nextChar();
-        lastToken=tokens[state];
         current_state=state;
+
+        if(isRecognizedToken(tokens[state])){
+            lastRecognized= ftello(stdin);
+            lastPos=getStrPos();
+            lastToken=tokens[state];
+        }
+
     }
 }
 
 void startAnalyze(){
+    current_state=getStartState();
     nextChar();
     nextToken();
 }

@@ -25,8 +25,6 @@ add_custom_command(
         COMMAND java -jar ${PROJECT_BINARY_DIR}/Constructor.jar
         ${PROJECT_SOURCE_DIR}/constructor/token_list.txt
         ${PROJECT_BINARY_DIR}/cfg_rules.txt
-        ${PROJECT_SOURCE_DIR}/constructor/scanner_part1.txt
-        ${PROJECT_SOURCE_DIR}/constructor/scanner_part2.txt
         DEPEND CFG_rules
         )
 

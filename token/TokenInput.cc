@@ -23,7 +23,7 @@ void TokenInput::_next() {
     else{
         do{
             SCANNER::nextToken();
-        }while (SCANNER::isWhite());
+        }while (SCANNER::isDELIMITER(SCANNER::getToken()));
         cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
     }
 }
@@ -42,7 +42,7 @@ bool TokenInput::hasNext() {
 TokenInput::TokenInput(){
     SCANNER::startAnalyze();
 
-    while (SCANNER::isWhite()){
+    while (SCANNER::isDELIMITER(SCANNER::getToken())){
         SCANNER::nextToken();
     }
     cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());

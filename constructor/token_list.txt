@@ -3,6 +3,6 @@
 \- -
 \* *
 / /
-[\t\s\n]+ space
+[\t\s\n]+ delimiter
 \( (
 \) )

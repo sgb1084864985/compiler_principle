@@ -9,10 +9,15 @@ public class production implements Iterable<Integer>{
     static int id_cnt=0;
     int id;
 
-    production(){
+    int start_symbol;
+
+    production(int sTerminal){
         id=id_cnt;
         id_cnt++;
+        start_symbol=sTerminal;
     }
+
+    int getStartSymbol(){return start_symbol;}
 
     Integer get(int index){
         return right_hand_list.get(index);

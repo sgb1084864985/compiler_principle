@@ -37,6 +37,8 @@ private:
     int start_state=0;
     int symbols=0;
     int* transitions= nullptr;
+    int* p_size= nullptr;
+    int* nonterm= nullptr;
 
     class SymbolArgs :public Iterator<symbol_ptr>{
     private:
@@ -81,11 +83,12 @@ public:
                 input.next();
             }
             else{
-                Production& p=actions[transition>>20];
-                int len=(transition>>4)&0xff;
+                int pro_index=transition>>4;
+                Production& p=actions[pro_index];
+                int len=p_size[pro_index];
                 SymbolArgs args(value_stack,(int)value_stack.size()-len);
                 symbol_ptr reducedSymbol=p(args,con);
-                reducedSymbol->setID((transition>>12)&0xff);
+                reducedSymbol->setID(nonterm[pro_index]);
                 input.unget(reducedSymbol);
                 value_stack.resize(value_stack.size()-len);
                 state_stack.resize((state_stack.size()-len));

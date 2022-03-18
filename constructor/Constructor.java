@@ -2,6 +2,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -18,10 +19,6 @@ public class Constructor{
         BufferedOutputStream out=new BufferedOutputStream(new FileOutputStream(new File("token_data.cpp")));
         Scanner input=new Scanner(new File(args[0]));
         ScannerBuilder builder=new ScannerBuilder();
-
-        if(args.length>=4){
-            builder.setInputFile(args[2], args[3]);
-        }
 
         counter cnt=new counter();
 
@@ -47,7 +44,7 @@ public class Constructor{
                 cnt.Inc();
                 return info;
             }
-        }, out);
+        }, map,out);
         input.close();
         out.close();
 
@@ -67,13 +64,15 @@ public class Constructor{
         };
 
         final int n=Integer.valueOf(input2.nextLine());
+        ArrayList<production> table=new ArrayList<>();
         for(int i=0;i<n;i++){
             String nString=input2.nextLine();
             int id=map.compute(nString,func).ord();
             NonTerminal nonTerminal=cfg.getNTerm(id);
             String right_hand_side=input2.nextLine();
             String[] symbols=right_hand_side.split(" +");
-            production product=new production();
+            production product=new production(id);
+            table.add(product);
             nonTerminal.addProduction(product);
             if(symbols.length==0){
                 nonTerminal.setMayEmpty();
@@ -85,12 +84,12 @@ public class Constructor{
 
         // final int symbols=cfg.getNonTerminalNum()+terminals;
         cfg.LALR_to_DFA();
-        writeCFG(cfg,writer);
+        writeCFG(cfg,writer,table);
         input2.close();
         writer.close();
     }
 
-    static void writeCFG(CFG cfg,PrintWriter out)throws Exception{
+    static void writeCFG(CFG cfg,PrintWriter out,ArrayList<production> table)throws Exception{
         int array[][]=cfg.genArray();
         out.println("#include \"MyParser.hpp\"\n");
 
@@ -104,6 +103,30 @@ public class Constructor{
             out.print("\n");
         }
         out.println("\t};");
+
+        out.printf("\tstatic int _p_size[]={");
+        for(int i=0;i<table.size();i++){
+            if(i%12==0){
+                out.printf("\n\t\t");
+            }
+            production p=table.get(i);
+            out.print(p.size()+",");
+        }
+        out.println("\n\t};");
+
+        out.printf("\tstatic int _p_nonterm[]={");
+        for(int i=0;i<table.size();i++){
+            if(i%12==0){
+                out.printf("\n\t\t");
+            }
+            production p=table.get(i);
+            out.print(p.getStartSymbol()+",");
+
+        }
+        out.println("\n\t};");
+
+        out.println("\tp_size=_p_size;");
+        out.println("\tnonterm=_p_nonterm;");
         out.println("\ttransitions=(int*)array;");
         out.printf("\tstart_state=%d;\n",cfg.getInitState());
         out.printf("\tsymbols=%d;\n",cfg.terminals+cfg.getNonTerminalNum());

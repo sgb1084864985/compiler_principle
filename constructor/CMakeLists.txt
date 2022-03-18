@@ -17,8 +17,5 @@ set(
         constructor/reParser.java
         constructor/ScannerBuilder.java
         constructor/tokenInfo.java
-        constructor/scanner_part1.txt
-        constructor/scanner_part2.txt
-        constructor/token_list.txt
         PARENT_SCOPE
 )
