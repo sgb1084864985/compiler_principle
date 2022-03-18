@@ -1,0 +1,24 @@
+set(
+        JAVA_JAR_LIST
+        constructor/Constructor.java
+        constructor/abstractState.java
+        constructor/AbstractAutomata.java
+        constructor/Automata.java
+        constructor/CFG.java
+        constructor/DFA.java
+        constructor/DFA_factory.java
+        constructor/element.java
+        constructor/elementFactory.java
+        constructor/NFA.java
+        constructor/nfaFactory.java
+        constructor/NonTerminal.java
+        constructor/Operator.java
+        constructor/production.java
+        constructor/reParser.java
+        constructor/ScannerBuilder.java
+        constructor/tokenInfo.java
+        constructor/scanner_part1.txt
+        constructor/scanner_part2.txt
+        constructor/token_list.txt
+        PARENT_SCOPE
+)

@@ -1,6 +1,6 @@
-.idea/
-.vscode/
+/.idea/
+/.vscode/
 test.*
 *.o
 *.out
-cmake-build-debug/
+/cmake-build-debug/

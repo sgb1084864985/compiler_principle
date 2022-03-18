@@ -9,7 +9,10 @@
 
 class Productions{
 public:
-    vector<Production>& getActions();
+    vector<Production>& getProductions();
+
+private:
+    vector<Production> productions;
 };
 
 #endif //COMPILER_PRODUCTIONS_H

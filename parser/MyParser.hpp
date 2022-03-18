@@ -19,18 +19,15 @@ public:
 
 //    constexpr static int init_symbol=0;
 
-    constexpr static int UNDEFINED=-1;
-    constexpr static int FINISHED=-2;
+    constexpr static int VALID=0x1;
+    constexpr static int SHIFT_REDUCE=0x2;
+    constexpr static int FINISHED=0x4;
 
     // TODO:implement
-    void setStartState(){
-        std::cout<<"this is a parser";
-    }
-    void setTransitions(){}
+    void getCFG_data();
 
-    MyParser(vector<Production>&actions):actions(actions){
-        setStartState();
-        setTransitions();
+    explicit MyParser(vector<Production>&actions):actions(actions){
+        getCFG_data();
     }
 private:
     // const char* symbol_table[symbol_num];
@@ -38,16 +35,17 @@ private:
     vector<Production>& actions;
 
     int start_state=0;
-    int** transitions= nullptr;
+    int symbols=0;
+    int* transitions= nullptr;
 
-    class SymbolArgs :public Iterator<SymbolValue>{
+    class SymbolArgs :public Iterator<SymbolValue*>{
     private:
         int begin;
         vector<SymbolValue*>& stack;
     public:
         SymbolArgs(vector<SymbolValue*>& stack,int begin):begin(begin),stack(stack){}
-        SymbolValue& next() override{
-            return *stack[begin++];
+        SymbolValue* next() override{
+            return stack[begin++];
         }
         bool hasNext() override{
             return begin==stack.size();
@@ -61,29 +59,35 @@ public:
 
         state_stack.push_back(start_state);
 
+        int current_state;
         while (input.hasNext()){
-            int current_state=state_stack.back();
+            current_state=state_stack.back();
             SymbolValue& symbol=input.next();
-            int transition=transitions[current_state][symbol.getID()];
+            int transition=transitions[symbols*current_state+symbol.getID()];
 
-            if(UNDEFINED==transition){
+            if(!(transition&VALID)){
                 // TODO:error
+                std::cout<<"error"<<std::endl;
             }
-            if(FINISHED==transition){
+            if(transition&FINISHED){
+                break;
                 // TODO:end
             }
-            if(transition<FINISHED){
+            if(transition&SHIFT_REDUCE){
                 value_stack.push_back(&symbol);
-                state_stack.push_back(-transition+FINISHED-1);
+                state_stack.push_back(transition>>4);
             }
             else{
-                Production& p=actions[transition];
-                int len=p.size();
+                Production& p=actions[transition>>12];
+                int len=(transition>>4)&0xff;
                 SymbolArgs args(value_stack,(int)value_stack.size()-len);
                 input.unput(p(args, con));
                 value_stack.resize(value_stack.size()-len);
                 state_stack.resize((value_stack.size()-len));
             }
+        }
+        if(!(transitions[current_state*symbols+EOF]&FINISHED)){
+            std::cout<<"error"<<std::endl;
         }
         // TODO:error
     }

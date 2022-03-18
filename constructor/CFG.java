@@ -295,17 +295,20 @@ public class CFG{
         int getProductionId(){
             return getNTerm(nonTerminal).productions.get(production_index).getId();
         }
+        int getProductionSize(){
+            return getNTerm(nonTerminal).productions.get(production_index).size();
+        }
         @Override
         public boolean equals(Object obj) {
             LR0Term term=(LR0Term)obj;
-            return 
+            return
                 term.nonTerminal==nonTerminal &&
                 term.position==position &&
                 term.production_index==production_index;
         }
         @Override
         public int hashCode() {
-            return 
+            return
                 ((nonTerminal&0xffff)<<16) |
                 ((position&0xff)<<8) |
                 (production_index&0xff);
@@ -344,7 +347,7 @@ public class CFG{
             this.dst=dst;
         }
     }
-    
+
     class LALR_Set extends AbstractSet<LALR_Term>{
         HashMap<LR0Term,LALR_Term> set=new HashMap<>();
 
@@ -404,7 +407,7 @@ public class CFG{
             }
 
             int pos=lr.position;
-            
+
             production p=getNTerm(lr.nonTerminal).productions.get(lr.production_index);
 
             int symbol=p.get(pos);
@@ -446,7 +449,7 @@ public class CFG{
                 return v;
             });
         }
-        
+
         map.forEach((k,v)->{
             queue.add(new tempRecord(s, k, v));
         });
@@ -492,14 +495,14 @@ public class CFG{
         kernel.add(init_term);
         LinkedList<tempRecord> queue=new LinkedList<>();
         queue.addLast(new tempRecord(null,-1,kernel));
-        
-        
+
+
         counter cnt=new counter();
 
         while(!queue.isEmpty()){
             tempRecord tmp=queue.pollFirst();
             LALR_Set s=E_Closure(tmp.dst);
-            
+
             if(init){
                 init_set=s;
                 init=false;
@@ -545,7 +548,10 @@ public class CFG{
                             if(state_array[st.getID()][lookahead]!=0){
                                 throw new Exception("reduce-reduce conflict!");
                             }
-                            state_array[st.getID()][lookahead]=VALID|(core.getProductionId()<<4);
+                            state_array[st.getID()][lookahead]=
+                                VALID|
+                                (core.getProductionId()<<12)|
+                                (core.getProductionSize()<<4);
                         }
                     }
                 }

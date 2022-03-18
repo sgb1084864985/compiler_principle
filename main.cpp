@@ -9,6 +9,6 @@ using namespace std;
 int main(){
     cout<<"This is main file"<<endl;
     Productions p;
-    MyParser parser(p.getActions());
+    MyParser parser(p.getProductions());
     return 0;
 }

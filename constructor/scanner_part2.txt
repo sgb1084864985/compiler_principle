@@ -49,6 +49,10 @@ int isWhite(){
     return current_char==5;
 }
 
+const char* getTokenType(){
+    return nullptr;
+}
+
 void nextToken(){
     int state;
     int lastToken=tokens[current_state];
