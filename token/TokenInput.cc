@@ -2,9 +2,6 @@
 
 #include "TokenInput.h"
 
-
-#include "scanner.h"
-
 #include "Token.hpp"
 
 void TokenInput::unget(const symbol_ptr& val) {
@@ -17,14 +14,23 @@ symbol_ptr TokenInput::next() { // pop top, return new top
 }
 
 void TokenInput::_next() {
+
     if(!unputCache.empty()){
         unputCache.pop_back();
     }
     else{
+        symbol_ptr new_token;
+        int tid;
+
         do{
-            SCANNER::nextToken();
-        }while (SCANNER::isDELIMITER(SCANNER::getToken()));
-        cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
+            if(!hasNext()) {
+                new_token=std::make_shared<Token>(EOF,"","$");
+                break;
+            }
+            scanner2.nextToken();
+            tid=scanner2.getToken();
+        }while (!(new_token=actions[tid](scanner2.getTokenString(),scanner2,con)).use_count());
+        cache=new_token;
     }
 }
 
@@ -36,15 +42,24 @@ symbol_ptr TokenInput::top() {
 }
 
 bool TokenInput::hasNext() {
-    return !SCANNER::isEOF();
+    return !scanner2.isEOF();
 }
 
-TokenInput::TokenInput(){
-    SCANNER::startAnalyze();
+TokenInput::TokenInput(TokenActions &actions_obj, Scanner2 &scanner2, TokenContext &con)
+        : actions(actions_obj.getTokenActions()), scanner2(scanner2), con(con) {
+    symbol_ptr new_token;
 
-    while (SCANNER::isDELIMITER(SCANNER::getToken())){
-        SCANNER::nextToken();
+    int tid=scanner2.getToken();
+    if(tid==EOF){
+        cache= std::make_shared<Token>(EOF,"","$");
+        return;
     }
-    cache=std::make_shared<Token>(SCANNER::getToken(),SCANNER::getTokenString(),SCANNER::getTokenType());
 
+    // is delimiter
+    if(!(new_token=actions[tid](scanner2.getTokenString(),scanner2,con)).use_count()){
+        _next();
+    }
+    else{
+        cache=new_token;
+    }
 }

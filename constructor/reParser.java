@@ -103,6 +103,13 @@ public class reParser{
                         case 's': c=' ';break;
                         case 'n': c='\n';break;
                         case 't': c='\t';break;
+                        case 'f': c='\f';break;
+                        case 'v': c=0x0b;break;
+                        case '0': c=0;break;
+                        case 'a': c=0x7;break;
+                        case 'b': c=0x8;break;
+                        case 'r': c=0x0d;break;
+                        case 'e': c=0x1b;break;
                         default: c=escape_c;
                     }
                 }

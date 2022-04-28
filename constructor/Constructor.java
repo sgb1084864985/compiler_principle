@@ -16,7 +16,7 @@ public class Constructor{
             throw new Exception("too few arguments");
         }
         HashMap<String,tokenLabel> map=new HashMap<>();
-        BufferedOutputStream out=new BufferedOutputStream(new FileOutputStream(new File("token_data.cpp")));
+        BufferedOutputStream out=new BufferedOutputStream(new FileOutputStream(new File("token_data")));
         Scanner input=new Scanner(new File(args[0]));
         ScannerBuilder builder=new ScannerBuilder();
 

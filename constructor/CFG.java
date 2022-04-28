@@ -149,7 +149,7 @@ public class CFG{
         }
 
         boolean change=false;
-        do{// check for empty strings and its transtion
+        do{// check for empty strings and its transition
             change=false;
             for(int i=0;i<n;i++){
                 NonTerminal nt=getNTermByIndex(i);
@@ -427,7 +427,7 @@ public class CFG{
         return s;
     }
 
-    void addTranstionsToQueue(LALR_Set s,LinkedList<tempRecord> queue){
+    void addTransitionsToQueue(LALR_Set s,LinkedList<tempRecord> queue){
         HashMap<Integer,LinkedList<LALR_Term>> map=new HashMap<>();
         for(LALR_Term item:s){
             LR0Term lr=item.core;
@@ -513,7 +513,7 @@ public class CFG{
                 if(v==null){
                     v=new state<>(cnt.curInteger(),s);
                     cnt.Inc();
-                    addTranstionsToQueue(s, queue);
+                    addTransitionsToQueue(s, queue);
                 }
                 return v;
             }).getSelf();

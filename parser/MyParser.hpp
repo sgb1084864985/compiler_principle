@@ -23,7 +23,6 @@ public:
     constexpr static int SHIFT_REDUCE=0x2;
     constexpr static int FINISHED=0x4;
 
-    // TODO:implement
     void getCFG_data();
 
     explicit MyParser(vector<Production>&actions):actions(actions){
@@ -50,7 +49,7 @@ private:
             return stack[begin++];
         }
         bool hasNext() override{
-            return begin==stack.size();
+            return begin<stack.size();
         }
     };
 

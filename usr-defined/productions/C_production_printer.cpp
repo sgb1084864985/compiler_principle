@@ -2,9 +2,9 @@
 // Created by zlz on 2022/3/16.
 //
 #include <fstream>
-#include "Productions.h"
+#include "CProductions.h"
 int main(){
-    Productions p;
+    CProductions p;
     auto action=p.getProductions();
     std::ofstream output;
     output.open("cfg_rules.txt",std::ios::out);

@@ -22,37 +22,11 @@ public class ScannerBuilder{
 
         DFA_Impl dfa=(DFA_Impl)parser.parseToDfaWithMultiPattern(ss,tt,"char");
 
-        writer.println("#include \"scanner.h\"");
-        writer.println("namespace SCANNER{");
-
-        writer.println("\nenum class TokenLabel{");
-
-        for(tokenLabel label:map.values()){
-            String str=label.toString();
-            if(str.matches("[_a-zA-Z][_a-zA-Z0-9]*")){
-                str=str.toUpperCase();
-                writer.printf("\t%s=%d,\n",str,label.ord());
-            }
-        }
-
-        writer.println("};\n");
-
-        for(tokenLabel label:map.values()){
-            String str=label.toString();
-            if(str.matches("[_a-zA-Z][_a-zA-Z0-9]*")){
-                str=str.toUpperCase();
-                writer.printf("int is%s(int token){return token==(int)(TokenLabel::%s);}\n",str,str);
-            }
-        }
-
         int start=dfa.start;
         int size=dfa.size();
-        int tokens[]=new int[size];
+        int []tokens=new int[size];
 
-        writer.print('\n');
-        writer.println("const int START_STATE ="+start+";");
-        writer.println("int getStartState(){return START_STATE;}");
-        writer.println("int status[][CHAR_NUMS]={");
+        writer.print(size+"\n"+CHAR_SIZE+"\n"+size+"\n"+start+"\n");
 
         for(int i=0;i<size;i++){
             tokens[i]=UNRECOGNIZED_TOKEN;
@@ -71,22 +45,15 @@ public class ScannerBuilder{
                 int token=((lexChar)k).c;
                 table[token]=v;
             });
-            writer.print("\t");
 
             for(int state:table){
-                writer.print(state+",");
+                writer.println(state);
             }
-            writer.print('\n');
         }
-        writer.println("};");
-        writer.println("int tokens[]={");
-        writer.print("    ");
         for(int token:tokens){
-            writer.print(token+",");
+            writer.println(token);
         }
-        writer.println("\n};");
 
-        writer.println("}");
         writer.flush();
         out.close();
     }

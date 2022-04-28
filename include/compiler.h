@@ -1,12 +1,14 @@
 // compiler.hpp
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
+
 #include <functional>
 #include <utility>
 #include <vector>
 #include <string>
 #include <memory>
 #include <iostream>
+#include <sstream>
 
 #ifdef DEBUG
 #define DEBUG_TEST(x) do{x}while(0);
@@ -29,13 +31,13 @@ class Context{
 
 class SymbolValue{
 public:
-    int getID() const{
+    [[nodiscard]] int getID() const{
         return id;
     }
     void setID(int i){
         this->id=i;
     }
-virtual void print(){std::cout<<"SymbolValue:id="<<id<<std::endl;}
+    virtual void print(std::ostream &out_port)=0;
 private:
     int id=-1;
 
@@ -52,20 +54,25 @@ public:
 
     // like "i","j","1.0","if"
     virtual const char * getText()=0;
+
+    void print(std::ostream &out_port) override{
+        out_port<<getText();
+    }
 };
 
 using symbol_ptr=std::shared_ptr<SymbolValue>;
 using symbol_iterator=Iterator<symbol_ptr>;
-using handler=function<symbol_ptr (symbol_iterator &,Context&)>;
 
 class Production{
+    using handler=function<symbol_ptr (Production& self,symbol_iterator &,Context&)>;
+
 private:
     handler action;
 public:
     const char* left_hand_side;
     const char* right_hand_side;
     symbol_ptr operator()(symbol_iterator &it,Context&con){
-        return action(it,con);
+        return action(*this,it,con);
     }
 
     Production(
@@ -77,6 +84,7 @@ public:
             action(std::move(action)){
     }
 };
+
 
 // class Production{
 //     public:

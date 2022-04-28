@@ -30,6 +30,7 @@ class lexChar implements element{
     }
     @Override
     public boolean equals(Object obj) {
+        if(obj==null) return false;
         lexChar l=(lexChar)obj;
         return c==l.c;
     }
@@ -40,8 +41,9 @@ class lexChar implements element{
 
     @Override
     public String toString() {
-        if(c=='\t') return "\t";
-        if(c=='\n') return "\n";
+        if(Character.isISOControl(c)){
+            return "\\"+Integer.toString(c);
+        }
         return String.valueOf(c);
     }
     @Override

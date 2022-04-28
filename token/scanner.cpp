@@ -1,8 +1,8 @@
 // scanner.cpp
 
 #include "scanner.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 namespace SCANNER{
 

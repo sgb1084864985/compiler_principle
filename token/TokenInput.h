@@ -6,6 +6,8 @@
 #define COMPILER_TOKENINPUT_H
 
 #include "compiler.h"
+#include "Scanner2.h"
+#include "TokenActions.h"
 #include "Token.hpp"
 #include <vector>
 #include <stdexcept>
@@ -15,11 +17,17 @@ public:
     symbol_ptr next() override;
     symbol_ptr top();
     bool hasNext() override;
-    TokenInput();
+    TokenInput(TokenActions &actions_obj, Scanner2 &scanner2, TokenContext &con);
 
 private:
     std::vector<symbol_ptr> unputCache;
     symbol_ptr cache;
+
+private:
+    //from outside
+    TokenContext& con;
+    Scanner2& scanner2;
+    vector<TokenAction> actions;
 
 private:
     void _next();
