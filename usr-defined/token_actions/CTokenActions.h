@@ -8,6 +8,8 @@
 #include "TokenActions.h"
 class CTokenActions :public TokenActions{
     vector<TokenAction> lstTokenActions;
+    vector<std::string > _regx;
+    vector<std::string > _names;
 public:
     vector<TokenAction>& getTokenActions()override;
     void printTokens()override;

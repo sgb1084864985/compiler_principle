@@ -66,8 +66,8 @@ vector<TokenAction> &CTokenActions::getTokenActions() {
     auto normal_func=[](TokenAction& self,const char* text, Scanner2&scan, TokenContext& con){
         return std::make_shared<Token>(self.id,text,self.name.c_str());
     };
-    constexpr int buf_len=80;
-    vector<string> regx=
+//    constexpr int buf_len=80;
+    static vector<string> regx=
             {DELIMITER,INTEGER,FLOAT,STR,"\\+","\\-","\\*","/","\\(","\\)","\\[","\\]",
              "\\{","\\}","\\->","\\+\\+","\\-\\-","\\.","sizeof","\\&","\\~","\\!","\\%",
              "<<",">>","<=",">=","==","!=","\\^","\\|","\\?",":","&&","\\|\\|","=","\\*=",
@@ -89,7 +89,7 @@ vector<TokenAction> &CTokenActions::getTokenActions() {
              ";",
              ID,};
 
-    vector<string > names =
+    static vector<string > names =
             {"delimiter","integer","Float","str","+","-","*","/","(",")","[","]",
              "{","}","->","++","--",".","sizeof","&","~","!","%",
              "<<",">>","<=",">=","==","!=","^","|","?",":","&&","||","=","*=",
@@ -109,14 +109,9 @@ vector<TokenAction> &CTokenActions::getTokenActions() {
              "_Generic",
              "goto","continue","break","return",
              ";",
-             "id",};
+             "id",
+             "enumerate_constant","typedef_name"};
 
-    DEBUG_TEST(
-            if(names.size()!=regx.size()){
-                throw std::logic_error("tokens and names not match");
-            };
-    )
-    ASSERT(names.size()==regx.size())
     for(int i=0;i<regx.size();i++){
         lstTokenActions.emplace_back(names[i],regx[i],normal_func,i);
     }
@@ -124,11 +119,17 @@ vector<TokenAction> &CTokenActions::getTokenActions() {
     lstTokenActions[0].action=[](TokenAction& self,const char* text, Scanner2&scan, TokenContext& con){
         return std::shared_ptr<Token>();
     };
+    regx.swap(_regx);
+    names.swap(_names);
     return lstTokenActions;
 }
 
 void CTokenActions::printTokens() {
+    std::cout<<_regx.size()<<std::endl;
     for(auto & item:lstTokenActions){
         std::cout<<item.regx<<" "<<item.name<<std::endl;
+    }
+    for(unsigned int i=_regx.size();i<_names.size();i++){
+        std::cout<<_names[i]<<std::endl;
     }
 }

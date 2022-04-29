@@ -21,20 +21,11 @@ public class Constructor{
         ScannerBuilder builder=new ScannerBuilder();
 
         counter cnt=new counter();
-
-        builder.build(new Iterator<String>() {
-            @Override
-            public String next() {
-                return input.next();
-            }
+        int num_regx=input.nextInt();
+        Iterator<tokenInfo> info_it=new Iterator<tokenInfo>() {
             @Override
             public boolean hasNext() {
                 return input.hasNext();
-            }
-        }, new Iterator<tokenInfo>() {
-            @Override
-            public boolean hasNext() {
-                return true;
             }
             @Override
             public tokenInfo next() {
@@ -43,8 +34,24 @@ public class Constructor{
                 map.put(label, info);
                 cnt.Inc();
                 return info;
+            };
+        };
+
+        builder.build(new Iterator<String>() {
+            @Override
+            public String next() {
+                return input.next();
             }
-        }, map,out);
+            @Override
+            public boolean hasNext() {
+                return cnt.curInteger()<num_regx;
+            }
+        }, info_it, map,out);
+
+        while(info_it.hasNext()){
+            info_it.next();
+        }
+
         input.close();
         out.close();
 

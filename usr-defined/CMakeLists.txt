@@ -1,6 +1,7 @@
 
 add_subdirectory(productions)
 add_subdirectory(token_actions)
+add_subdirectory(attributes)
 
 set(
         SRC_LIST
@@ -13,5 +14,6 @@ set(
         "${INCLUDE_LST}"
         "${CMAKE_CURRENT_SOURCE_DIR}/productions"
         "${CMAKE_CURRENT_SOURCE_DIR}/token_actions"
+        "${CMAKE_CURRENT_SOURCE_DIR}/attributes"
         PARENT_SCOPE
 )

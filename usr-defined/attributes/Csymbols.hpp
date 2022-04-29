@@ -12,6 +12,7 @@ namespace CSym {
     using primary_expr = NonTerminal;
     using postfix_expr = NonTerminal;
     using String=NonTerminal;
+    using constant=NonTerminal;
     using generic_selection=NonTerminal;
     using generic_assoc_list=NonTerminal;
     using generic_association=NonTerminal;
@@ -98,30 +99,6 @@ namespace CSym {
 //    };
 
 }
-//------------------------------------------------------
-// old value
-//------------------------------------------------------
-class Operand:public SymbolValue{
 
-};
-
-using operand_ptr=std::shared_ptr<Operand>;
-using Op2=function<operand_ptr(operand_ptr,operand_ptr)>;
-
-class BinaryOperator:public SymbolValue{
-    Op2 op;
-public:
-    explicit BinaryOperator(Op2 op):op(std::move(op)){}
-    operand_ptr operator()(operand_ptr x1,operand_ptr x2){
-        return op(std::move(x1),std::move(x2));
-    }
-};
-
-class OperandInt:public Operand{
-    int val;
-public:
-    explicit OperandInt(int i):val(i){}
-    int getValue()const{return val;}
-};
 
 #endif

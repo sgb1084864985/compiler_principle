@@ -45,6 +45,15 @@ namespace AST {
 
         void _print(unsigned int ord, symbol_ptr &root);
     };
+
+    template<class T>
+    symbol_ptr genTree(Production& p, symbol_iterator&it, Context&con){
+        auto ret = std::make_shared<T>(p,p.left_hand_side);
+        while (it.hasNext()){
+            (ret->children).push_back(it.next());
+        }
+        return ret;
+    }
 }
 
 #endif //COMPILER_AST_H

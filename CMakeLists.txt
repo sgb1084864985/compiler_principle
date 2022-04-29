@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 project(compiler)
 
 set(CMAKE_CXX_STANDARD 20)
-macro(DEBUG)
-endmacro()
+
+#set(GRAMMAR_SYNC ON)
 
 find_package(Java REQUIRED)
 
@@ -30,38 +30,44 @@ include_directories(
         ${INCLUDE_LST}
 )
 
-add_executable(TokenTableWrapper token/TokenTableWrapper.cpp)
-add_executable(CFG_Generator usr-defined/productions/CProductions.cc usr-defined/productions/C_production_printer.cpp)
-add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
 
-add_custom_command(
-        OUTPUT cfg_rules.txt
-        COMMAND CFG_Generator
-        DEPENDS CFG_Generator
-)
+if(GRAMMAR_SYNC)
+    add_executable(TokenTableWrapper token/TokenTableWrapper.cpp)
+    add_executable(CFG_Generator usr-defined/productions/CProductions.cc usr-defined/productions/C_production_printer.cpp)
+    add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
 
-add_custom_command(
-        OUTPUT TokenList
-        COMMAND TokenListGenerator > TokenList
-        DEPENDS TokenListGenerator
-)
+    add_custom_command(
+            OUTPUT cfg_rules.txt
+            COMMAND CFG_Generator
+            DEPENDS CFG_Generator
+    )
 
-add_custom_command(
-        OUTPUT CFG_data.cpp token_data
-        COMMAND java -jar Constructor.jar TokenList cfg_rules.txt
-        DEPENDS cfg_rules.txt TokenList Constructor.jar
-)
+    add_custom_command(
+            OUTPUT TokenList
+            COMMAND TokenListGenerator > TokenList
+            DEPENDS TokenListGenerator
+    )
 
-add_custom_command(
-        OUTPUT CTokenTable.cpp
-        COMMAND TokenTableWrapper CTokenTable <token_data >CTokenTable.cpp
-        DEPENDS TokenTableWrapper token_data
-)
+    add_custom_command(
+            OUTPUT CFG_data.cpp token_data
+            COMMAND java -jar Constructor.jar TokenList cfg_rules.txt
+            DEPENDS cfg_rules.txt TokenList Constructor.jar
+    )
+
+    add_custom_command(
+            OUTPUT CTokenTable.cpp
+            COMMAND TokenTableWrapper CTokenTable <token_data >CTokenTable.cpp
+            DEPENDS TokenTableWrapper token_data
+    )
+
+endif()
+
 
 message(STATUS ${SRC_LIST})
 add_executable(Main ${SRC_LIST})
 target_compile_definitions(Main PUBLIC DEBUG)
 
 add_executable(TEST test.cpp)
-
 target_compile_definitions(TEST PUBLIC DEBUG)
+
+add_executable(CONSTRUCTOR usr-defined/C_rule_attr_initializer.cpp)

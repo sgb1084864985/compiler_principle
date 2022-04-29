@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include "ProductionInfo.h"
 
 #ifdef DEBUG
 #define DEBUG_TEST(x) do{x}while(0);
@@ -29,9 +30,18 @@ public:
     virtual bool hasNext()=0;
 };
 
+// Class: Context
+// is a tag interface.
+// records the global information during compilation.
+// should be implemented.
 class Context{
+public:
+    // no use but to make the class virtual.
+    virtual void describe(){}
 };
 
+// represent symbols in CFG.
+// should only have two subclasses: non-terminal terminal
 class SymbolValue{
 public:
     [[nodiscard]] int getID() const{
@@ -46,16 +56,19 @@ private:
 
 };
 
+// represent terminals in CFG
 class TerminalValue:public SymbolValue{
 public:
-    // contains keywords like "if","int"
-    // operators: like "<=","<<","->","."
-    // "id" ([_a-zA-Z][_0-9a-zA-Z]*)
+    ////example/////
+    // "identifier"
     // "number"
-    // "float"
+    // "Float"
+    ////////////////
     virtual const char* getType()=0;
 
+    ////////////example/////////////
     // like "i","j","1.0","if"
+    ////////////////////////////////
     virtual const char * getText()=0;
 
     void print(std::ostream &out_port) override{
@@ -66,14 +79,25 @@ public:
 using symbol_ptr=std::shared_ptr<SymbolValue>;
 using symbol_iterator=Iterator<symbol_ptr>;
 
+
+// represents one cfg rule.
 class Production{
     using handler=function<symbol_ptr (Production& self,symbol_iterator &,Context&)>;
 
 private:
     handler action;
+    ProductionInfo* attributes;
 public:
     const char* left_hand_side;
     const char* right_hand_side;
+
+    void setAttrs(ProductionInfo& attr){
+        attributes=&attr;
+    }
+    const ProductionInfo& getAttrs(){
+        return *attributes;
+    }
+
     symbol_ptr operator()(symbol_iterator &it,Context&con){
         return action(*this,it,con);
     }
@@ -81,30 +105,14 @@ public:
     Production(
             const char*left_hand_side,
             const char*right_hand_side,
-            handler action)
+            handler action,
+            ProductionInfo& attr=*ProductionInfo::default_info)
             :left_hand_side(left_hand_side),
             right_hand_side(right_hand_side),
-            action(std::move(action)){
+            action(std::move(action)),
+            attributes(&attr){
     }
 };
 
-
-// class Production{
-//     public:
-//     virtual const char* getLeftHandSide()=0;// eg. "exp"
-//     virtual const char* getRightHandSide()=0;// eg. "exp + term", must split by space
-//     virtual SymbolValue action(Iterator<SymbolValue>& args,Context& context)=0;
-//     // eg.
-//     // args = [ exp, +, term ]
-//     // you need to return exp(exp+term)
-//     // if neccessary, add them to context (into member namespaces?)
-// };
-
-//class EmptyValue: public SymbolValue{
-//    int id;
-//public:
-//    EmptyValue(int id):id(id){}
-//    int getID(){return id;}
-//};
 
 #endif
