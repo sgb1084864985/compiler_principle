@@ -60,6 +60,8 @@ add_custom_command(
 
 message(STATUS ${SRC_LIST})
 add_executable(Main ${SRC_LIST})
+target_compile_definitions(Main PUBLIC DEBUG)
 
 add_executable(TEST test.cpp)
-#add_dependencies(Main Constructor)
+
+target_compile_definitions(TEST PUBLIC DEBUG)

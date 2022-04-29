@@ -48,6 +48,8 @@ public class Constructor{
         input.close();
         out.close();
 
+        System.out.println("scanner build done");
+
         Scanner input2=new Scanner(new File(args[1]));
         PrintWriter writer=new PrintWriter(new File("CFG_data.cpp"));
 
@@ -58,11 +60,11 @@ public class Constructor{
             if(v==null){
                 v=new tokenLabel(k,cnt.curInteger());
                 cnt.Inc();
-                cfg.addNonterminal(new NonTerminal());
+                cfg.addNonterminal(new NonTerminal(k));
             }
             return v;
         };
-
+        
         final int n=Integer.valueOf(input2.nextLine());
         ArrayList<production> table=new ArrayList<>();
         for(int i=0;i<n;i++){
@@ -71,7 +73,7 @@ public class Constructor{
             NonTerminal nonTerminal=cfg.getNTerm(id);
             String right_hand_side=input2.nextLine();
             String[] symbols=right_hand_side.split(" +");
-            production product=new production(id);
+            production product=new production(id,symbols);
             table.add(product);
             nonTerminal.addProduction(product);
             if(symbols.length==0){
@@ -82,9 +84,21 @@ public class Constructor{
             }
         }
 
+        boolean legal=true;
+        for(NonTerminalInfo info:cfg.nTermInfos){
+            if(info.notLegal()){
+                legal=false;
+                System.out.println("symbol "+info.nt.label+":no production");
+            }
+        }
+        if(!legal){
+            throw new Exception("error occured");
+        }
         // final int symbols=cfg.getNonTerminalNum()+terminals;
         cfg.LALR_to_DFA();
+        System.out.println("parser build done");
         writeCFG(cfg,writer,table);
+        System.out.println("write parser table done");
         input2.close();
         writer.close();
     }
@@ -92,7 +106,7 @@ public class Constructor{
     static void writeCFG(CFG cfg,PrintWriter out,ArrayList<production> table)throws Exception{
         int array[][]=cfg.genArray();
         out.println("#include \"MyParser.hpp\"\n");
-
+        
         out.println("void MyParser::getCFG_data(){");
         out.println(String.format("\tstatic int array[][%d]={",array[0].length));
         for(int i=0;i<array.length;i++){

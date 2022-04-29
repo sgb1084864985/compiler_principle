@@ -9,11 +9,14 @@
 #include <memory>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 #ifdef DEBUG
 #define DEBUG_TEST(x) do{x}while(0);
+#define ASSERT(x) do{assert(x);}while(0);
 #else
 #define DEBUG_TEST(x)
+#define ASSERT(x)
 #endif
 
 using std::vector;

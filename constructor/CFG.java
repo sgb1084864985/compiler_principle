@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -36,10 +37,11 @@ public class CFG{
     //     return i+terminals;
     // }
     public void addInitSymbol(){
-        NonTerminal nt=new NonTerminal();
+        NonTerminal nt=new NonTerminal("S'");
         NonTerminalInfo info=new NonTerminalInfo(nt);
         nTermInfos.add(info);
-        production p=new production(getInitSymbol());
+        String []old_start_nt_symbol={getNTermByIndex(start).label};
+        production p=new production(getInitSymbol(),old_start_nt_symbol);
         nt.addProduction(p);
         p.add(start+terminals);
         info.followSet.add(EOF);
@@ -149,7 +151,7 @@ public class CFG{
         }
 
         boolean change=false;
-        do{// check for empty strings and its transition
+        do{// check for empty strings and its transtion
             change=false;
             for(int i=0;i<n;i++){
                 NonTerminal nt=getNTermByIndex(i);
@@ -268,16 +270,61 @@ public class CFG{
         }
     }
 
-    class LR0Term{
+    class LR0Term implements Comparable<LR0Term>{
         int nonTerminal;
         int position;
         int production_index;
         // TODO: add empty string
 
+        @Override
+        public int compareTo(CFG.LR0Term arg0) {
+            if(arg0==null) return 1;
+            LR0Term term=(LR0Term)arg0;
+            if(term.production_index==-1){
+                if(production_index==-1){
+                    return Integer.compare(nonTerminal,term.nonTerminal);
+                }
+                return 1;
+            }
+
+            int cmp1=Integer.compare(getProductionId(),term.getProductionId());
+            if(cmp1==0){
+                return Integer.compare(position, term.position);
+            }
+            else{
+                return cmp1;
+            }
+        }
+
         LR0Term(int nonTerminal,int position,int production_index){
             this.nonTerminal=nonTerminal;
             this.position=position;
             this.production_index=production_index;
+        }
+        @Override
+        public String toString() {
+            NonTerminal nt=getNTerm(nonTerminal);
+            production pr=nt.productions.get(production_index);
+            if(pr.text==null){
+                return "(no symbol)";
+            }
+            StringBuilder builder=new StringBuilder();
+
+            builder.append(nt.toString());
+            builder.append("->");
+
+            int i;
+            for(i=0;i<pr.size();i++){
+                if(i==position){
+                    builder.append(". ");
+                }
+                builder.append(pr.text[i]);
+                builder.append(" ");
+            }
+            if(i==position){
+                builder.append(".");
+            }
+            return builder.toString();
         }
         boolean completed(){
             return
@@ -300,18 +347,30 @@ public class CFG{
         }
         @Override
         public boolean equals(Object obj) {
+            if(obj==null) return false;
             LR0Term term=(LR0Term)obj;
+            if(term.production_index==-1){
+                if(production_index==-1){
+                    return term.nonTerminal==nonTerminal;
+                }
+                return false;
+            }
             return
-                term.nonTerminal==nonTerminal &&
-                term.position==position &&
-                term.production_index==production_index;
+                term.getProductionId()==getProductionId() &&
+                term.position==position ;
+
+        }
+        public BigInteger[] getID(){
+            BigInteger
+                ntId=BigInteger.ONE.shiftLeft(nonTerminal),
+                proId=BigInteger.ONE.shiftLeft(production_index+1),
+                posId=BigInteger.ONE.shiftLeft(position);
+
+            return new BigInteger[]{ntId,proId,posId};
         }
         @Override
         public int hashCode() {
-            return
-                ((nonTerminal&0xffff)<<16) |
-                ((position&0xff)<<8) |
-                (production_index&0xff);
+            return getProductionId();
         }
     }
 
@@ -321,6 +380,7 @@ public class CFG{
         Boolean followFirstNullable=null;
         @Override
         public boolean equals(Object obj) {
+            if(obj==null) return false;
             return core.equals(((LALR_Term)obj).core);
         }
         @Override
@@ -335,6 +395,15 @@ public class CFG{
         }
         public Boolean getFollowFirstNullable() {
             return followFirstNullable;
+        }
+        @Override
+        public String toString() {
+            if(lookaheads==null){
+                return core.toString();
+            }
+            else{
+                return core.toString();
+            }
         }
     }
     class tempRecord{
@@ -351,7 +420,7 @@ public class CFG{
     class LALR_Set extends AbstractSet<LALR_Term>{
         HashMap<LR0Term,LALR_Term> set=new HashMap<>();
 
-        BigInteger ntId=BigInteger.ZERO,proId=BigInteger.ZERO,posId=BigInteger.ZERO;
+        BigInteger proId=BigInteger.ZERO,posId=BigInteger.ZERO;
         @Override
         public int size() {
             return set.size();
@@ -372,8 +441,11 @@ public class CFG{
         void calculate(){
             for(LALR_Term item:set.values()){
                 LR0Term lr0=item.core;
-                ntId=ntId.or(BigInteger.ONE.shiftLeft(lr0.nonTerminal));
-                proId=proId.or(BigInteger.ONE.shiftLeft(lr0.production_index+1));
+                int _id=0;
+                if(lr0.production_index!=-1){
+                    _id=lr0.getProductionId();
+                }
+                proId=proId.or(BigInteger.ONE.shiftLeft(_id));
                 posId=posId.or(BigInteger.ONE.shiftLeft(lr0.position));
             }
         }
@@ -382,15 +454,36 @@ public class CFG{
         }
         @Override
         public int hashCode() {
-            return ntId.intValue();
+            return proId.intValue();
         }
         @Override
         public boolean equals(Object arg0) {
+            if(arg0==null) return false;
             LALR_Set other=(LALR_Set)arg0;
-            return
-                ntId.equals(other.ntId)&&
+            int threshold=80;
+            if(other.size()!=size()) return false;
+            if(
                 proId.equals(other.proId)&&
-                posId.equals(other.posId);
+                posId.equals(other.posId)){
+                    if(size()<=threshold){
+                        return set.keySet().equals(other.set.keySet());
+                    }
+                    else{
+                        TreeSet<LR0Term> bin1=new TreeSet<>(set.keySet());
+                        TreeSet<LR0Term> bin2=new TreeSet<>(other.set.keySet());
+                        return bin1.equals(bin2);
+                    }
+            }
+            return false;
+        }
+        @Override
+        public String toString() {
+            StringBuilder builder=new StringBuilder();
+            for(LALR_Term term:set.values()){
+                builder.append(term.toString());
+                builder.append("\n");
+            }
+            return builder.toString();
         }
     }
 
@@ -427,7 +520,7 @@ public class CFG{
         return s;
     }
 
-    void addTransitionsToQueue(LALR_Set s,LinkedList<tempRecord> queue){
+    void addTranstionsToQueue(LALR_Set s,LinkedList<tempRecord> queue){
         HashMap<Integer,LinkedList<LALR_Term>> map=new HashMap<>();
         for(LALR_Term item:s){
             LR0Term lr=item.core;
@@ -513,7 +606,7 @@ public class CFG{
                 if(v==null){
                     v=new state<>(cnt.curInteger(),s);
                     cnt.Inc();
-                    addTransitionsToQueue(s, queue);
+                    addTranstionsToQueue(s, queue);
                 }
                 return v;
             }).getSelf();
@@ -535,6 +628,8 @@ public class CFG{
         final int FINISHED=0x4;
         // 0x8: reserved
         // other: reduction: which production ; shift: next state
+        boolean no_rr_conflict=true;
+
         for(LALR_Set set:setMap.keySet()){
             state<Integer,LALR_Set> st=setMap.get(set);
             for(LALR_Term item:set){
@@ -548,7 +643,18 @@ public class CFG{
                         }
 
                         if(state_array[st.getID()][lookahead+1]!=0){
-                            throw new Exception("reduce-reduce conflict!");
+                            int pid=state_array[st.getID()][lookahead+1]>>4;
+                            production pr=production.getById(pid);
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            System.out.println("reduce-reduce conflict!");
+                            System.out.println(core);
+                            System.out.println("conflicts with");
+                            System.out.print(getNTerm(pr.start_symbol));
+                            System.out.print(" -> ");
+                            System.out.println(pr);
+                            System.out.println("with lookaheads "+lookahead);
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            no_rr_conflict=false;
                         }
                         state_array[st.getID()][lookahead+1]=
                         // pro_id,nonterminal  flags
@@ -562,11 +668,24 @@ public class CFG{
                 int symbol=k;
                 int next_state=setMap.get(v).getID();
                 if(state_array[st.getID()][symbol+1]!=0){
+                    System.out.println("-------------------------");
                     System.out.println("shift-reduce conflict!");
-                    System.out.printf("before:%d,after:%d\n",state_array[st.getID()][symbol+1],VALID|SHIFT_REDUCTION|(next_state<<4));
+                    int pid=state_array[st.getID()][symbol+1]>>4;
+                    production pr=production.getById(pid);
+                    System.out.println("in set");
+                    System.out.println(set);
+                    System.out.println("reduce: ");
+                    System.out.print(getNTerm(pr.start_symbol));
+                    System.out.print(" -> ");
+                    System.out.println(pr);
+                    System.out.println("with lookahead "+symbol);
+                    System.out.println("-------------------------");
                 }
                 state_array[st.getID()][symbol+1]=VALID|SHIFT_REDUCTION|(next_state<<4);
             });
+        }
+        if(!no_rr_conflict){
+            throw new Exception("reduce-reduce conflict!");
         }
         return state_array;
     }
@@ -579,20 +698,20 @@ public class CFG{
             LR0Term lr=src.core;
 
             if(lr.completed()){
-               return; 
+               return;
             }
 
             int pos=lr.position;
-            
+
             production p=getNTerm(lr.nonTerminal).productions.get(lr.production_index);
 
             int symbol=p.get(pos);
-            if(symbol>=terminals){
+            if(symbol>=terminals){ // symbol is a non-terminal
                 LinkedList<Integer> reducedLookaheads=new LinkedList<>();
                 NonTerminal nTerminal=getNTerm(symbol);
                 int pro_num=nTerminal.productions.size();
 
-                if(src.getFollowFirstNullable()==null){
+                if(src.getFollowFirstNullable()==null){ // not set yet
                     int p_size=p.size();
                     int index=pos+1;// the first not nullable symbol after pos
                     for(;index<p_size;index++){
@@ -606,6 +725,7 @@ public class CFG{
                         }
                         else{
                             reducedLookaheads.add(symbol_term);
+                            break;
                         }
                     }
                     if(index==p_size){// all might be null
@@ -630,7 +750,7 @@ public class CFG{
             }
             LALR_Set nextSet=setMap.get(currentSet).getEdge(symbol);
             LALR_Term nextSrc=nextSet.get(lr.getShifted());
-            broadcastLookaheads(nextSrc, lookaheads, nextSet);  
+            broadcastLookaheads(nextSrc, lookaheads, nextSet);
         }
     }
 }
@@ -653,6 +773,10 @@ class NonTerminalInfo{
         if(nt.nullable()){
             firstSet.setMayEmpty();
         }
+    }
+
+    boolean notLegal(){
+        return nt.notLegal();
     }
 }
 

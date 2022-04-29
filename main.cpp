@@ -22,7 +22,7 @@ int main(){
     Context c;
 
     CTokenTable table;
-    Scanner2 scanner2(cin,table.getTokenTable());
+    Scanner2 scanner2(cin>>std::noskipws,table.getTokenTable());
     CTokenActions actions;
     TokenContext tokenContext;
 

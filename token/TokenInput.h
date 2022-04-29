@@ -32,11 +32,11 @@ private:
 private:
     void _next();
 
-    void checkNullptr(SymbolValue* ptr){
+    static void checkNullptr(SymbolValue* ptr){
 #ifdef DEBUG
         if(ptr==nullptr){
-            throw std::logic_error("Symbol value should not be null!")
-        }
+            throw std::logic_error("Symbol value should not be null!");
+        };
 #endif
     }
 };

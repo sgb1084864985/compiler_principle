@@ -5,6 +5,7 @@
 #include "CTokenActions.h"
 #include "Token.hpp"
 
+
 // reference: http://www.quut.com/c/ANSI-C-grammar-l-2011.html
 
 // hex prefix
@@ -19,11 +20,14 @@
 // string prefix
 #define SP "(u8|u|U|L)"
 
-#define ASCII R"([\0\a\b\t\n\v\f\r\e\s!"#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define ASCII         R"([\0\a\b\t\n\v\f\r\e\s!"#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
 #define NO_BACK_SLASH R"([\0\a\b\t\n\v\f\r\e\s!"#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
-#define NO_QUOTE R"([\s!"#$%&\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
-#define NO_D_QUOTE R"([\0\a\b\t\n\v\f\r\e\s!#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
-#define NO_NEW_LINE R"([\0\a\b\t\v\f\r\e\s!"#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define NO_QUOTE      R"([\0\a\b\t\n\v\f\r\e\s!"#$%&\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define NO_D_QUOTE    R"([\0\a\b\t\n\v\f\r\e\s!#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define NO_NEW_LINE   R"([\0\a\b\t\v\f\r\e\s!"#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define TMP_SET_INT   R"([\0\a\b\t\v\f\r\e\s!"#$%&\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+#define TMP_SET_STR   R"([\0\a\b\t\v\f\r\e\s!#$%&'\(\)\*\+\,\-\.\/0123456789:;<=>\?\@\`ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]\^_abcdefghijklmnopqrstuvwxyz\{\}\|\~])"
+
 
 // escape
 #define ES R"((\\(['"\?\\abfnrtv]|[0-7]|[0-7][0-7]|[0-7][0-7][0-7]|x[a-fA-F0-9]+)))"
@@ -36,7 +40,8 @@
 #define INTEGER1 HP HEX "+" IS "?"
 #define INTEGER2 NON_ZERO DIGIT "*" IS "*"
 #define INTEGER3 "0" OCT "*" IS "?"
-#define INTEGER4 CP "?'(" NO_QUOTE "|" NO_BACK_SLASH "|" NO_NEW_LINE "|" ES ")+'"
+//#define INTEGER4 CP "?'(" NO_QUOTE "|" NO_BACK_SLASH "|" NO_NEW_LINE "|" ES ")+'"
+#define INTEGER4 CP "?'(" TMP_SET_INT "|" ES ")+'"
 #define INTEGER "(" INTEGER1 ")|(" INTEGER2 ")|(" INTEGER3 ")|(" INTEGER4 ")"
 
 #define E R"(([Ee][\+\-]?)" DIGIT "+)"
@@ -51,8 +56,8 @@
 #define FLOAT6 HP HEX "+\\." P FS "?"
 
 #define FLOAT FLOAT1 "|" FLOAT2 "|" FLOAT3 "|" FLOAT4 "|" FLOAT5 "|" FLOAT6
-#define STR "(" SP "?\"(" NO_D_QUOTE "|" NO_BACK_SLASH "|" NO_NEW_LINE "|" ES ")*\"" DELIMITER "*)+"
-
+//#define STR "(" SP "?\"(" NO_D_QUOTE "|" NO_BACK_SLASH "|" NO_NEW_LINE "|" ES ")*\"" DELIMITER "*)+"
+#define STR "(" SP "?\"(" TMP_SET_STR "|" ES ")*\"" DELIMITER "*)+"
 
 using std::string;
 vector<TokenAction> &CTokenActions::getTokenActions() {
@@ -63,13 +68,55 @@ vector<TokenAction> &CTokenActions::getTokenActions() {
     };
     constexpr int buf_len=80;
     vector<string> regx=
-            {DELIMITER,ID,INTEGER,FLOAT,STR,"\\+","\\-","\\*","/","\\(","\\)","\\[","\\]",
-             "\\{","\\}","\\->","\\+\\+","\\-\\-","\\."};
+            {DELIMITER,INTEGER,FLOAT,STR,"\\+","\\-","\\*","/","\\(","\\)","\\[","\\]",
+             "\\{","\\}","\\->","\\+\\+","\\-\\-","\\.","sizeof","\\&","\\~","\\!","\\%",
+             "<<",">>","<=",">=","==","!=","\\^","\\|","\\?",":","&&","\\|\\|","=","\\*=",
+             "/=","%=","\\+=","\\-=","<<=",">>=","&=","\\^=","\\|=",",","<",">","__func__",
+             "typedef","extern","static","_Thread_local","auto","register",
+             "void","char","short","int","long","float","double","signed","unsigned","_Bool","_Complex","_Imaginary",
+             "struct","union",
+             "enum",
+             "_Atomic","const","restrict","volatile",
+             "inline","_Noreturn",
+             "_Alignas","_Alignof",
+             R"(\.\.\.)",
+             "_Static_assert",
+             "case","default",
+             "switch","if","else",
+             "while","do","for",
+             "_Generic",
+             "goto","continue","break","return",
+             ";",
+             ID,};
 
     vector<string > names =
-            {"delimiter","id","integer","float","str","+","-","*","/","(",")","[","]",
-             "{","}","->","++","--","."};
+            {"delimiter","integer","Float","str","+","-","*","/","(",")","[","]",
+             "{","}","->","++","--",".","sizeof","&","~","!","%",
+             "<<",">>","<=",">=","==","!=","^","|","?",":","&&","||","=","*=",
+             "/=","%=","+=","-=","<<=",">>=","&=","^=","|=",",","<",">","__func__",
+             "typedef","extern","static","_Thread_local","auto","register",
+             "void","char","short","int","long","float","double","signed","unsigned","_Bool","_Complex","_Imaginary",
+             "struct","union",
+             "enum",
+             "_Atomic","const","restrict","volatile",
+             "inline","_Noreturn",
+             "_Alignas","_Alignof",
+             "...",
+             "_Static_assert",
+             "case","default",
+             "switch","if","else",
+             "while","do","for",
+             "_Generic",
+             "goto","continue","break","return",
+             ";",
+             "id",};
 
+    DEBUG_TEST(
+            if(names.size()!=regx.size()){
+                throw std::logic_error("tokens and names not match");
+            };
+    )
+    ASSERT(names.size()==regx.size())
     for(int i=0;i<regx.size();i++){
         lstTokenActions.emplace_back(names[i],regx[i],normal_func,i);
     }

@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 public class reParser{
     public static void main(String[] args)throws Exception{
         reParser p=new reParser();
-        String []patterns={"[\\n\\t\\sε]"};
+        String []patterns={"[\\0\\b]"};
         tokenLabel []labels={new tokenLabel("identifier"),new tokenLabel("number")};
         DFA dfa=p.parseToDfaWithMultiPattern(patterns, labels, "char");
         System.out.println(dfa);
@@ -28,7 +28,12 @@ public class reParser{
             tokenInfo tInfo=infos.next();
             start.union(parseToNfaWithInfo(reg,tInfo,type));
         }
-        return start.toDFA().getMinimizedDFA();
+        System.out.println("NFA build");
+        DFA d1=start.toDFA();
+        System.out.println("DFA built");
+        DFA d2=d1.getMinimizedDFA();
+        System.out.println("DFA minimized");
+        return d2;
     }
     DFA parseToDFA(String s,tokenInfo info,String type)throws Exception{
         return parseToNfaWithInfo(s, info, type).toDFA();
