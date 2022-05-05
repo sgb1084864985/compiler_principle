@@ -37,6 +37,12 @@ public:
     };
     using ptr_func = std::shared_ptr<func_item>;
 
+    struct struct_item{// union or struct
+        ptrNamespace struct_namespace;
+    };
+
+    using ptr_struct = std::shared_ptr<struct_item>;
+
     struct name_item{
         C_type t;
         dType dt=dType::SIGNED_INTEGER;
@@ -46,8 +52,12 @@ public:
 
         unsigned char isConstant{};
         unsigned char isFunc{};
-        ptr_func func; // empty if not function
-        ptr_constant constant; // empty if not constant;
+        unsigned char isStruct{};
+        union {
+            ptr_struct ptrStruct;
+            ptr_func func; // empty if not function
+            ptr_constant constant; // empty if not constant;
+        };
     };
 
     using ptr_name=std::shared_ptr<name_item>;
@@ -59,13 +69,15 @@ public:
     void remove(string& name);
 
 private:
+    symbol_ptr tree_node;// corresponding ast tree
     std::unordered_map<std::string ,ptr_name > name_table;
     ptrNamespace parentNamespace;// empty if it is root name space(that is, global namespace)
 //    std::list<ptrNamespace> subNamespaces;
 };
+
 using ptrNamespace = std::shared_ptr<CNameSpace>;
 using ptr_func = std::shared_ptr<CNameSpace::func_item>;
 using ptr_name=std::shared_ptr<CNameSpace::name_item>;
-
+using ptr_struct = std::shared_ptr<CNameSpace::struct_item>;
 
 #endif //COMPILER_CNAMESPACE_H

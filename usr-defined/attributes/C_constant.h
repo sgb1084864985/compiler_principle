@@ -6,7 +6,7 @@
 #define COMPILER_C_CONSTANT_H
 #include <memory>
 enum class dType {
-    UNSIGNED_INTEGER,SIGNED_INTEGER,FLOAT
+    UNSIGNED_INTEGER,SIGNED_INTEGER,FLOAT,STRUCT
 };
 
 // C_constant stores an array(length>=1),

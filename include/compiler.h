@@ -83,6 +83,9 @@ public:
     }
 };
 
+// symbol ptr is the pointer of SymbolValue,
+// which is the base class of NonTerminal
+// and TokenValue
 using symbol_ptr=std::shared_ptr<SymbolValue>;
 using symbol_iterator=Iterator<symbol_ptr>;
 
