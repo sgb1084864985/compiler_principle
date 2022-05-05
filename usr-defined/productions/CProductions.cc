@@ -87,7 +87,7 @@ vector<Production> &CProductions::getProductions(){
         Production("storage_class_specifier", "typedef", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "extern", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "static", genTree<CSym::storage_class_specifier>),
-        Production("storage_class_specifier", "_Thread_local", genTree<CSym::storage_class_specifier>),
+            Production("storage_class_specifier", "_Thread_local", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "auto", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "register", genTree<CSym::storage_class_specifier>),
 
@@ -107,6 +107,7 @@ vector<Production> &CProductions::getProductions(){
         Production("type_specifier", "struct_or_union_specifier", genTree<CSym::type_specifier>),
         Production("type_specifier", "enum_specifier", genTree<CSym::type_specifier>),
         Production("type_specifier", "typedef_name", genTree<CSym::type_specifier>),
+//        Production("type_specifier", "id", genTree<CSym::type_specifier>),
 
         Production("struct_or_union_specifier", "struct_or_union { struct_declaration_list }", genTree<CSym::struct_or_union_specifier>),
         Production("struct_or_union_specifier", "struct_or_union id { struct_declaration_list }", genTree<CSym::struct_or_union_specifier>),
@@ -360,7 +361,6 @@ vector<Production> &CProductions::getProductions(){
         Production("primary_expr", "constant", genTree<CSym::primary_expr>),
         Production("primary_expr", "String", genTree<CSym::primary_expr>),
         Production("primary_expr", "generic_selection", genTree<CSym::primary_expr>),
-
     };
     for(int i=0;i<productions.size();i++){
         productions[i].setAttrs(*C_RuleAttributesPool::ruleAttrTable[i]);

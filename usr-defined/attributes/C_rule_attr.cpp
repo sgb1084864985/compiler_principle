@@ -522,7 +522,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //postfix_expr->( type_name ) { initializer_list , }
     make_unique<ProductionInfo>(),
-    //String->str
+    //String->str // str is just a token, like "hello"
     make_unique<ProductionInfo>(),
     //String->__func__
     make_unique<ProductionInfo>(),
@@ -538,17 +538,17 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //constant->integer
     make_unique<ProductionInfo>(),
-    //constant->Float
+    //constant->Float // Float is a token, like 3.14
     make_unique<ProductionInfo>(),
     //constant->enumerate_constant
     make_unique<ProductionInfo>(),
     //primary_expr->( expr )
     make_unique<ProductionInfo>(),
-    //primary_expr->id
+    //primary_expr->id // id is identifier, like abc
     make_unique<ProductionInfo>(),
     //primary_expr->constant
     make_unique<ProductionInfo>(),
-    //primary_expr->String
+    //primary_expr->String // String is not a token
     make_unique<ProductionInfo>(),
     //primary_expr->generic_selection
     make_unique<ProductionInfo>(),

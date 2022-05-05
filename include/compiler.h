@@ -30,18 +30,22 @@ public:
     virtual bool hasNext()=0;
 };
 
+//////////////////////////////
 // Class: Context
 // is a tag interface.
 // records the global information during compilation.
 // should be implemented.
+//////////////////////////////
 class Context{
 public:
     // no use but to make the class virtual.
     virtual void describe(){}
 };
 
+//////////////////////////////
 // represent symbols in CFG.
 // should only have two subclasses: non-terminal terminal
+//////////////////////////////
 class SymbolValue{
 public:
     [[nodiscard]] int getID() const{
@@ -51,12 +55,15 @@ public:
         this->id=i;
     }
     virtual void print(std::ostream &out_port)=0;
+    virtual bool hasError(){return false;}
 private:
     int id=-1;
 
 };
 
+//////////////////////////////
 // represent terminals in CFG
+//////////////////////////////
 class TerminalValue:public SymbolValue{
 public:
     ////example/////

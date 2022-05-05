@@ -17,7 +17,7 @@
 
 using namespace std;
 int main(){
-    cout<<"This is main file"<<endl;
+    cout<<"Input should be a C source file"<<endl;
     MyParser parser(CProductions::getProductions());
     Context c;
 

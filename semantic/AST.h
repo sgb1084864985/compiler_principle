@@ -12,9 +12,14 @@ namespace AST {
         vector<symbol_ptr> children;
         std::string label;
         Production production;
+        bool error= false;
 
         void print(std::ostream &out_port) override {
             out_port << label;
+        }
+
+        bool hasError()override{
+            return error;
         }
 
         NonTerminal(Production &production, std::string label) : production(production), label(std::move(label)) {}
@@ -24,7 +29,7 @@ namespace AST {
     using nLeafPtr = std::shared_ptr<NonTerminal>;
     using leafPtr = std::shared_ptr<TerminalValue>;
 
-// if not leaf, return false; else return ture;
+    // if not leaf, return false; else return ture;
     bool leafOrNotLeaf(symbol_ptr &src, leafPtr &l, nLeafPtr &nl);
 
     class AST_Printer {

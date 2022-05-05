@@ -5,11 +5,14 @@ set(CMAKE_CXX_STANDARD 20)
 
 #set(GRAMMAR_SYNC ON)
 
+if(GRAMMAR_SYNC)
+    message("GRAMMAR_SYNC has opened")
+endif()
+
 find_package(Java REQUIRED)
 
 include(UseJava)
 
-LIST(APPEND SRC_LIST main.cpp CTokenTable.cpp CFG_data.cpp)
 LIST(APPEND INCLUDE_LST include token parser semantic usr-defined)
 
 add_subdirectory(constructor)
@@ -30,10 +33,26 @@ include_directories(
         ${INCLUDE_LST}
 )
 
+if(EXISTS ${PROJECT_BINARY_DIR}/CFG_data.cpp AND EXISTS ${PROJECT_BINARY_DIR}/CTokenTable.cpp)
+    set(HAS_BUILT ON)
+    message("CFG and Token data found")
+    LIST(APPEND SRC_LIST ${PROJECT_BINARY_DIR}/CFG_data.cpp ${PROJECT_BINARY_DIR}/CTokenTable.cpp)
+else()
+    set(HAS_BUILT OFF)
+    message("CFG and Token data not found")
+endif()
 
-if(GRAMMAR_SYNC)
+
+if(GRAMMAR_SYNC OR NOT HAS_BUILT)
+    message("Need to build the CFG")
     add_executable(TokenTableWrapper token/TokenTableWrapper.cpp)
-    add_executable(CFG_Generator usr-defined/productions/CProductions.cc usr-defined/productions/C_production_printer.cpp)
+    add_executable(
+            CFG_Generator
+            usr-defined/productions/CProductions.cc
+            usr-defined/productions/C_production_printer.cpp
+            semantic/ProductionInfo.cpp
+            usr-defined/attributes/C_rule_attr.cpp
+    )
     add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
 
     add_custom_command(
@@ -60,10 +79,11 @@ if(GRAMMAR_SYNC)
             DEPENDS TokenTableWrapper token_data
     )
 
+    LIST(APPEND SRC_LIST CTokenTable.cpp CFG_data.cpp)
+
 endif()
 
-
-message(STATUS ${SRC_LIST})
+LIST(APPEND SRC_LIST main.cpp)
 add_executable(Main ${SRC_LIST})
 target_compile_definitions(Main PUBLIC DEBUG)
 
