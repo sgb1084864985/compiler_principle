@@ -47,6 +47,7 @@ public:
         unsigned char isConstant{};
         unsigned char isFunc{};
         ptr_func func; // empty if not function
+        ptr_constant constant; // empty if not constant;
     };
 
     using ptr_name=std::shared_ptr<name_item>;

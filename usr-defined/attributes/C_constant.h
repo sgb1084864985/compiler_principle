@@ -4,7 +4,7 @@
 
 #ifndef COMPILER_C_CONSTANT_H
 #define COMPILER_C_CONSTANT_H
-
+#include <memory>
 enum class dType {
     UNSIGNED_INTEGER,SIGNED_INTEGER,FLOAT
 };
@@ -19,6 +19,6 @@ public:
     unsigned char* data{};
 };
 
-
+using ptr_constant=std::shared_ptr<C_constant>;
 
 #endif //COMPILER_C_CONSTANT_H
