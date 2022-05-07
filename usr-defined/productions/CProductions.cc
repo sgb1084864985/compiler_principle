@@ -2,6 +2,7 @@
 #include "CProductions.h"
 #include "Csymbols.hpp"
 #include "C_rule_attr.h"
+#include "C_rule_code.h"
 #include <vector>
 
 
@@ -364,6 +365,7 @@ vector<Production> &CProductions::getProductions(){
     };
     for(int i=0;i<productions.size();i++){
         productions[i].setAttrs(*C_RuleAttributesPool::ruleAttrTable[i]);
+        productions[i].setGenCodeInfo(*C_rule_code::ruleCodeTable[i]);
     }
     return productions;
 }

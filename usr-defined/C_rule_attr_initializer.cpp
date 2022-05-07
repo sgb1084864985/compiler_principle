@@ -16,7 +16,7 @@ int main(){
 
 using std::unique_ptr;
 using std::make_unique;
-unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
+unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleCodeTable[]={
 )";
     string after=R"(
 };

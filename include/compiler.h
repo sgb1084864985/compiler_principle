@@ -97,6 +97,8 @@ class Production{
 private:
     handler action;
     ProductionInfo* attributes;
+    ProductionInfo* gen_code_info{};
+
 public:
     const char* left_hand_side;
     const char* right_hand_side;
@@ -104,8 +106,15 @@ public:
     void setAttrs(ProductionInfo& attr){
         attributes=&attr;
     }
+    void setGenCodeInfo(ProductionInfo& info){
+        gen_code_info=&info;
+    }
     const ProductionInfo& getAttrs(){
         return *attributes;
+    }
+
+    const ProductionInfo& getGenCodeInfo(){
+        return *gen_code_info;
     }
 
     symbol_ptr operator()(symbol_iterator &it,Context&con){

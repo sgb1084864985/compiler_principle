@@ -11,7 +11,8 @@
 // Interface, should be implemented
 class codeGenerator {
 public:
-    virtual void genCode(ptrSymTable& symTable,std::shared_ptr<CSym::translation_unit >&AST_root)=0;
+    virtual void
+    genCode(ptrSymTable &symTable, std::shared_ptr<CSym::translation_unit> &AST_root, GlobalContext &context) =0;
 };
 
 

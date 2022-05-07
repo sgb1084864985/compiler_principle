@@ -3,6 +3,7 @@
 
 #include "compiler.h"
 #include "AST.h"
+#include "C_expr.hpp"
 #include <memory>
 #include <utility>
 
@@ -17,11 +18,11 @@ namespace CSym {
     using generic_assoc_list=NonTerminal;
     using generic_association=NonTerminal;
     using argument_expression_list=NonTerminal;
-    using assignment_expr=NonTerminal;
+    using assignment_expr=C_expr;
     using conditional_expr=NonTerminal;
     using unary_expr=NonTerminal;
     using assignment_operator=NonTerminal;
-    using expr=NonTerminal;
+    using expr=C_expr;
     using cast_expr=NonTerminal;
     using mul_expr=NonTerminal;
     using add_expr=NonTerminal;
@@ -34,7 +35,7 @@ namespace CSym {
     using logical_and_expr=NonTerminal;
     using logical_or_expr=NonTerminal;
     using unary_operator=NonTerminal;
-    using constant_expr=NonTerminal;
+    using constant_expr=C_expr;
     using declaration=NonTerminal;
     using declaration_specifiers=NonTerminal;
     using init_declarator_list=NonTerminal;

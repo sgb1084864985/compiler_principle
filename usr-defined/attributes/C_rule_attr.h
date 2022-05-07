@@ -10,7 +10,7 @@
 using std::vector;
 class C_RuleAttributesPool{
 public:
-    static std::unique_ptr< ProductionInfo> ruleAttrTable[];
+    static std::unique_ptr<ProductionInfo> ruleAttrTable[];
 };
 
 #endif //COMPILER_C_RULE_ATTR_H

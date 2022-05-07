@@ -3,6 +3,7 @@ project(compiler)
 
 set(CMAKE_CXX_STANDARD 20)
 
+#message("start configure")
 #set(GRAMMAR_SYNC ON)
 
 if(GRAMMAR_SYNC)
@@ -52,6 +53,7 @@ if(GRAMMAR_SYNC OR NOT HAS_BUILT)
             usr-defined/productions/C_production_printer.cpp
             semantic/ProductionInfo.cpp
             usr-defined/attributes/C_rule_attr.cpp
+            usr-defined/code_generation/C_rule_code.cpp
     )
     add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
 

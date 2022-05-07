@@ -3,7 +3,8 @@
 //
 
 #include "CSymbolTable.h"
+#include "GlobalContext.h"
 
-CSymbolTable::ptrSymTable CSymbolTable::genSymbolTable(symbol_ptr &AST_root, Context &context) {
+CSymbolTable::ptrSymTable CSymbolTable::genSymbolTable(symbol_ptr &AST_root, GlobalContext &context) {
     return {};
 }

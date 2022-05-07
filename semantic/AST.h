@@ -8,6 +8,7 @@
 #include "NameSpace.h"
 namespace AST {
 
+    // all subclasses of NonTerminal should have constructors whose signature is same as NonTerminal
     class NonTerminal : public SymbolValue {
     public:
         vector<symbol_ptr> children;

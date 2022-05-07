@@ -2,6 +2,7 @@
 /.vscode/
 *.o
 *.out
+/test.cpp
 /cmake-build-debug/
 /build/
 #/test_input/

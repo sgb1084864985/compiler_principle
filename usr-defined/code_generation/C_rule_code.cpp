@@ -1,13 +1,12 @@
-
 //
-// Created by zlz on 22-4-29.
+// Created by zlz on 22-5-7.
 //
 
-#include "C_rule_attr.h"
+#include "C_rule_code.h"
 
 using std::unique_ptr;
 using std::make_unique;
-unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
+unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     //translation_unit->external_declaration
     make_unique<ProductionInfo>(),
     //translation_unit->translation_unit external_declaration
@@ -552,5 +551,4 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //primary_expr->generic_selection
     make_unique<ProductionInfo>(),
-
 };
