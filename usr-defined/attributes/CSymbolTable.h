@@ -15,8 +15,9 @@
 class CSymbolTable: public Context{
     using ptrSymTable=std::shared_ptr<CSymbolTable>;
 public:
-    std::vector<C_constant> constants;
-    ptrNamespace rootNamespace;
+    // list of all constants
+    std::vector<ptr_constant> constants;
+    ptrCNamespace rootNamespace;
 public:
     static ptrSymTable genSymbolTable(symbol_ptr& AST_root,Context& context);
 };

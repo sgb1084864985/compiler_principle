@@ -8,6 +8,7 @@
 #include "C_type.h"
 #include "Csymbols.hpp"
 #include "C_constant.h"
+#include "NameSpace.h"
 #include <string>
 #include <memory>
 #include <list>
@@ -16,7 +17,7 @@
 
 using std::string ;
 
-class CNameSpace {
+class CNameSpace: public NameSpace{
 public:
 
     enum StorageProperty{
@@ -45,9 +46,10 @@ public:
 
     struct name_item{
         C_type t;
+
         dType dt=dType::SIGNED_INTEGER;
         unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
-        unsigned char storage_property{};
+        unsigned char storage_property{}; // see enum StorageProperty
         unsigned char atomic{};
 
         unsigned char isConstant{};
@@ -68,14 +70,15 @@ public:
     void insert(string& name,ptr_name& val);
     void remove(string& name);
 
+    explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
 private:
     symbol_ptr tree_node;// corresponding ast tree
     std::unordered_map<std::string ,ptr_name > name_table;
     ptrNamespace parentNamespace;// empty if it is root name space(that is, global namespace)
-//    std::list<ptrNamespace> subNamespaces;
+//    std::list<ptrCNamespace> subNamespaces;
 };
 
-using ptrNamespace = std::shared_ptr<CNameSpace>;
+using ptrCNamespace = std::shared_ptr<CNameSpace>;
 using ptr_func = std::shared_ptr<CNameSpace::func_item>;
 using ptr_name=std::shared_ptr<CNameSpace::name_item>;
 using ptr_struct = std::shared_ptr<CNameSpace::struct_item>;

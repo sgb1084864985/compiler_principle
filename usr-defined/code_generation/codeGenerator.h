@@ -7,9 +7,11 @@
 
 #include "compiler.h"
 #include "CSymbolTable.h"
+
+// Interface, should be implemented
 class codeGenerator {
 public:
-    void genCode(ptrSymTable& symTable,symbol_ptr& AST_root);
+    virtual void genCode(ptrSymTable& symTable,std::shared_ptr<CSym::translation_unit >&AST_root)=0;
 };
 
 

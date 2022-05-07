@@ -5,6 +5,7 @@
 #ifndef COMPILER_AST_H
 #define COMPILER_AST_H
 #include "compiler.h"
+#include "NameSpace.h"
 namespace AST {
 
     class NonTerminal : public SymbolValue {
@@ -12,6 +13,10 @@ namespace AST {
         vector<symbol_ptr> children;
         std::string label;
         Production production;
+
+        // which namespace this tree_node is in
+        ptrAbstractNameSpace owner;
+
         bool error= false;
 
         void print(std::ostream &out_port) override {

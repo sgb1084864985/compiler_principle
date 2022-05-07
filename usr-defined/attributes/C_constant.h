@@ -5,6 +5,8 @@
 #ifndef COMPILER_C_CONSTANT_H
 #define COMPILER_C_CONSTANT_H
 #include <memory>
+
+// if is a pointer(including function pointer, dType should be UNSIGNED_INTEGER)
 enum class dType {
     UNSIGNED_INTEGER,SIGNED_INTEGER,FLOAT,STRUCT
 };
