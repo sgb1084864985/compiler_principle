@@ -28,6 +28,10 @@ namespace AST {
             return error;
         }
 
+        [[nodiscard]] virtual ptrAbstractNameSpace getNameSpace() const{
+            return owner;
+        }
+
         NonTerminal(Production &production, std::string label) : production(production), label(std::move(label)) {}
 
     };

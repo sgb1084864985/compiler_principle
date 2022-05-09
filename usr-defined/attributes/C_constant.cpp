@@ -28,14 +28,7 @@ ptr_constant C_constant::fromString(std::string &str, TokenType type)noexcept {
     return ret;
 }
 
-ptr_constant C_constant::toArray(std::vector<ptr_constant>& constants)noexcept{
-    return {};
-}
 
 C_constant::C_constant(int bytes, int length, dType dt):bytes_per_unit(bytes),length(length),dt(dt),data(new unsigned char [bytes*length]){
 }
 
-template<class T>
-ptr_constant C_constant::newConstant(T *values, int len) {
-    return {};
-}
