@@ -9,8 +9,16 @@
 
 class CProductions{
 public:
-    static std::vector<Production>& getProductions();
+    static void addRules();
+    static std::vector<Production>& getProductions(){
+        return productions;
+    }
+    static std::vector<Production>& getAndAdd(){
+        addRules();
+        return productions;
+    }
 private:
+    static vector<Production> productions;
 };
 
 #endif //COMPILER_CPRODUCTIONS_H

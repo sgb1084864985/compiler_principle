@@ -61,8 +61,8 @@ if(GRAMMAR_SYNC OR NOT HAS_BUILT)
             usr-defined/productions/CProductions.cc
             usr-defined/productions/C_production_printer.cpp
             semantic/ProductionInfo.cpp
-            usr-defined/attributes/C_rule_attr.cpp
-            usr-defined/code_generation/C_rule_code.cpp
+#            usr-defined/attributes/C_rule_attr.cpp
+#            usr-defined/code_generation/C_rule_code.cpp
     )
     add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
 

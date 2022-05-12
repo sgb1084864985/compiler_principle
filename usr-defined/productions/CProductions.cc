@@ -5,13 +5,10 @@
 #include "C_rule_code.h"
 #include <vector>
 
+using AST::genTree;
 
-using std::vector;
-
-vector<Production> &CProductions::getProductions(){
-    // first non-terminal is the start non-terminal
-    using AST::genTree;
-    static vector<Production> productions={
+// first non-terminal is the start non-terminal
+vector<Production> CProductions::productions={
         Production("translation_unit", "external_declaration", genTree<CSym::translation_unit>),
         Production("translation_unit", "translation_unit external_declaration", genTree<CSym::translation_unit>),
 
@@ -88,7 +85,7 @@ vector<Production> &CProductions::getProductions(){
         Production("storage_class_specifier", "typedef", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "extern", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "static", genTree<CSym::storage_class_specifier>),
-            Production("storage_class_specifier", "_Thread_local", genTree<CSym::storage_class_specifier>),
+        Production("storage_class_specifier", "_Thread_local", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "auto", genTree<CSym::storage_class_specifier>),
         Production("storage_class_specifier", "register", genTree<CSym::storage_class_specifier>),
 
@@ -362,10 +359,4 @@ vector<Production> &CProductions::getProductions(){
         Production("primary_expr", "constant", genTree<CSym::primary_expr>),
         Production("primary_expr", "String", genTree<CSym::primary_expr>),
         Production("primary_expr", "generic_selection", genTree<CSym::primary_expr>),
-    };
-    for(int i=0;i<productions.size();i++){
-        productions[i].setAttrs(*C_RuleAttributesPool::ruleAttrTable[i]);
-        productions[i].setGenCodeInfo(*C_rule_code::ruleCodeTable[i]);
-    }
-    return productions;
-}
+};
