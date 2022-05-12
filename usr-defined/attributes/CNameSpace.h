@@ -26,16 +26,22 @@ public:
     using ptrNamespace = std::shared_ptr<CNameSpace>;
 
     struct name_item{
+        static constexpr int NO_ALLOC=-1;
         ptrType type;
-//        dType dt=dType::SIGNED_INTEGER;
-//        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
 
-        unsigned char isConstant{};
-        unsigned char isFunc{};
-        union {
-            ptr_func func; // empty if not function
-            ptr_constant constant; // empty if not constant;
-        };
+        // empty if no initializer
+        std::shared_ptr<CSym::initializer> initializer;
+
+        // empty if it is not a function
+        ptr_func func;
+
+        // empty if extern
+        // else it is the alloc order in current namespace
+        int alloc_order=NO_ALLOC;
+
+        //        dType dt=dType::SIGNED_INTEGER;
+        //        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
+
     };
 
     using ptr_name=std::shared_ptr<name_item>;
@@ -49,13 +55,13 @@ public:
 
     explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
 private:
-    // follow the order of declaration
-    vector<string > declaration_list;
+    // follows the order of declaration
+    vector<string> declaration_list;
 
     // corresponding ast tree
     symbol_ptr tree_node;
 
-    std::unordered_map<std::string ,ptr_name > name_table;
+    std::unordered_map<std::string ,ptr_name> name_table;
 
     // empty if it is root name space(that is, global namespace)
     ptrNamespace parentNamespace;
