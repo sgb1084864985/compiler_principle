@@ -456,7 +456,7 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     //add_expr->mul_expr
     make_unique<ProductionInfo>(),
     //add_expr->add_expr + mul_expr
-    make_unique<ProductionInfo>(),
+    make_unique<gen_code_rule_addExpr>(),
     //add_expr->add_expr - mul_expr
     make_unique<ProductionInfo>(),
     //mul_expr->unary_expr
