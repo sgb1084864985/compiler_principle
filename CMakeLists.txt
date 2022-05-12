@@ -10,9 +10,18 @@ if(GRAMMAR_SYNC)
     message("GRAMMAR_SYNC has opened")
 endif()
 
+if(NOT DEFINED ENV{LLVM_DIR})
+    message("llvm dir not found")
+#    set(ENV{LLVM_DIR} /lib/llvm-14/cmake)
+endif()
+
 find_package(Java REQUIRED)
 
 include(UseJava)
+
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
 
 LIST(APPEND INCLUDE_LST include token parser semantic usr-defined)
 
@@ -91,5 +100,9 @@ target_compile_definitions(Main PUBLIC DEBUG)
 
 add_executable(TEST test.cpp)
 target_compile_definitions(TEST PUBLIC DEBUG)
+
+llvm_map_components_to_libnames(llvm_libs core orcjit native)
+target_link_libraries(TEST ${llvm_libs})
+target_link_libraries(Main ${llvm_libs})
 
 add_executable(CONSTRUCTOR usr-defined/C_rule_attr_initializer.cpp)

@@ -3,7 +3,7 @@
 //
 
 #include "C_rule_code.h"
-
+#include "gen_code_rule_addExpr.hpp"
 using std::unique_ptr;
 using std::make_unique;
 unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={

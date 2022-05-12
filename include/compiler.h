@@ -109,11 +109,11 @@ public:
     void setGenCodeInfo(ProductionInfo& info){
         gen_code_info=&info;
     }
-    const ProductionInfo& getAttrs(){
+    ProductionInfo& getAttrs(){
         return *attributes;
     }
 
-    const ProductionInfo& getGenCodeInfo(){
+    ProductionInfo& getGenCodeInfo(){
         return *gen_code_info;
     }
 

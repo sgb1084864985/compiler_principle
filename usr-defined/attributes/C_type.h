@@ -77,7 +77,7 @@ namespace CTS{
     class Pointers{
     public:
         vector<int> quantifiers;
-        unsigned int size(){return quantifiers.size();}
+        [[nodiscard]] unsigned int size() const{return quantifiers.size();}
     };
 
     class Parameters{
