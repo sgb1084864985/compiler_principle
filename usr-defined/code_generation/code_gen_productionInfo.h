@@ -9,6 +9,7 @@
 #include "code_gen_Context.h"
 #include "compiler.h"
 #include "C_constant.h"
+#include "C_type.h"
 
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
@@ -32,6 +33,8 @@ public:
     }
 
     static Value* genCodeForConstant(ptr_constant & constant, code_gen_Context& context,symbol_ptr& tree_node);
+    static Value* genCodeForCast(ptrType type, code_gen_Context& context,symbol_ptr& tree_node);
+
 };
 
 
