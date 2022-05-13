@@ -17,7 +17,7 @@ class gen_code_rule_addExpr:public code_gen_productionInfo{
         auto v2= tree_node_genCode(p->children[1],context);
         auto ret = context.builder->CreateAdd(v1,v2,"add");
         if(p->implicit_cast_type){
-            return genCodeForCast(p->implicit_cast_type,context,tree_node);
+            return genCodeForCast(p->implicit_cast_type,context,ret);
         }
         return ret;
     }
