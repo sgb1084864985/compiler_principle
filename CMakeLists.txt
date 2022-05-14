@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(compiler)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 #message("start configure")
 #set(GRAMMAR_SYNC ON)
@@ -11,7 +11,7 @@ if(GRAMMAR_SYNC)
 endif()
 
 if(NOT DEFINED ENV{LLVM_DIR})
-    message("llvm dir not found")
+#     message("llvm dir not found")
 #    set(ENV{LLVM_DIR} /lib/llvm-14/cmake)
 endif()
 
