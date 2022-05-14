@@ -86,7 +86,7 @@ namespace CSym {
     using external_declaration=NonTerminal;
     using function_definition=NonTerminal;
     using declaration_list=NonTerminal;
-
+    using or_expr=inclusive_or_expr;
 
 //    enum enumSymbol{
 //        PrimaryExpr
