@@ -9,7 +9,7 @@
 #include "C_constant.h"
 
 // add_expr -> add_expr + mul_expr
-class AttrRule_addExpr:public AttrRule{
+class AttrRule_addExpr1:public AttrRule{
     void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override{
         auto p= std::dynamic_pointer_cast<CSym::add_expr>(tree_node);
         auto op1=std::dynamic_pointer_cast<CSym::add_expr>(p->children[0]);
