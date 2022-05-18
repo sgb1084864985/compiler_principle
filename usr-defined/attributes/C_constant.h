@@ -27,61 +27,59 @@ public:
 //
 //    unsigned char * data{};
 
-    unsigned int size()const;
+    // if create error, return empty pointer
 
-    // if error, return empty pointer
-    // only allow int,un
+    // T
+    // allow only basic type
     template<class T>
     static ptr_constant newConstant(T* values,int len);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newAdd(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newMul(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newSub(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newDiv(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newMod(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newLOGIC_OR(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newLOGIC_AND(ptr_constant& op1,ptr_constant& op2);
 
     template<class T>
     static ptr_constant newLOGIC_NOT(ptr_constant& op1);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newOR(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newAND(ptr_constant& op1,ptr_constant& op2);
 
     template<class T>
     static ptr_constant newNOT(ptr_constant& op1);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newLEFT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
+    template<class T1,class T2>
     static ptr_constant newRIGHT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
+    static ptr_constant newArray(std::vector<ptr_constant>& constants) noexcept;
+
+    static ptr_constant newStruct(std::vector<ptr_constant>& constants) noexcept;
+
     static ptr_constant fromString(std::string& str,TokenType type) noexcept;
-    static ptr_constant toArray(std::vector<ptr_constant>& constants) noexcept;
 
-
-    C_constant(C_constant&)=delete;
-    C_constant& operator=(const C_constant&)=delete;
-    C_constant(int bytes,int length,dType dt=dType::SIGNED_INTEGER);
-    C_constant()=default;
-    ~C_constant(){delete []data;}
+    virtual void describe(){}
 };
 
 using ptr_constant=std::shared_ptr<C_constant>;

@@ -15,6 +15,7 @@ class C_type;
 using ptrType=std::shared_ptr<C_type>;
 // C Type System
 namespace CTS{
+    int constexpr NONE=0;
     enum StorageSpecifier{
         STATIC=0X1,
         EXTERN=0X2,
@@ -24,7 +25,7 @@ namespace CTS{
     };
 
     enum TypeSpecifier{
-        VOID,CHAR,SHORT,INT,
+        VOID=1,CHAR,SHORT,INT,
         LONG,LONGLONG,FLOAT,
         DOUBLE,BOOL,COMPLEX,
         IMAGINARY,STRUCT,UNION,
@@ -39,7 +40,7 @@ namespace CTS{
     };
 
     enum FunctionSpecifier{
-        INLINE,NO_RETURN
+        INLINE=1,NO_RETURN
     };
     class Alignment{};
     class AtomicItem{};
@@ -63,8 +64,8 @@ namespace CTS{
     public:
         CTS::TypeSpecifier typeSpecifier=CTS::INT;
         int storageSpecifier=CTS::AUTO;
-        int typeQuantifier=0;
-        int funcSpecifier=0;
+        int typeQuantifier=CTS::NONE;
+        int funcSpecifier=CTS::NONE;
         bool isSigned= true;
 
         // if it is struct type
@@ -98,22 +99,81 @@ namespace CTS{
 
         // for array type. Dim=0 if not an array
         int arrayDim{};
-        vector<CSym::assignment_expr> arraySizes;
+        vector<unsigned int > arraySizes;
     };
     using ptrDelclarator=std::shared_ptr<AbstractDeclarator>;
 }
 
 class C_type{
 public:
-    CTS::DeclarationSpecifiers declarationSpecifiers;
-    CTS::ptrDelclarator declarator;
+    // Signed is valid only if type is char,short,int,long,longlong
+    static ptrType newBasicType(CTS::TypeSpecifier type,bool Signed= true,CTS::StorageSpecifier storage=CTS::AUTO,int quantifier=CTS::NONE);
+    static ptrType newStructType(CTS::ptr_struct& struct_item,CTS::StorageSpecifier storage=CTS::AUTO,int quantifier=CTS::NONE);
+    static ptrType newUnionType(CTS::ptr_struct& struct_item,CTS::StorageSpecifier storage=CTS::AUTO,int quantifier=CTS::NONE);
+
+    static ptrType newFuncType(ptrType& retType,
+                               vector<ptrType>& param_list,
+                               CTS::StorageSpecifier storage=CTS::EXTERN,
+                               int functionSpecifier=CTS::NONE,
+                               bool variable_length= false);
+
+    static ptrType newFuncType(ptrType& retType,
+                               CTS::ptrParams& params,
+                               CTS::StorageSpecifier storage=CTS::EXTERN,
+                               int functionSpecifier=CTS::NONE);
+
+    static ptrType newArrayType(ptrType& basicType,
+                                unsigned int dim,
+                                vector<unsigned int>& arraySizes,
+                                CTS::StorageSpecifier storage=CTS::AUTO,
+                                int quantifier=CTS::NONE
+                                );
+
+    // make int* from int, but a new copy. See also addPointer
+    ptrType newPointerType(int pointer_quantifier=CTS::NONE);
+    ptrType clone();
+
+    // sizeof this type (byte)
+    unsigned int size();
+
+    // make int* from int
+    void addPointer(int pointer_quantifier=CTS::NONE);
+
+    void setStorageSpecifier(CTS::StorageSpecifier specifier);
+    void setTypeSpecifier(CTS::TypeSpecifier specifier);
+    void setTypeQuantifier(CTS::TypeSpecifier quantifier);
+    void setPointerTypeQuantifier(CTS::TypeSpecifier quantifier,int pointer_level=0);
 
     bool equals(ptrType& other);
+    bool const_equals(ptrType& other);
+
     bool isFunction();
     bool isPointer();
     bool isStruct();
     bool isUnion();
+    bool isArray();
+
+    // int,float,...
     bool isBasicType();
+
+    CTS::TypeSpecifier getTypeSpecifier();
+    CTS::StorageSpecifier getStorageSpecifier();
+    int getTypeQuantifier();
+    int getFunctionSpecifier();
+
+    int getArrayDim();
+    const vector<unsigned int>& getArraySizes();
+
+    const vector<int>& getPointerQuantifiers();
+
+    ptrType getReturnType();
+    CTS::ptrParams getParameterTypes();
+
+private:
+    CTS::DeclarationSpecifiers declarationSpecifiers;
+    CTS::ptrDelclarator declarator;
+
+    friend class C_constant;
 };
 
 

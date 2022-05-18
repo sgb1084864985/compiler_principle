@@ -30,7 +30,7 @@ public:
         ptrType type;
 
         // empty if no initializer
-        std::shared_ptr<CSym::initializer> initializer;
+        ptr_constant initializer;
 
         // empty if it is not a function
         ptr_func func;

@@ -36,13 +36,13 @@ class AttrRule_addExpr1:public AttrRule{
                         case CTS::LONG:
                         case CTS::LONGLONG:
                             if(op1->type->declarationSpecifiers.isSigned){
-                                p->constant=C_constant::newAdd<int>(op1->constant,op2->constant);
+                                p->constant=C_constant::newAdd<int,int>(op1->constant,op2->constant);
                             }
                             else{
-                                p->constant=C_constant::newAdd<unsigned int>(op1->constant,op2->constant);
+                                p->constant=C_constant::newAdd<unsigned int,unsigned int >(op1->constant,op2->constant);
                             }
                         case CTS::DOUBLE:
-                            p->constant=C_constant::newAdd<double>(op1->constant,op2->constant);
+                            p->constant=C_constant::newAdd<double,double>(op1->constant,op2->constant);
                         case CTS::FLOAT:
                         default:
                             break;
