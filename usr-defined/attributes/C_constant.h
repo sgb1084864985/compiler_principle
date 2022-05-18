@@ -21,13 +21,16 @@ enum class TokenType{
 class C_constant {
     using ptr_constant=std::shared_ptr<C_constant>;
 public:
-    dType dt=dType::SIGNED_INTEGER;
-    int bytes_per_unit=8; // at least 1
-    int length{};
+//    dType dt=dType::SIGNED_INTEGER;
+//    int bytes_per_unit=8; // at least 1
+//    int length{};
+//
+//    unsigned char * data{};
 
-    unsigned char * data{};
+    unsigned int size()const;
 
     // if error, return empty pointer
+    // only allow int,un
     template<class T>
     static ptr_constant newConstant(T* values,int len);
 

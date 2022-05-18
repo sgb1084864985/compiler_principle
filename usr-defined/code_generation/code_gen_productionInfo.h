@@ -35,12 +35,11 @@ public:
         return genCode(item->production.getGenCodeInfo(), context, tree_node);
     }
 
-    static Value *genCodeForConstant(ptr_constant &constant, code_gen_Context &context, symbol_ptr &tree_node)
-    {
-        
-    }
-    
-    static Value *genCodeForCast(ptrType type, code_gen_Context &context, Value *val) { return nullptr; }
+
+    static llvm::Type* getLlvmType(ptrType& type);
+    static Value* genCodeForConstant(ptr_constant & constant, code_gen_Context& context,symbol_ptr& tree_node);
+    static Value* genCodeForCast(ptrType type, code_gen_Context& context,Value* val){return nullptr;}
+
 };
 
 #endif // COMPILER_CODE_GEN_PRODUCTIONINFO_H
