@@ -1,13 +1,13 @@
 //
-// Created by zlz on 22-5-12.
+// Created by lzy on 22-5-13.
 //
 
-#ifndef COMPILER_GEN_CODE_RULE_ADDEXPR_HPP
-#define COMPILER_GEN_CODE_RULE_ADDEXPR_HPP
+#ifndef COMPILER_GEN_CODE_RULE_SUBEXPR_HPP
+#define COMPILER_GEN_CODE_RULE_SUBEXPR_HPP
 #include "code_gen_productionInfo.h"
 #include "Csymbols.hpp"
 
-class gen_code_rule_addExpr : public code_gen_productionInfo
+class gen_code_rule_subExpr : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
@@ -18,7 +18,7 @@ class gen_code_rule_addExpr : public code_gen_productionInfo
         }
         auto v1 = tree_node_genCode(p->children[0], context);
         auto v2 = tree_node_genCode(p->children[1], context);
-        auto ret = context.builder->CreateAdd(v1, v2, "add");
+        auto ret = context.builder->CreateSub(v1, v2, "sub");
         if (p->implicit_cast_type)
         {
             return genCodeForCast(p->implicit_cast_type, context, ret);
@@ -27,4 +27,4 @@ class gen_code_rule_addExpr : public code_gen_productionInfo
     }
 };
 
-#endif // COMPILER_GEN_CODE_RULE_ADDEXPR_HPP
+#endif 

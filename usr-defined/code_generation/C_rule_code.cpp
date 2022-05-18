@@ -54,13 +54,13 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     //expression_statement->expr ;
     make_unique<ProductionInfo>(),
     //selection_statement->if ( expr ) statement else statement
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //selection_statement->if ( expr ) statement
     make_unique<ProductionInfo>(),
     //selection_statement->switch ( expr ) statement
     make_unique<ProductionInfo>(),
     //iteration_statement->while ( expr ) statement
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //iteration_statement->do statement while ( expr )
     make_unique<ProductionInfo>(),
     //iteration_statement->for ( expression_statement expression_statement ) statement
@@ -420,53 +420,53 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     //logic_and_expr->logic_and_expr && or_expr
     make_unique<ProductionInfo>(),
     //or_expr->xor_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //or_expr->or_expr | xor_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //xor_expr->and_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //xor_expr->xor_expr ^ and_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //and_expr->eq_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //and_expr->and_expr & eq_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //eq_expr->relational_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //eq_expr->eq_expr == relational_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //eq_expr->eq_expr != relational_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->relational_expr < shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->relational_expr > shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->relational_expr <= shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->relational_expr >= shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //shift_expr->add_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //shift_expr->shift_expr << add_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //shift_expr->shift_expr >> add_expr
     make_unique<ProductionInfo>(),
     //add_expr->mul_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //add_expr->add_expr + mul_expr
-    make_unique<gen_code_rule_addExpr>(),
+make_unique<gen_code_rule_addExpr>(),
     //add_expr->add_expr - mul_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //mul_expr->unary_expr
     make_unique<ProductionInfo>(),
     //mul_expr->mul_expr * unary_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //mul_expr->mul_expr / unary_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //mul_expr->mul_expr % unary_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //cast_expr->unary_expr
     make_unique<ProductionInfo>(),
     //cast_expr->( type_name ) cast_expr

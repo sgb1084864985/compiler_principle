@@ -19,17 +19,20 @@
 #include "llvm/IR/Value.h"
 
 using llvm::Value;
-class code_gen_productionInfo:public ProductionInfo{
+class code_gen_productionInfo : public ProductionInfo
+{
 public:
-    virtual Value* genCode(code_gen_Context& context,symbol_ptr& tree_node)=0;
+    virtual Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) = 0;
 
-    static Value* genCode(ProductionInfo& info,code_gen_Context& context,symbol_ptr& tree_node){
-        auto&code_info =dynamic_cast<code_gen_productionInfo&>(info);
-        return code_info.genCode(context,tree_node);
+    static Value *genCode(ProductionInfo &info, code_gen_Context &context, symbol_ptr &tree_node)
+    {
+        auto &code_info = dynamic_cast<code_gen_productionInfo &>(info);
+        return code_info.genCode(context, tree_node);
     }
-    static Value* tree_node_genCode(symbol_ptr& tree_node,code_gen_Context& context){
-        auto item= std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
-        return genCode(item->production.getGenCodeInfo(),context,tree_node);
+    static Value *tree_node_genCode(symbol_ptr &tree_node, code_gen_Context &context)
+    {
+        auto item = std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
+        return genCode(item->production.getGenCodeInfo(), context, tree_node);
     }
 
 
@@ -39,5 +42,4 @@ public:
 
 };
 
-
-#endif //COMPILER_CODE_GEN_PRODUCTIONINFO_H
+#endif // COMPILER_CODE_GEN_PRODUCTIONINFO_H
