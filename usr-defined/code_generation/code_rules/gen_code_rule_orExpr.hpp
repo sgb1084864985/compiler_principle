@@ -2,23 +2,23 @@
 // Created by lzy on 22-5-13.
 //
 
-#ifndef COMPILER_GEN_CODE_RULE_EQEXPR_HPP
-#define COMPILER_GEN_CODE_RULE_EQEXPR_HPP
+#ifndef COMPILER_GEN_CODE_RULE_OREXPR_HPP
+#define COMPILER_GEN_CODE_RULE_OREXPR_HPP
 #include "code_gen_productionInfo.h"
 #include "Csymbols.hpp"
 
-class gen_code_rule_eqExpr : public code_gen_productionInfo
+class gen_code_rule_orExpr : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
-        auto p = std::dynamic_pointer_cast<CSym::equality_expr>(tree_node);
+        auto p = std::dynamic_pointer_cast<CSym::or_expr>(tree_node);
         if (p->constant)
         {
             return genCodeForConstant(p->constant, context, tree_node);
         }
         auto v1 = tree_node_genCode(p->children[0], context);
         auto v2 = tree_node_genCode(p->children[1], context);
-        auto ret = context.builder->CreateICmpEQ(v1, v2, "eq");
+        auto ret = context.builder->CreateOr(v1, v2, "or");
         // if (p->implicit_cast_type)
         // {
         //     return genCodeForCast(p->implicit_cast_type, context, ret);
@@ -27,4 +27,4 @@ class gen_code_rule_eqExpr : public code_gen_productionInfo
     }
 };
 
-#endif
+#endif 

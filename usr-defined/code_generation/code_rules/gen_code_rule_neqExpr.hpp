@@ -11,7 +11,7 @@ class gen_code_rule_neqExpr : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
-        auto p = std::dynamic_pointer_cast<CSym::relational_expr>(tree_node);
+        auto p = std::dynamic_pointer_cast<CSym::equality_expr>(tree_node);
         if (p->constant)
         {
             return genCodeForConstant(p->constant, context, tree_node);
