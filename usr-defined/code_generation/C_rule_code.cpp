@@ -422,23 +422,23 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     //or_expr->xor_expr
     make_unique<ProductionInfo>(),
     //or_expr->or_expr | xor_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //xor_expr->and_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //xor_expr->xor_expr ^ and_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //and_expr->eq_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //and_expr->and_expr & eq_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //eq_expr->relational_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //eq_expr->eq_expr == relational_expr
 make_unique<ProductionInfo>(),
     //eq_expr->eq_expr != relational_expr
 make_unique<ProductionInfo>(),
     //relational_expr->shift_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //relational_expr->relational_expr < shift_expr
 make_unique<ProductionInfo>(),
     //relational_expr->relational_expr > shift_expr
@@ -448,13 +448,13 @@ make_unique<ProductionInfo>(),
     //relational_expr->relational_expr >= shift_expr
 make_unique<ProductionInfo>(),
     //shift_expr->add_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //shift_expr->shift_expr << add_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //shift_expr->shift_expr >> add_expr
     make_unique<ProductionInfo>(),
     //add_expr->mul_expr
-    make_unique<ProductionInfo>(),
+make_unique<ProductionInfo>(),
     //add_expr->add_expr + mul_expr
 make_unique<gen_code_rule_addExpr>(),
     //add_expr->add_expr - mul_expr
