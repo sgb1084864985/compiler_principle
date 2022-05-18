@@ -51,25 +51,25 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     make_unique<ProductionInfo>(),
     //expression_statement->;
     make_unique<ProductionInfo>(),
-    //expression_statement->C_expr ;
+    //expression_statement->expr ;
     make_unique<ProductionInfo>(),
-    //selection_statement->if ( C_expr ) statement else statement
+    //selection_statement->if ( expr ) statement else statement
     make_unique<ProductionInfo>(),
-    //selection_statement->if ( C_expr ) statement
+    //selection_statement->if ( expr ) statement
     make_unique<ProductionInfo>(),
-    //selection_statement->switch ( C_expr ) statement
+    //selection_statement->switch ( expr ) statement
     make_unique<ProductionInfo>(),
-    //iteration_statement->while ( C_expr ) statement
+    //iteration_statement->while ( expr ) statement
     make_unique<ProductionInfo>(),
-    //iteration_statement->do statement while ( C_expr )
+    //iteration_statement->do statement while ( expr )
     make_unique<ProductionInfo>(),
     //iteration_statement->for ( expression_statement expression_statement ) statement
     make_unique<ProductionInfo>(),
-    //iteration_statement->for ( expression_statement expression_statement C_expr ) statement
+    //iteration_statement->for ( expression_statement expression_statement expr ) statement
     make_unique<ProductionInfo>(),
     //iteration_statement->for ( declaration expression_statement ) statement
     make_unique<ProductionInfo>(),
-    //iteration_statement->for ( declaration expression_statement C_expr ) statement
+    //iteration_statement->for ( declaration expression_statement expr ) statement
     make_unique<ProductionInfo>(),
     //jump_statement->goto id ;
     make_unique<ProductionInfo>(),
@@ -79,7 +79,7 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     make_unique<ProductionInfo>(),
     //jump_statement->return ;
     make_unique<ProductionInfo>(),
-    //jump_statement->return C_expr ;
+    //jump_statement->return expr ;
     make_unique<ProductionInfo>(),
     //declaration_list->declaration
     make_unique<ProductionInfo>(),
@@ -375,9 +375,9 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     make_unique<ProductionInfo>(),
     //static_assert_declaration->_Static_assert ( constant_expr , str )
     make_unique<ProductionInfo>(),
-    //C_expr->assignment_expr
+    //expr->assignment_expr
     make_unique<ProductionInfo>(),
-    //C_expr->C_expr , assignment_expr
+    //expr->expr , assignment_expr
     make_unique<ProductionInfo>(),
     //constant_expr->conditional_expr
     make_unique<ProductionInfo>(),
@@ -409,7 +409,7 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
     make_unique<ProductionInfo>(),
     //conditional_expr->logic_or_expr
     make_unique<ProductionInfo>(),
-    //conditional_expr->logic_or_expr ? C_expr : conditional_expr
+    //conditional_expr->logic_or_expr ? expr : conditional_expr
     make_unique<ProductionInfo>(),
     //logic_or_expr->logic_and_expr
     make_unique<ProductionInfo>(),
@@ -513,7 +513,7 @@ make_unique<ProductionInfo>(),
     make_unique<ProductionInfo>(),
     //postfix_expr->postfix_expr --
     make_unique<ProductionInfo>(),
-    //postfix_expr->postfix_expr [ C_expr ]
+    //postfix_expr->postfix_expr [ expr ]
     make_unique<ProductionInfo>(),
     //postfix_expr->postfix_expr ( argument_expression_list )
     make_unique<ProductionInfo>(),
@@ -541,7 +541,7 @@ make_unique<ProductionInfo>(),
     make_unique<ProductionInfo>(),
     //constant->enumerate_constant
     make_unique<ProductionInfo>(),
-    //primary_expr->( C_expr )
+    //primary_expr->( expr )
     make_unique<ProductionInfo>(),
     //primary_expr->id // id is identifier, like abc
     make_unique<ProductionInfo>(),

@@ -113,6 +113,7 @@ public:
     bool isPointer();
     bool isStruct();
     bool isUnion();
+    bool isBasicType();
 };
 
 

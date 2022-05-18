@@ -17,7 +17,11 @@ namespace CSym{
     public:
         // pointer empty if not constant
         ptr_constant constant;
+        // pointer empty if no need to implicitly cast
         ptrType implicit_cast_type;
+        // type of current expr
+        ptrType type;
+
         C_expr(Production &production, std::string label): NonTerminal(production, std::move(label)) {
 
         }
