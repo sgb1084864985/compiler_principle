@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include <list>
+#include <utility>
 #include <vector>
 #include <unordered_map>
 
@@ -42,18 +43,29 @@ public:
         //        dType dt=dType::SIGNED_INTEGER;
         //        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
 
+        name_item(ptrType& type,int alloc_order,ptr_constant initializer={}):type(type),alloc_order(alloc_order),initializer(std::move(initializer)){}
+        name_item(ptrType& type,ptr_func& f):type(type),func(f){}
+
+        bool hasInitValue(){return ~!initializer;}
+        bool hasFuncDefinition(){return type->isFunction() && ~!func;};
+        void setFuncDefinition(ptr_func& ptrFunc){ this->func=ptrFunc;}
+        [[nodiscard]] bool getAllocOrder() const{return alloc_order;}
+        [[nodiscard]] ptrType getType() const{return type;}
     };
 
     using ptr_name=std::shared_ptr<name_item>;
 
 public:
+    // this list would follow the declaration order
     const vector<string>& getDeclarationList(){return declaration_list;};
+
     ptr_name get(string& name); // if not found, goto parent name_table
     // can only change local name_table
     void insert(string& name,ptr_name& val);
     void remove(string& name);
 
     explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
+
 private:
     // follows the order of declaration
     vector<string> declaration_list;

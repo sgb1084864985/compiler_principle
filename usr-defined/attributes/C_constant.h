@@ -21,27 +21,30 @@ enum class TokenType{
 class C_constant {
     using ptr_constant=std::shared_ptr<C_constant>;
 public:
-//    dType dt=dType::SIGNED_INTEGER;
-//    int bytes_per_unit=8; // at least 1
-//    int length{};
-//
-//    unsigned char * data{};
+    static ptr_constant newArray(std::vector<ptr_constant>& constants) noexcept;
 
-    // if create error, return empty pointer constant
+    static ptr_constant newStruct(std::vector<ptr_constant>& constants) noexcept;
 
-    // class T allows pointer
-    template<class T>
-    static ptr_constant newNullValue(T values);
+    static ptr_constant fromString(std::string& str,TokenType type) noexcept;
 
-    // class T allows only basic type
+    // for create function, if error occurred, return empty pointer constant
+
+    static ptr_constant newNullValue();
+    static ptr_constant newPtrValue(void*ptr);
+    static ptr_constant newPtrAdd(ptr_constant& ptr,unsigned unit_size);
+    static ptr_constant newPtrSub(ptr_constant& ptr,unsigned unit_size);
+
+    // for functions below, class T allows only basic type or their pointer
+    template<class T> T getValue();
+
     template<class T>
     static ptr_constant newConstant(T values);
 
     template<class T>
-    static ptr_constant newZero(T values);
+    static ptr_constant newZero();
 
     template<class T>
-    static ptr_constant newOne(T values);
+    static ptr_constant newOne();
 
     template<class T1,class T2>
     static ptr_constant newAdd(ptr_constant& op1,ptr_constant& op2);
@@ -51,6 +54,9 @@ public:
 
     template<class T1,class T2>
     static ptr_constant newSub(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newMinus(ptr_constant& op1);
 
     template<class T1,class T2>
     static ptr_constant newDiv(ptr_constant& op1,ptr_constant& op2);
@@ -82,13 +88,13 @@ public:
     template<class T1,class T2>
     static ptr_constant newRIGHT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
-    static ptr_constant newArray(std::vector<ptr_constant>& constants) noexcept;
-
-    static ptr_constant newStruct(std::vector<ptr_constant>& constants) noexcept;
-
-    static ptr_constant fromString(std::string& str,TokenType type) noexcept;
-
     virtual void describe(){}
+//    dType dt=dType::SIGNED_INTEGER;
+//    int bytes_per_unit=8; // at least 1
+//    int length{};
+//
+//    unsigned char * data{};
+
 };
 
 using ptr_constant=std::shared_ptr<C_constant>;

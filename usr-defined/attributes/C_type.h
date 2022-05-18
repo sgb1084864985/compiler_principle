@@ -144,6 +144,7 @@ public:
     void setTypeQuantifier(CTS::TypeSpecifier quantifier);
     void setPointerTypeQuantifier(CTS::TypeSpecifier quantifier,int pointer_level=0);
 
+    // for struct and union types, type1.equals(type2) requires namespaces are same
     bool equals(ptrType& other);
     bool const_equals(ptrType& other);
 
