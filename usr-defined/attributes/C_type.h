@@ -155,6 +155,7 @@ public:
 
     // int,float,...
     bool isBasicType();
+    bool isSigned();
 
     CTS::TypeSpecifier getTypeSpecifier();
     CTS::StorageSpecifier getStorageSpecifier();

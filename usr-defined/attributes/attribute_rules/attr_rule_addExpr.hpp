@@ -28,14 +28,14 @@ class AttrRule_addExpr1:public AttrRule{
             if(op1->constant && op2->constant){
                 // assume it is int
                 if(op1->type->isBasicType()){
-                    switch (op1->type->declarationSpecifiers.typeSpecifier) {
+                    switch (op1->type->getTypeSpecifier()) {
                         case CTS::BOOL:
                         case CTS::CHAR:
                         case CTS::SHORT:
                         case CTS::INT:
                         case CTS::LONG:
                         case CTS::LONGLONG:
-                            if(op1->type->declarationSpecifiers.isSigned){
+                            if(op1->type->isSigned()){
                                 p->constant=C_constant::newAdd<int,int>(op1->constant,op2->constant);
                             }
                             else{

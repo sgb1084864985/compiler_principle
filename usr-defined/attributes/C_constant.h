@@ -27,12 +27,21 @@ public:
 //
 //    unsigned char * data{};
 
-    // if create error, return empty pointer
+    // if create error, return empty pointer constant
 
-    // T
-    // allow only basic type
+    // class T allows pointer
     template<class T>
-    static ptr_constant newConstant(T* values,int len);
+    static ptr_constant newNullValue(T values);
+
+    // class T allows only basic type
+    template<class T>
+    static ptr_constant newConstant(T values);
+
+    template<class T>
+    static ptr_constant newZero(T values);
+
+    template<class T>
+    static ptr_constant newOne(T values);
 
     template<class T1,class T2>
     static ptr_constant newAdd(ptr_constant& op1,ptr_constant& op2);
