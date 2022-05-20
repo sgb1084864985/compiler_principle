@@ -1,5 +1,6 @@
 
 add_subdirectory(symbols)
+add_subdirectory(attribute_rules)
 
 set(
         SRC_LIST

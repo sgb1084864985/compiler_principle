@@ -35,12 +35,13 @@ public:
 
         // empty if extern
         // else it is the alloc order in current namespace
+        // start from 0
         int alloc_order=NO_ALLOC;
 
         //        dType dt=dType::SIGNED_INTEGER;
         //        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
 
-        name_item(ptrType& type,int alloc_order):type(type),alloc_order(alloc_order){}
+        explicit name_item(ptrType& type):type(type){}
         name_item(ptrType& type,ptr_func& f):type(type),func(f){}
 
         bool hasFuncDefinition(){return type->isFunction() && ~!func;};
@@ -57,8 +58,10 @@ public:
 
     ptr_name get(string& name); // if not found, goto parent name_table
     // can only change local name_table
-    void insert(string& name,ptr_name& val);
+    void insert(string&& name,ptr_name& val,bool alloc=true);
     void remove(string& name);
+
+    unsigned getAllocatedNumber() const{return allocated_number;}
 
     explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
 
@@ -73,6 +76,8 @@ private:
 
     // empty if it is root name space(that is, global namespace)
     ptrNamespace parentNamespace;
+
+    unsigned allocated_number=0;
 
 //    std::list<ptrCNamespace> subNamespaces;
 };

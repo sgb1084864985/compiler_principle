@@ -23,8 +23,11 @@ CNameSpace::ptr_name CNameSpace::get(std::string& name) {
 }
 
 // if key has exists, overwrite it
-void CNameSpace::insert(string& name, CNameSpace::ptr_name &val) {
+void CNameSpace::insert(string&& name, CNameSpace::ptr_name &val,bool alloc) {
     name_table[name]=val;
+    if(alloc){
+        val->alloc_order=allocated_number++;
+    }
 }
 
 void CNameSpace::remove(string &name) {

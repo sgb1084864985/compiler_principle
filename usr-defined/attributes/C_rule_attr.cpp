@@ -142,40 +142,58 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //storage_class_specifier->register
     make_unique<ProductionInfo>(),
+
     //type_specifier->void
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::VOID),
+
     //type_specifier->char
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::CHAR),
+
     //type_specifier->short
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::SHORT),
+
     //type_specifier->int
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::INT),
+
     //type_specifier->long
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::LONG),
+
     //type_specifier->float
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::FLOAT),
+
     //type_specifier->double
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::DOUBLE),
+
     //type_specifier->signed
-    make_unique<AttrRuleVoid>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::type_unset),
+
     //type_specifier->unsigned
-    make_unique<AttrRuleVoid>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::type_unset, false),
+
     //type_specifier->_Bool
     make_unique<AttrRuleVoid>(),
+
     //type_specifier->_Complex
     make_unique<AttrRuleVoid>(),
+
     //type_specifier->_Imaginary
     make_unique<AttrRuleVoid>(),
+
     //type_specifier->atomic_type_specifier
     make_unique<ProductionInfo>(),
+
     //type_specifier->struct_or_union_specifier
     make_unique<ProductionInfo>(),
+
     //type_specifier->enum_specifier
     make_unique<ProductionInfo>(),
+
     //type_specifier->typedef_name
     make_unique<ProductionInfo>(),
+
     //struct_or_union_specifier->struct_or_union { struct_declaration_list }
     make_unique<ProductionInfo>(),
+
     //struct_or_union_specifier->struct_or_union id { struct_declaration_list }
     make_unique<ProductionInfo>(),
     //struct_or_union_specifier->struct_or_union id
@@ -222,46 +240,67 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //enum_specifier->enum id
     make_unique<ProductionInfo>(),
+
     //enumerator_list->enumerator
     make_unique<ProductionInfo>(),
+
     //enumerator_list->enumerator_list , enumerator
     make_unique<ProductionInfo>(),
+
     //enumerator->id = constant_expr
     make_unique<ProductionInfo>(),
+
     //enumerator->id
     make_unique<ProductionInfo>(),
+
     //atomic_type_specifier->_Atomic ( type_name )
     make_unique<ProductionInfo>(),
+
     //type_qualifier->const
     make_unique<ProductionInfo>(),
+
     //type_qualifier->restrict
     make_unique<ProductionInfo>(),
+
     //type_qualifier->volatile
     make_unique<ProductionInfo>(),
+
     //type_qualifier->_Atomic
     make_unique<ProductionInfo>(),
+
     //function_specifier->inline
     make_unique<ProductionInfo>(),
+
     //function_specifier->_Noreturn
     make_unique<ProductionInfo>(),
+
     //alignment_specifier->_Alignas ( type_name )
     make_unique<ProductionInfo>(),
+
     //alignment_specifier->_Alignas ( constant_expr )
     make_unique<ProductionInfo>(),
+
     //declarator->pointer direct_declarator
     make_unique<ProductionInfo>(),
+
     //declarator->direct_declarator
     make_unique<ProductionInfo>(),
+
     //direct_declarator->id
     make_unique<ProductionInfo>(),
+
     //direct_declarator->( declarator )
     make_unique<ProductionInfo>(),
+
     //direct_declarator->direct_declarator [ ]
     make_unique<ProductionInfo>(),
+
     //direct_declarator->direct_declarator [ * ]
     make_unique<ProductionInfo>(),
+
     //direct_declarator->direct_declarator [ static type_qualifier_list assignment_expr ]
     make_unique<ProductionInfo>(),
+
     //direct_declarator->direct_declarator [ static assignment_expr ]
     make_unique<ProductionInfo>(),
     //direct_declarator->direct_declarator [ type_qualifier_list * ]

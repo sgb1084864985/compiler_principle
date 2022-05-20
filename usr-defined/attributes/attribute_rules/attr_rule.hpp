@@ -2,8 +2,8 @@
 // Created by zlz on 22-5-16.
 //
 
-#ifndef COMPILER_ATTR_RULE_EXPR_H
-#define COMPILER_ATTR_RULE_EXPR_H
+#ifndef COMPILER_ATTR_RULE_H
+#define COMPILER_ATTR_RULE_H
 
 #include "ProductionInfo.h"
 #include "AttrContext.h"
@@ -41,7 +41,9 @@ public:
 		throw std::logic_error("No operator provided");
 	}
 
-    virtual void fillAttributes(AttrContext& context, symbol_ptr& tree_node)=0;
+    virtual void fillAttributes(AttrContext& context, symbol_ptr& tree_node){
+        throw std::logic_error("Method fillAttributes is not implemented");
+    }
 
     static void fillAttributes(ProductionInfo& info,AttrContext& context,symbol_ptr& tree_node){
         auto&attr_info =dynamic_cast<AttrRule&>(info);
@@ -52,6 +54,12 @@ public:
         auto item= std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
         return fillAttributes(item->production.getAttrs(),context,tree_node);
     }
+
+    template<class T=AttrRule>
+    static T& getAttr(symbol_ptr& node){
+        auto item= std::dynamic_pointer_cast<AST::NonTerminal>(node);
+        return dynamic_cast<T&>(item->production.getAttrs());
+    }
 };
 
-#endif //COMPILER_ATTR_RULE_EXPR_H
+#endif //COMPILER_ATTR_RULE_H

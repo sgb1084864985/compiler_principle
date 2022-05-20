@@ -86,45 +86,44 @@ public:
 	}
 };
 
-class AttrRuleTypeSpec : public AttrRule, public TypedRule{
+//type_specifier->........
+class AttrRuleTypeSpec : public AttrRule{
 public:
-	AttrRuleTypeSpec(const CTS::TypeSpecifier& type) : m_type(type) {}
-	CTS::TypeSpecifier GetType() const override {
-		return m_type;
-	}
-
-	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-
+	explicit AttrRuleTypeSpec(const CTS::TypeSpecifier& type,bool Signed= true) : m_type(type),Signed(Signed){}
+	ptrType GetType(symbol_ptr &tree_node) override {
+		return C_type::newBasicType(m_type,Signed);
 	}
 private:
 	CTS::TypeSpecifier m_type;
+    bool Signed;
 };
 
+
+//declaration_specifiers->type_specifier
 class AttrRuleType : public AttrRule {
 public:
 	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		auto p = std::dynamic_pointer_cast<CSym::declaration_specifiers>(tree_node);
 		p->owner = context.currentNameSpace;
 	}
-	CTS::TypeSpecifier GetType(symbol_ptr &tree_node) {
+	ptrType GetType(symbol_ptr &tree_node)override {
 		auto p = std::dynamic_pointer_cast<CSym::declaration_specifiers>(tree_node);
-		auto child = std::dynamic_pointer_cast<AST::NonTerminal>(p->children[0]);
-		auto child_rule = dynamic_cast<AttrRuleTypeSpec&>(child->production.getAttrs());
-		return child_rule.GetType();
+		auto& child_rule = getAttr(p->children[0]);
+		return child_rule.GetType(p->children[0]);
 	}
 };
 
+//declaration->declaration_specifiers init_declarator_list ;
 class AttrRuleInit : public AttrRule {
 	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		auto p = std::dynamic_pointer_cast<CSym::declaration>(tree_node);
-		auto child = std::dynamic_pointer_cast<AST::NonTerminal>(p->children[0]);
-		auto child_rule = dynamic_cast<AttrRuleType&>(p->production.getAttrs());
-		auto type = child_rule.GetType(p->children[0]);
+        p->owner=context.currentNameSpace;
 
-//		tree_node_fillAttributes()
+		auto& type_rule = getAttr(p->children[0]);
+		auto type = type_rule.GetType(p->children[0]);
+
 	}
 };
-
 
 class AttrRuleVoid : public AttrRule {
 	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {

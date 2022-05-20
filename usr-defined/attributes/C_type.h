@@ -17,6 +17,7 @@ using ptrType=std::shared_ptr<C_type>;
 namespace CTS{
     int constexpr NONE=0;
     enum StorageSpecifier{
+        storage_unset,
         STATIC=0X1,
         EXTERN=0X2,
         THREAD_LOCAL=0X4,
@@ -25,11 +26,14 @@ namespace CTS{
     };
 
     enum TypeSpecifier{
+        type_unset,
         VOID=1,CHAR,SHORT,INT,
         LONG,LONGLONG,FLOAT,
         DOUBLE,BOOL,COMPLEX,
         IMAGINARY,STRUCT,UNION,
-        ENUM// not implemented now
+
+        // not implemented now
+        ENUM,
     };
 
     enum TypeQuantifier{
@@ -62,8 +66,8 @@ namespace CTS{
 
     class DeclarationSpecifiers{
     public:
-        CTS::TypeSpecifier typeSpecifier=CTS::INT;
-        int storageSpecifier=CTS::AUTO;
+        CTS::TypeSpecifier typeSpecifier=CTS::type_unset;
+        int storageSpecifier=CTS::storage_unset;
         int typeQuantifier=CTS::NONE;
         int funcSpecifier=CTS::NONE;
         bool isSigned= true;
@@ -106,6 +110,15 @@ namespace CTS{
 
 class C_type{
 public:
+
+    static ptrType newIncompleteType();
+    static ptrType newIncompleteType(bool Signed);
+    static ptrType newIncompleteType(CTS::StorageSpecifier);
+    static ptrType newConstIncompleteType(int quantifier);
+    static ptrType newFuncIncompleteType(int functionSpecifier);
+
+    static ptrType newMergeType(CTS::DeclarationSpecifiers& part1,CTS::ptrDelclarator& part2);
+
     // Signed is valid only if type is char,short,int,long,longlong
     static ptrType newBasicType(CTS::TypeSpecifier type,bool Signed= true,CTS::StorageSpecifier storage=CTS::AUTO,int quantifier=CTS::NONE);
     static ptrType newStructType(CTS::ptr_struct& struct_item,CTS::StorageSpecifier storage=CTS::AUTO,int quantifier=CTS::NONE);
@@ -171,6 +184,8 @@ public:
     ptrType getReturnType();
     CTS::ptrParams getParameterTypes();
 
+    CTS::DeclarationSpecifiers& getDeclarationSpecifiers();
+    CTS::ptrDelclarator& getDeclarator();
 private:
     CTS::DeclarationSpecifiers declarationSpecifiers;
     CTS::ptrDelclarator declarator;
