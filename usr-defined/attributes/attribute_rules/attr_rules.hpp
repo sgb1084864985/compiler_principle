@@ -7,6 +7,14 @@
 #include "attr_rule.hpp"
 #include "Csymbols.hpp"
 #include "C_constant.h"
+#include "C_type.h"
+
+class TypedRule {
+public:
+	virtual CTS::TypeSpecifier GetType() const = 0;
+};
+
+
 
 // add_expr -> add_expr + mul_expr
 class AttrRule_addExpr1:public AttrRule{
@@ -58,5 +66,73 @@ class AttrRule_addExpr1:public AttrRule{
         }
     }
 };
+
+class AttrRule_decl_list_single : public AttrRule {
+public:
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		auto p = std::dynamic_pointer_cast<CSym::declaration_list>(tree_node);
+		p->owner = context.currentNameSpace;
+		tree_node_fillAttributes(context, p->children[0]);
+	}
+};
+
+class AttrRule_decl_list_recursive : public AttrRule {
+public:
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		auto p = std::dynamic_pointer_cast<CSym::declaration_list>(tree_node);
+		p->owner = context.currentNameSpace;
+		tree_node_fillAttributes(context, p->children[0]);
+		tree_node_fillAttributes(context, p->children[1]);
+	}
+};
+
+class AttrRuleTypeSpec : public AttrRule, public TypedRule{
+public:
+	AttrRuleTypeSpec(const CTS::TypeSpecifier& type) : m_type(type) {}
+	CTS::TypeSpecifier GetType() const override {
+		return m_type;
+	}
+
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+
+	}
+private:
+	CTS::TypeSpecifier m_type;
+};
+
+class AttrRuleType : public AttrRule {
+public:
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		auto p = std::dynamic_pointer_cast<CSym::declaration_specifiers>(tree_node);
+		p->owner = context.currentNameSpace;
+	}
+	CTS::TypeSpecifier GetType(symbol_ptr &tree_node) {
+		auto p = std::dynamic_pointer_cast<CSym::declaration_specifiers>(tree_node);
+		auto child = std::dynamic_pointer_cast<AST::NonTerminal>(p->children[0]);
+		auto child_rule = dynamic_cast<AttrRuleTypeSpec&>(child->production.getAttrs());
+		return child_rule.GetType();
+	}
+};
+
+class AttrRuleInit : public AttrRule {
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		auto p = std::dynamic_pointer_cast<CSym::declaration>(tree_node);
+		auto child = std::dynamic_pointer_cast<AST::NonTerminal>(p->children[0]);
+		auto child_rule = dynamic_cast<AttrRuleType&>(p->production.getAttrs());
+		auto type = child_rule.GetType(p->children[0]);
+
+//		tree_node_fillAttributes()
+	}
+};
+
+
+class AttrRuleVoid : public AttrRule {
+	void fillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+
+	}
+};
+
+
+
 
 #endif //COMPILER_GEN_CODE_RULE_ADDEXPR_HPP

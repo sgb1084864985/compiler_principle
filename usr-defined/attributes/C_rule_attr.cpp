@@ -4,6 +4,7 @@
 //
 
 #include "C_rule_attr.h"
+#include "attr_rules.hpp"
 
 using std::unique_ptr;
 using std::make_unique;
@@ -83,23 +84,32 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //jump_statement->return expr ;
     make_unique<ProductionInfo>(),
     //declaration_list->declaration
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRule_decl_list_single>(),
+
     //declaration_list->declaration_list declaration
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRule_decl_list_recursive>(),
+
     //declaration->declaration_specifiers ;
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
+
     //declaration->declaration_specifiers init_declarator_list ;
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleInit>(),
+
     //declaration->static_assert_declaration
     make_unique<ProductionInfo>(),
+
     //declaration_specifiers->storage_class_specifier
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
+
     //declaration_specifiers->storage_class_specifier declaration_specifiers
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
+
     //declaration_specifiers->type_specifier
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleType>(),
+
     //declaration_specifiers->type_specifier declaration_specifiers
     make_unique<ProductionInfo>(),
+
     //declaration_specifiers->type_qualifier
     make_unique<ProductionInfo>(),
     //declaration_specifiers->function_specifier
@@ -133,29 +143,29 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //storage_class_specifier->register
     make_unique<ProductionInfo>(),
     //type_specifier->void
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::VOID),
     //type_specifier->char
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::CHAR),
     //type_specifier->short
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::SHORT),
     //type_specifier->int
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::INT),
     //type_specifier->long
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::LONG),
     //type_specifier->float
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::FLOAT),
     //type_specifier->double
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::DOUBLE),
     //type_specifier->signed
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
     //type_specifier->unsigned
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
     //type_specifier->_Bool
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
     //type_specifier->_Complex
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
     //type_specifier->_Imaginary
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleVoid>(),
     //type_specifier->atomic_type_specifier
     make_unique<ProductionInfo>(),
     //type_specifier->struct_or_union_specifier

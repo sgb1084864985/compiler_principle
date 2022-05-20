@@ -7,9 +7,40 @@
 
 #include "ProductionInfo.h"
 #include "AttrContext.h"
+#include <stdexcept>
+
+enum class OperatorType {
+	kEqual,
+	kMultiplyEqual,
+	kModuleEqual,
+	kPlusEqual,
+	kMinusEqual,
+	kLeftShiftEqual,
+	kRightShiftEqual,
+	kAndEqual,
+	kXorEqual,
+	kOrEqual,
+	kPlusPlus,
+	kMinusMinus,
+	kPlus,
+	kMinus,
+	kMultiply,
+	kAnd,
+	kOr,
+	kTilde,
+	kExclaim,
+};
 
 class AttrRule:public ProductionInfo{
 public:
+	virtual ptrType GetType(symbol_ptr& node) {
+		throw std::logic_error("No type provided");
+	}
+
+	virtual OperatorType GetOperator(symbol_ptr& node) {
+		throw std::logic_error("No operator provided");
+	}
+
     virtual void fillAttributes(AttrContext& context, symbol_ptr& tree_node)=0;
 
     static void fillAttributes(ProductionInfo& info,AttrContext& context,symbol_ptr& tree_node){
