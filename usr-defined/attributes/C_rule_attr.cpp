@@ -9,28 +9,50 @@
 using std::unique_ptr;
 using std::make_unique;
 unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
+        //TODO:
     //translation_unit->external_declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //translation_unit->translation_unit external_declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //external_declaration->function_definition
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //external_declaration->declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //function_definition->declaration_specifiers declarator declaration_list compound_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //function_definition->declaration_specifiers declarator compound_statement
     make_unique<ProductionInfo>(),
+
     //statement->labeled_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //statement->compound_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //statement->expression_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //statement->selection_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //statement->iteration_statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //statement->jump_statement
     make_unique<ProductionInfo>(),
     //labeled_statement->id : statement
@@ -39,30 +61,53 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //labeled_statement->default : statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //compound_statement->{ }
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //compound_statement->{ block_item_list }
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //block_item_list->block_item
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //block_item_list->block_item_list block_item
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //block_item->declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //block_item->statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //expression_statement->;
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //expression_statement->expr ;
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //selection_statement->if ( expr ) statement else statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //selection_statement->if ( expr ) statement
     make_unique<ProductionInfo>(),
     //selection_statement->switch ( expr ) statement
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //iteration_statement->while ( expr ) statement
     make_unique<ProductionInfo>(),
+
     //iteration_statement->do statement while ( expr )
     make_unique<ProductionInfo>(),
     //iteration_statement->for ( expression_statement expression_statement ) statement
@@ -83,6 +128,8 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //jump_statement->return expr ;
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //declaration_list->declaration
     make_unique<AttrRule_decl_list_single>(),
 
@@ -92,6 +139,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //declaration->declaration_specifiers ;
     make_unique<AttrRuleVoid>(),
 
+        //TODO:
     //declaration->declaration_specifiers init_declarator_list ;
     make_unique<AttrRuleInit>(),
 
@@ -104,6 +152,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //declaration_specifiers->storage_class_specifier declaration_specifiers
     make_unique<AttrRuleVoid>(),
 
+        //TODO:
     //declaration_specifiers->type_specifier
     make_unique<AttrRuleType>(),
 
@@ -122,10 +171,14 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //declaration_specifiers->alignment_specifier declaration_specifiers
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //init_declarator_list->init_declarator
     make_unique<ProductionInfo>(),
     //init_declarator_list->init_declarator_list , init_declarator
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //init_declarator->declarator
     make_unique<ProductionInfo>(),
     //init_declarator->declarator = initializer
@@ -152,6 +205,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //type_specifier->short
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::SHORT),
 
+        //TODO:
     //type_specifier->int
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::INT),
 
@@ -161,6 +215,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //type_specifier->float
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::FLOAT),
 
+        //TODO:
     //type_specifier->double
     make_unique<AttrRuleTypeSpec>(CTS::TypeSpecifier::DOUBLE),
 
@@ -283,9 +338,11 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //declarator->pointer direct_declarator
     make_unique<ProductionInfo>(),
 
+        //TODO:
     //declarator->direct_declarator
     make_unique<ProductionInfo>(),
 
+        //TODO:
     //direct_declarator->id
     make_unique<ProductionInfo>(),
 
@@ -311,8 +368,12 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //direct_declarator->direct_declarator [ type_qualifier_list ]
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //direct_declarator->direct_declarator ( )
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //direct_declarator->direct_declarator ( parameter_type_list )
     make_unique<ProductionInfo>(),
     //direct_declarator->direct_declarator ( identifier_list )
@@ -329,16 +390,25 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //type_qualifier_list->type_qualifier_list type_qualifier
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //parameter_type_list->parameter_list
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //parameter_type_list->parameter_list , ...
     make_unique<ProductionInfo>(),
     //parameter_list->parameter_declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //parameter_list->parameter_list , parameter_declaration
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //parameter_declaration->declaration_specifiers declarator
     make_unique<ProductionInfo>(),
+
     //parameter_declaration->declaration_specifiers abstract_declarator
     make_unique<ProductionInfo>(),
     //parameter_declaration->declaration_specifiers
@@ -425,16 +495,24 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //static_assert_declaration->_Static_assert ( constant_expr , str )
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //expr->assignment_expr
     make_unique<ProductionInfo>(),
     //expr->expr , assignment_expr
     make_unique<ProductionInfo>(),
     //constant_expr->conditional_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //assignment_expr->conditional_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //assignment_expr->unary_expr assignment_operator assignment_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //assignment_operator->=
     make_unique<ProductionInfo>(),
     //assignment_operator->*=
@@ -457,72 +535,126 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //assignment_operator->|=
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //conditional_expr->logic_or_expr
     make_unique<ProductionInfo>(),
     //conditional_expr->logic_or_expr ? expr : conditional_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //logic_or_expr->logic_and_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //logic_or_expr->logic_or_expr || logic_and_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //logic_and_expr->or_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //logic_and_expr->logic_and_expr && or_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //or_expr->xor_expr
     make_unique<ProductionInfo>(),
+
     //or_expr->or_expr | xor_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //xor_expr->and_expr
     make_unique<ProductionInfo>(),
     //xor_expr->xor_expr ^ and_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //and_expr->eq_expr
     make_unique<ProductionInfo>(),
     //and_expr->and_expr & eq_expr
     make_unique<ProductionInfo>(),
     //eq_expr->relational_expr
+
+        //TODO:
     make_unique<ProductionInfo>(),
     //eq_expr->eq_expr == relational_expr
+
+        //TODO:
     make_unique<ProductionInfo>(),
     //eq_expr->eq_expr != relational_expr
+
+        //TODO:
     make_unique<ProductionInfo>(),
     //relational_expr->shift_expr
+
+        //TODO:
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //relational_expr->relational_expr < shift_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //relational_expr->relational_expr > shift_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //relational_expr->relational_expr <= shift_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //relational_expr->relational_expr >= shift_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //shift_expr->add_expr
     make_unique<ProductionInfo>(),
     //shift_expr->shift_expr << add_expr
     make_unique<ProductionInfo>(),
     //shift_expr->shift_expr >> add_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //add_expr->mul_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //add_expr->add_expr + mul_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //add_expr->add_expr - mul_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //mul_expr->unary_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //mul_expr->mul_expr * unary_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //mul_expr->mul_expr / unary_expr
     make_unique<ProductionInfo>(),
+
     //mul_expr->mul_expr % unary_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //cast_expr->unary_expr
     make_unique<ProductionInfo>(),
     //cast_expr->( type_name ) cast_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //unary_expr->postfix_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //unary_expr->unary_operator cast_expr
     make_unique<ProductionInfo>(),
     //unary_expr->++ unary_expr
@@ -541,18 +673,30 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //unary_operator->+
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //unary_operator->-
     make_unique<ProductionInfo>(),
     //unary_operator->~
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //unary_operator->!
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //argument_expression_list->assignment_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //argument_expression_list->argument_expression_list , assignment_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //postfix_expr->primary_expr
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //postfix_expr->postfix_expr ( )
     make_unique<ProductionInfo>(),
     //postfix_expr->postfix_expr . id
@@ -565,12 +709,16 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //postfix_expr->postfix_expr [ expr ]
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //postfix_expr->postfix_expr ( argument_expression_list )
     make_unique<ProductionInfo>(),
     //postfix_expr->( type_name ) { initializer_list }
     make_unique<ProductionInfo>(),
     //postfix_expr->( type_name ) { initializer_list , }
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //String->str // str is just a token, like "hello"
     make_unique<ProductionInfo>(),
     //String->__func__
@@ -585,18 +733,30 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<ProductionInfo>(),
     //generic_association->default : assignment_expr
     make_unique<ProductionInfo>(),
-    //constant->integer
+
+        //TODO:
+    //constant->integer // token
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //constant->Float // Float is a token, like 3.14
     make_unique<ProductionInfo>(),
     //constant->enumerate_constant
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //primary_expr->( expr )
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //primary_expr->id // id is identifier, like abc
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //primary_expr->constant
     make_unique<ProductionInfo>(),
+
+        //TODO:
     //primary_expr->String // String is not a token
     make_unique<ProductionInfo>(),
     //primary_expr->generic_selection
