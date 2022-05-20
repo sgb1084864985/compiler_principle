@@ -30,9 +30,6 @@ public:
         static constexpr int NO_ALLOC=-1;
         ptrType type;
 
-        // empty if no initializer
-        ptr_constant initializer;
-
         // empty if it is not a function
         ptr_func func;
 
@@ -43,10 +40,9 @@ public:
         //        dType dt=dType::SIGNED_INTEGER;
         //        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
 
-        name_item(ptrType& type,int alloc_order,ptr_constant initializer={}):type(type),alloc_order(alloc_order),initializer(std::move(initializer)){}
+        name_item(ptrType& type,int alloc_order):type(type),alloc_order(alloc_order){}
         name_item(ptrType& type,ptr_func& f):type(type),func(f){}
 
-        bool hasInitValue(){return ~!initializer;}
         bool hasFuncDefinition(){return type->isFunction() && ~!func;};
         void setFuncDefinition(ptr_func& ptrFunc){ this->func=ptrFunc;}
         [[nodiscard]] bool getAllocOrder() const{return alloc_order;}
