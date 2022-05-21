@@ -33,7 +33,7 @@ enum class OperatorType {
 
 class AttrRule:public ProductionInfo{
 public:
-	virtual ptrType GetType(symbol_ptr& node) {
+	virtual ptrType GetType() {
 		throw std::logic_error("No type provided");
 	}
 
@@ -41,18 +41,25 @@ public:
 		throw std::logic_error("No operator provided");
 	}
 
-    virtual void fillAttributes(AttrContext& context, symbol_ptr& tree_node){
-        throw std::logic_error("Method fillAttributes is not implemented");
+	virtual std::string GetID() {
+		throw std::logic_error("No ID provided");
+	}
+
+    virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node){
+        throw std::logic_error("Method FillAttributes is not implemented");
     }
 
-    static void fillAttributes(ProductionInfo& info,AttrContext& context,symbol_ptr& tree_node){
+    static void FillAttributes(ProductionInfo& info, AttrContext& context, symbol_ptr& tree_node){
         auto&attr_info =dynamic_cast<AttrRule&>(info);
-        return attr_info.fillAttributes(context,tree_node);
+        attr_info.FillAttributes(context, tree_node);
     }
 
-    static void tree_node_fillAttributes(AttrContext& context, symbol_ptr& tree_node){
+    static void TreeNodeFillAttributes(AttrContext& context, symbol_ptr& tree_node){
         auto item= std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
-        return fillAttributes(item->production.getAttrs(),context,tree_node);
+		if (item == nullptr) {
+			return;
+		}
+        FillAttributes(item->production.getAttrs(), context, tree_node);
     }
 
     template<class T=AttrRule>

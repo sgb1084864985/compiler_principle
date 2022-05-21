@@ -46,7 +46,7 @@ public:
         auto& child_rule= getAttr<declaration_system>(p->children[0]);
         child_rule.visit(type,node,context);
 
-        auto child_type=child_rule.GetType(p->children[0]);
+        auto child_type= child_rule.GetType();
         auto merged_type=C_type::newMergeType(type->getDeclarationSpecifiers(),child_type->getDeclarator());
 
         ptr_name name= std::make_shared<CNameSpace::name_item>(merged_type);
@@ -66,11 +66,11 @@ public:
         auto& child_rule= getAttr<declaration_system>(p->children[0]);
         child_rule.visit(type,node,context);
 
-        m_type=child_rule.GetType(p->children[0]);
+        m_type= child_rule.GetType();
         id=child_rule.getID();
     }
 
-    ptrType GetType(symbol_ptr &node)override{
+    ptrType GetType() override{
         return m_type;
     }
     const char * getID()override{
@@ -96,7 +96,7 @@ public:
         id=child->getText();
     }
 
-    ptrType GetType(symbol_ptr &node)override{
+    ptrType GetType() override{
         return C_type::newIncompleteType();
     }
 
