@@ -73,6 +73,27 @@ public:
     template<class T>
     static ptr_constant newLOGIC_NOT(ptr_constant& op1);
 
+    template<class T>
+    static ptr_constant newEQ(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newNEQ(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newLE(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newLT(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newGE(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newGT(ptr_constant& op1,ptr_constant& op2);
+
+    template<class T>
+    static ptr_constant newSELECT(ptr_constant& condition,ptr_constant& val1,ptr_constant& val2);
+
     template<class T1,class T2>
     static ptr_constant newOR(ptr_constant& op1,ptr_constant& op2);
 
