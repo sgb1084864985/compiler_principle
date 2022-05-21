@@ -158,7 +158,7 @@ public:
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
 		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-//		p->constant =
+		// TODO
 	}
 };
 
