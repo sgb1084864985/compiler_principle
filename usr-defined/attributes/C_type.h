@@ -60,6 +60,13 @@ namespace CTS{
     struct struct_item{
         std::string name;
         ptrAbstractNameSpace struct_namespace;
+
+        bool operator==(struct_item& other) const{
+            return name==other.name && struct_namespace.get()==other.struct_namespace.get();
+        }
+        bool operator!=(struct_item& other) const{
+            return name!=other.name || struct_namespace.get()!=other.struct_namespace.get();
+        }
     };
 
     using ptr_struct = std::shared_ptr<struct_item>;
@@ -67,7 +74,7 @@ namespace CTS{
     class DeclarationSpecifiers{
     public:
         CTS::TypeSpecifier typeSpecifier=CTS::type_unset;
-        int storageSpecifier=CTS::storage_unset;
+        CTS::StorageSpecifier storageSpecifier=CTS::storage_unset;
         int typeQuantifier=CTS::NONE;
         int funcSpecifier=CTS::NONE;
         bool isSigned= true;
@@ -89,6 +96,13 @@ namespace CTS{
     public:
         vector<ptrType> param_list;
         bool ellipse;
+
+        Parameters(vector<ptrType> & list,bool ellipse):param_list(list),ellipse(ellipse){
+        }
+
+        bool operator==(Parameters& other)const;
+        bool operator!=(Parameters& other)const{return !(*this==other);}
+
     };
 
     using ptrParams=std::shared_ptr<Parameters>;
@@ -104,6 +118,10 @@ namespace CTS{
         // for array type. Dim=0 if not an array
         int arrayDim{};
         vector<unsigned int > arraySizes;
+
+        bool operator==(AbstractDeclarator& other)const;
+        bool operator!=(AbstractDeclarator& other)const{return !(*this==other);}
+
     };
     using ptrDelclarator=std::shared_ptr<AbstractDeclarator>;
 }
@@ -113,9 +131,13 @@ public:
 
     static ptrType newIncompleteType();
     static ptrType newIncompleteType(bool Signed);
-    static ptrType newIncompleteType(CTS::StorageSpecifier);
+    static ptrType newIncompleteType(CTS::StorageSpecifier specifier);
     static ptrType newConstIncompleteType(int quantifier);
     static ptrType newFuncIncompleteType(int functionSpecifier);
+
+    static ptrType newFuncDeclarator(CTS::ptrParams& params);
+    static ptrType newFuncDeclarator(vector<ptrType>& param_list,bool variable_length= false);
+    static ptrType newArrayDeclarator(unsigned int dim,vector<unsigned int>& arraySizes);
 
     static ptrType newMergeType(CTS::DeclarationSpecifiers& part1,CTS::ptrDelclarator& part2);
 
@@ -161,31 +183,39 @@ public:
     bool equals(ptrType& other);
     bool const_equals(ptrType& other);
 
-    bool isFunction();
-    bool isPointer();
-    bool isStruct();
-    bool isUnion();
-    bool isArray();
+    bool isFunction(){return ~(!declarator->params);};
+    bool isPointer(){return declarator->pointers.size()>0;}
+    bool isStruct(){return getTypeSpecifier()==CTS::STRUCT;}
+    bool isUnion(){return getTypeSpecifier()==CTS::UNION;}
+    bool isArray(){return declarator->arrayDim>0;}
 
     // int,float,...
-    bool isBasicType();
-    bool isSigned();
+    bool isBasicType(){
+        return !isPointer() && !isFunction() && !isStruct() && !isUnion() &&!isArray();
+    }
+    bool isSigned(){
+        return getDeclarationSpecifiers().isSigned;
+    }
 
-    CTS::TypeSpecifier getTypeSpecifier();
-    CTS::StorageSpecifier getStorageSpecifier();
-    int getTypeQuantifier();
-    int getFunctionSpecifier();
+    CTS::TypeSpecifier getTypeSpecifier(){
+        return getDeclarationSpecifiers().typeSpecifier;
+    };
+    CTS::StorageSpecifier getStorageSpecifier(){
+        return getDeclarationSpecifiers().storageSpecifier;
+    }
+    int getTypeQuantifier(){return getDeclarationSpecifiers().typeQuantifier;}
+    int getFunctionSpecifier(){return getDeclarationSpecifiers().funcSpecifier;}
 
-    int getArrayDim();
-    const vector<unsigned int>& getArraySizes();
+    int getArrayDim(){return declarator->arrayDim;}
+    const vector<unsigned int>& getArraySizes(){return declarator->arraySizes;}
 
-    const vector<int>& getPointerQuantifiers();
+    const vector<int>& getPointerQuantifiers(){return declarator->pointers.quantifiers;}
 
     ptrType getReturnType();
-    CTS::ptrParams getParameterTypes();
+    CTS::ptrParams getParameterTypes(){return  declarator->params;}
 
-    CTS::DeclarationSpecifiers& getDeclarationSpecifiers();
-    CTS::ptrDelclarator& getDeclarator();
+    CTS::DeclarationSpecifiers& getDeclarationSpecifiers(){return declarationSpecifiers;}
+    CTS::ptrDelclarator& getDeclarator(){return declarator;}
 private:
     CTS::DeclarationSpecifiers declarationSpecifiers;
     CTS::ptrDelclarator declarator;

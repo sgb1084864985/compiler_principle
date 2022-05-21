@@ -97,6 +97,8 @@ public:
 
 };
 
+
+
 using ptr_constant=std::shared_ptr<C_constant>;
 
 #endif //COMPILER_C_CONSTANT_H
