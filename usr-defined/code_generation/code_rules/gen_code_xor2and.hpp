@@ -7,6 +7,7 @@
 #include "code_gen_productionInfo.h"
 #include "Csymbols.hpp"
 
+// xor_expr->and_expr
 class gen_code_xor2and : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
@@ -17,13 +18,13 @@ class gen_code_xor2and : public code_gen_productionInfo
             return genCodeForConstant(p->constant, context, tree_node);
         }
 
-        auto v1 = tree_node_genCode(p->children[0], context);
-        // if (p->implicit_cast_type)
-        // {
-        //     return genCodeForCast(p->implicit_cast_type, context, ret);
-        // }
+        auto ret = tree_node_genCode(p->children[0], context);
+        if (p->implicit_cast_type)
+        {
+            return genCodeForCast(p->implicit_cast_type, context, ret);
+        }
         return ret;
     }
 };
 
-#endif 
+#endif

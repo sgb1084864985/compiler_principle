@@ -7,6 +7,7 @@
 #include "code_gen_productionInfo.h"
 #include "Csymbols.hpp"
 
+// or_expr->or_expr | xor_expr
 class gen_code_rule_orExpr : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
@@ -17,14 +18,14 @@ class gen_code_rule_orExpr : public code_gen_productionInfo
             return genCodeForConstant(p->constant, context, tree_node);
         }
         auto v1 = tree_node_genCode(p->children[0], context);
-        auto v2 = tree_node_genCode(p->children[1], context);
+        auto v2 = tree_node_genCode(p->children[2], context);
         auto ret = context.builder->CreateOr(v1, v2, "or");
-        // if (p->implicit_cast_type)
-        // {
-        //     return genCodeForCast(p->implicit_cast_type, context, ret);
-        // }
+        if (p->implicit_cast_type)
+        {
+            return genCodeForCast(p->implicit_cast_type, context, ret);
+        }
         return ret;
     }
 };
 
-#endif 
+#endif
