@@ -22,4 +22,40 @@ protected:
 	bool m_variable_length = false;
 };
 
+//parameter_list->parameter_declaration
+class AttrRuleParamListSingleDecl : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto decl = tree_node->children[0];
+		decl->getAttr().FillAttributes(context, decl);
+		tree_node->params.push_back(decl->type);
+	}
+};
+
+class AttrRuleParamListMultiDecl : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto list = tree_node->children[0];
+		auto decl = tree_node->children[2];
+		list->getAttr().FillAttributes(context, list);
+		decl->getAttr().FillAttributes(context, decl);
+		tree_node->params = list->params;
+		tree_node->params.push_back(decl->type);
+	}
+};
+
+//parameter_declaration->declaration_specifiers declarator
+class AttrRuleParameterDecl : public  AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto decl_spec = tree_node->children[0];
+		auto decl = tree_node->children[1];
+		decl_spec->getAttr().FillAttributes(context, decl_spec);
+		auto type = decl_spec->type;
+		decl->inherited_type = type;
+		decl->getAttr().FillAttributes(context, decl);
+		tree_node->type = decl->type;
+	}
+};
+
 #endif //COMPILER_ATTR_RULE_PARAMS_H

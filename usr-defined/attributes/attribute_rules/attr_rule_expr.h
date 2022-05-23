@@ -14,6 +14,7 @@ class AttrRuleExprDoNothing : public AttrRule {
 		child->getAttr().FillAttributes(context, child);
 		tree_node->constant = child->constant;
 		tree_node->type = child->type;
+		tree_node->identifier = child->identifier;
 	}
 };
 
@@ -110,40 +111,30 @@ class AttrRuleArithExpr : public AttrRuleOpExpr {
 class AttrRuleAddExpr : public AttrRuleArithExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = const1->getValue<bool>() + const2->getValue<bool>();
-		p->constant = C_constant::newConstant(constant);
+		tree_node->constant = C_constant::newAdd(const1, const2);
 	}
 };
 
 class AttrRuleMinusExpr : public AttrRuleArithExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = const1->getValue<bool>() - const2->getValue<bool>();
-		p->constant = C_constant::newConstant(constant);
+		tree_node->constant = C_constant::newSub(const1, const2);
 	}
 };
 
 class AttrRuleMultExpr : public AttrRuleArithExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = const1->getValue<bool>() * const2->getValue<bool>();
-		p->constant = C_constant::newConstant(constant);
+		tree_node->constant = C_constant::newMul(const1, const2);
 	}
 };
 
 class AttrRuleDivExpr : public AttrRuleArithExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = const1->getValue<bool>() / const2->getValue<bool>();
-		p->constant = C_constant::newConstant(constant);
+		tree_node->constant = C_constant::newDiv(const1, const2);
 	}
 };
-
-
 
 class AttrRuleRelationExpr : public AttrRuleOpExpr {
 public:
@@ -209,34 +200,108 @@ public:
 
 class AttrRuleUnaryOperator : public  AttrRule {
 public:
-	AttrRuleUnaryOperator(const OperatorType& type) : m_op_type(type) {}
+	AttrRuleUnaryOperator(const UnaryOperatorType& type) : m_op_type(type) {}
+
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		tree_node->unary_operator = m_op_type;
+	}
 
 protected:
-	OperatorType m_op_type;
+	UnaryOperatorType m_op_type;
 };
 
-class AttrRuleUnaryExpr : public AttrRuleExpr {
+//unary_expr->unary_operator cast_expr
+class AttrRuleUnaryExpr : public AttrRule {
 public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::unary_expr>(tree_node);
-		p->owner = context.currentNameSpace;
+		tree_node->owner = context.currentNameSpace;
+		auto cast_expr = tree_node->children[1];
+		cast_expr->getAttr().FillAttributes(context, cast_expr);
+		auto unary_op = tree_node->children[0];
+		unary_op->getAttr().FillAttributes(context, unary_op);
+		if (cast_expr->constant) {
+			switch (unary_op->unary_operator) {
+				case UnaryOperatorType::kMinus:
+					tree_node->constant = C_constant::newMinus(cast_expr->constant);
+					break;
+				case UnaryOperatorType::kExclaim:
+					tree_node->constant = C_constant::newNOT(cast_expr->constant);
+					break;
+				default:
+					tree_node->error = true;
+					context.global.error_out << "Unsupported unary operator";
+			}
+		}
+		tree_node->type = cast_expr->type;
+		tree_node->identifier = cast_expr->identifier;
+	}
+};
 
-		TreeNodeFillAttributes(context, p->children[0]);
-		TreeNodeFillAttributes(context, p->children[1]);
+class AttrRulePostfixExpr : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 
-		auto attr1 = getAttr(p->children[0]);
-		auto attr2 = getAttr(p->children[1]);
+	}
+};
 
-		switch (attr1.GetOperator(p->children[0])) {
-			case OperatorType::kMinus:
-				// TODO
+template<TokenType type>
+class AttrRuleConstant : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		switch (type) {
+			case TokenType::INTEGER:
+				tree_node->type = C_type::newBasicType(CTS::INT);
 				break;
-			case OperatorType::kExclaim:
+			case TokenType::FLOAT:
+				tree_node->type = C_type::newBasicType(CTS::FLOAT);
+				break;
+			case TokenType::STRING:
 				// TODO
 				break;
 			default:
-				throw std::logic_error("Unsupported unary expression");
+				tree_node->error = true;
+				context.global.error_out << "Unsupported constant type";
 		}
+		string value = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0])->getText();
+		tree_node->constant = C_constant::fromString(value, type);
+	}
+};
+
+//primary_expr->( expr )
+class AttrRulePrimaryExprParens : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto expr = tree_node->children[1];
+		expr->getAttr().FillAttributes(context, expr);
+		tree_node->constant = expr->constant;
+		tree_node->type = expr->type;
+	}
+};
+
+//primary_expr->id // id is identifier, like abc
+class AttrRulePrimaryExprId : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto id = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0]);
+		tree_node->identifier = id->getText();
+		auto name_item = context.currentNameSpace->get(id->getText());
+		if (!name_item) {
+			tree_node->error = true;
+			context.global.error_out << "Use of undeclared identifier";
+		} else {
+			tree_node->type = name_item->getType();
+		}
+	}
+};
+
+//primary_expr->constant
+class AttrRulePrimaryExprConstant : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto constant = tree_node->children[0];
+		constant->getAttr().FillAttributes(context, constant);
+		tree_node->constant = constant->constant;
+		tree_node->type = constant->type;
 	}
 };
 

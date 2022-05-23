@@ -6,7 +6,6 @@
 #define COMPILER_ATTR_RULE_DECL_H
 
 #include "attr_rule.hpp"
-#include "attr_rule_para_list.h"
 #include <stdexcept>
 
 //direct_declarator->id
@@ -62,6 +61,7 @@ public:
 		auto direct_decl = tree_node->children[0];
 		direct_decl->inherited_type = tree_node->inherited_type;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
+		tree_node->type = direct_decl->type;
 	}
 };
 

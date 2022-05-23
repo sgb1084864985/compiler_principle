@@ -373,17 +373,14 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //parameter_type_list->parameter_list , ...
     make_unique<AttrRuleParamTypeList>(true),
 
-		// TODO
     //parameter_list->parameter_declaration
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleParamListSingleDecl>(),
 
-        //TODO:
     //parameter_list->parameter_list , parameter_declaration
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleParamListMultiDecl>(),
 
-        //TODO:
     //parameter_declaration->declaration_specifiers declarator
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleParameterDecl>(),
 
     //parameter_declaration->declaration_specifiers abstract_declarator
     make_unique<ProductionInfo>(),
@@ -575,40 +572,32 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //add_expr->mul_expr
     make_unique<AttrRuleExprDoNothing>(),
 
-        //TODO:
     //add_expr->add_expr + mul_expr
     make_unique<AttrRuleAddExpr>(),
 
-        //TODO:
     //add_expr->add_expr - mul_expr
     make_unique<AttrRuleMinusExpr>(),
 
-        //TODO:
     //mul_expr->unary_expr
     make_unique<AttrRuleExprDoNothing>(),
 
-        //TODO:
     //mul_expr->mul_expr * unary_expr
     make_unique<AttrRuleMultExpr>(),
 
-        //TODO:
     //mul_expr->mul_expr / unary_expr
     make_unique<AttrRuleDivExpr>(),
 
     //mul_expr->mul_expr % unary_expr
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //cast_expr->unary_expr
     make_unique<AttrRuleExprDoNothing>(),
     //cast_expr->( type_name ) cast_expr
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //unary_expr->postfix_expr
     make_unique<AttrRuleExprDoNothing>(),
 
-        //TODO:
     //unary_expr->unary_operator cast_expr
     make_unique<AttrRuleUnaryExpr>(),
     //unary_expr->++ unary_expr
@@ -628,25 +617,21 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //unary_operator->+
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //unary_operator->-
-    make_unique<AttrRuleUnaryOperator>(OperatorType::kMinus),
+    make_unique<AttrRuleUnaryOperator>(UnaryOperatorType::kMinus),
     //unary_operator->~
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //unary_operator->!
-    make_unique<AttrRuleUnaryOperator>(OperatorType::kExclaim),
+    make_unique<AttrRuleUnaryOperator>(UnaryOperatorType::kExclaim),
 
-        //TODO:
     //argument_expression_list->assignment_expr
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleDoNothing>(),
 
         //TODO:
     //argument_expression_list->argument_expression_list , assignment_expr
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //postfix_expr->primary_expr
     make_unique<AttrRuleExprDoNothing>(),
 
@@ -688,25 +673,20 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //generic_association->default : assignment_expr
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //constant->integer // token
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleConstant<TokenType::INTEGER>>(),
 
-        //TODO:
     //constant->Float // Float is a token, like 3.14
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRuleConstant<TokenType::FLOAT>>(),
     //constant->enumerate_constant
     make_unique<ProductionInfo>(),
 
-        //TODO:
     //primary_expr->( expr )
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRulePrimaryExprParens>(),
 
-        //TODO:
     //primary_expr->id // id is identifier, like abc
-    make_unique<ProductionInfo>(),
+    make_unique<AttrRulePrimaryExprId>(),
 
-        //TODO:
     //primary_expr->constant
     make_unique<ProductionInfo>(),
 
