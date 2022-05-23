@@ -16,6 +16,9 @@ enum class TokenType{
     INTEGER,FLOAT,STRING
 };
 
+class C_type;
+using ptrType=std::shared_ptr<C_type>;
+
 // C_constant stores an array(length>=1),
 // or a single value (length=1)
 class C_constant {
@@ -46,31 +49,22 @@ public:
     template<class T>
     static ptr_constant newOne();
 
-    template<class T1,class T2>
     static ptr_constant newAdd(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newMul(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newSub(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
     static ptr_constant newMinus(ptr_constant& op1);
 
-    template<class T1,class T2>
     static ptr_constant newDiv(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newMod(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newLOGIC_OR(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newLOGIC_AND(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
     static ptr_constant newLOGIC_NOT(ptr_constant& op1);
 
     static ptr_constant newEQ(ptr_constant& op1,ptr_constant& op2);
@@ -87,22 +81,18 @@ public:
 
     static ptr_constant newSELECT(ptr_constant& condition,ptr_constant& val1,ptr_constant& val2);
 
-    template<class T1,class T2>
     static ptr_constant newOR(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newAND(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T>
     static ptr_constant newNOT(ptr_constant& op1);
 
-    template<class T1,class T2>
     static ptr_constant newLEFT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
-    template<class T1,class T2>
     static ptr_constant newRIGHT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
-    virtual void describe(){}
+    virtual ptrType getType()=0;
+
 //    dType dt=dType::SIGNED_INTEGER;
 //    int bytes_per_unit=8; // at least 1
 //    int length{};
@@ -110,7 +100,6 @@ public:
 //    unsigned char * data{};
 
 };
-
 
 
 using ptr_constant=std::shared_ptr<C_constant>;
