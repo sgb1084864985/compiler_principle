@@ -23,7 +23,7 @@ CNameSpace::ptr_name CNameSpace::get(std::string& name) {
 }
 
 // if key has exists, overwrite it
-void CNameSpace::insert(string&& name, CNameSpace::ptr_name &val,bool alloc) {
+void CNameSpace::insert(string& name, CNameSpace::ptr_name &val,bool alloc) {
     name_table[name]=val;
     if(alloc){
         val->alloc_order=allocated_number++;
@@ -35,6 +35,6 @@ void CNameSpace::remove(string &name) {
 }
 
 CNameSpace::CNameSpace(symbol_ptr &tree_node, CNameSpace::ptrNamespace parent)
-    :tree_node(tree_node),parentNamespace(std::move(parent)) {
+        :tree_node(tree_node),parentNamespace(std::move(parent)) {
 
 }

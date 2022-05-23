@@ -10,13 +10,11 @@
 class AttrRuleCompound : public AttrRule {
 public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::compound_statement>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto new_namespace = std::make_shared<CNameSpace>(tree_node, context.currentNameSpace);
-		auto cur_namespace = context.currentNameSpace;
-		context.currentNameSpace = new_namespace;
-		TreeNodeFillAttributes(context, p->children[1]);
-		context.currentNameSpace = cur_namespace;
+		tree_node->owner = context.currentNameSpace;
+		auto old_namespace = context.currentNameSpace;
+		context.currentNameSpace = std::make_shared<CNameSpace>(tree_node, context.currentNameSpace);
+		tree_node->getAttr().FillAttributes(context, tree_node->children[1]);
+		context.currentNameSpace = old_namespace;
 	}
 };
 

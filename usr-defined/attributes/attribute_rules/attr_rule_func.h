@@ -11,31 +11,18 @@
 class AttrRuleFunc : public AttrRule {
 public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::function_definition>(tree_node);
-		TreeNodeFillAttributes(context, p->children[0]);
-		auto attr1 = getAttr(p->children[0]);
-
-		auto new_namespace = std::make_shared<CNameSpace>(tree_node, context.currentNameSpace);
-		auto cur_namespace = context.currentNameSpace;
-		context.currentNameSpace = new_namespace;
-
-		TreeNodeFillAttributes(context, p->children[1]);
-		TreeNodeFillAttributes(context, p->children[2]);
-		auto attr2 = getAttr(p->children[1]);
-		auto attr3 = getAttr(p->children[2]);
-
-		m_type = C_type::newMergeType(attr1.GetType()->getDeclarationSpecifiers(), attr2.GetType()->getDeclarator());
-
-		auto ptr_func = std::make_shared<func_item>();
-		ptr_func->body = p;
-		ptr_func->func_namespace = cur_namespace;
-		auto ptr_val = std::make_shared<CNameSpace::name_item>(m_type, ptr_func);
-		cur_namespace->insert(attr1.GetID(), ptr_val, false);
-		context.currentNameSpace = cur_namespace;
-	}
-
-	ptrType GetType() override {
-		return m_type;
+		tree_node->owner = context.currentNameSpace;
+		auto decl_spec = tree_node->children[0];
+		auto decl = tree_node->children[1];
+		auto compound = tree_node->children[2];
+		decl_spec->getAttr().FillAttributes(context, decl_spec);
+		auto type = decl_spec->type;
+		decl->inherited_type = type;
+		decl->getAttr().FillAttributes(context, decl);
+		auto old_namespace = context.currentNameSpace;
+		context.currentNameSpace = std::make_shared<CNameSpace>(tree_node, context.currentNameSpace);
+		compound->getAttr().FillAttributes(context, compound);
+		context.currentNameSpace = old_namespace;
 	}
 
 protected:

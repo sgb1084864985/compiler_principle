@@ -118,12 +118,17 @@ public:
 
     ptr_constant constant;
     ptrType type;
+	ptrType inherited_type;
     ptrType implicit_cast_type;
     vector<symbol_ptr> children;
     std::string label;
     Production& production=Production::default_production;
     bool error= false;
     ptrAbstractNameSpace owner;
+
+	std::string identifier;
+	vector<ptrType> params;
+	bool variable_param_length;
 
     virtual void print(std::ostream &out_port){
         out_port << label;

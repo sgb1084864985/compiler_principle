@@ -9,87 +9,81 @@
 #include "attr_rule_para_list.h"
 #include <stdexcept>
 
-class AttrRuleDirectDecl : public AttrRule {
-public:
-	virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node, ptrType& type) const = 0;
-};
-
 //direct_declarator->id
-class AttrRuleDirectDeclSingleId : public AttrRuleDirectDecl {
-	void FillAttributes(AttrContext &context, symbol_ptr &tree_node, ptrType &type) const override {
-		auto p = std::dynamic_pointer_cast<CSym::direct_declarator>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto child = std::dynamic_pointer_cast<TerminalValue>(p->children[0]);
-		auto id = child->getText();
-		auto val = std::make_shared<CNameSpace::name_item>(type);
-		context.currentNameSpace->insert(id, val);
+class AttrRuleDirectDeclSingleId : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto id = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0]);
+		std::string identifier = id->getText();
+		auto name_item = std::make_shared<CNameSpace::name_item>(tree_node->inherited_type);
+		auto exist = context.currentNameSpace->get(identifier);
+		if (!exist) {
+			context.currentNameSpace->insert(identifier, name_item);
+		} else {
+			tree_node->error = true;
+			context.global.error_out << "Identifier redefined!";
+		}
 	}
 };
 
 //direct_declarator->direct_declarator ( )
-class AttrRuleDirectDeclFuncWithoutPara : public AttrRuleDirectDecl {
+class AttrRuleDirectDeclFuncWithoutPara : public AttrRule {
 public:
-	void FillAttributes(AttrContext &context, symbol_ptr &tree_node, ptrType &type) const override {
-		auto p = std::dynamic_pointer_cast<CSym::direct_declarator>(tree_node);
-		p->owner = context.currentNameSpace;
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
 		vector<ptrType> params;
-		auto new_type = C_type::newFuncType(type, params);
-		auto& attr = getAttr<AttrRuleDirectDecl>(p->children[0]);
-		attr.FillAttributes(context, tree_node, new_type);
+		auto new_type = C_type::newFuncType(tree_node->inherited_type, params);
+		auto direct_decl = tree_node->children[0];
+		direct_decl->inherited_type = new_type;
+		direct_decl->getAttr().FillAttributes(context, direct_decl);
 	}
 };
 
 //direct_declarator->direct_declarator ( parameter_type_list )
-class AttrRuleDirectDeclFuncWithPara : public AttrRuleDirectDecl {
+class AttrRuleDirectDeclFuncWithPara : public AttrRule {
 public:
-	void FillAttributes(AttrContext &context, symbol_ptr &tree_node, ptrType &type) const override {
-		auto p = std::dynamic_pointer_cast<CSym::direct_declarator>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto attr2 = getAttr<AttrRuleParamTypeList>(p->children[2]);
-		attr2.FillAttributes(context, p->children[2]);
-		auto list = attr2.GetTypeList();
-		auto is_variable = attr2.IsVaraible();
-		auto new_type = C_type::newFuncType(type, list, CTS::EXTERN, CTS::NONE, is_variable);
-		auto& attr0 = getAttr<AttrRuleDirectDecl>(p->children[0]);
-		attr0.FillAttributes(context, tree_node, new_type);
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto param_list = tree_node->children[2];
+		param_list->getAttr().FillAttributes(context, param_list);
+		auto params = param_list->params;
+		auto new_type = C_type::newFuncType(tree_node->inherited_type, params);
+		auto direct_decl = tree_node->children[0];
+		direct_decl->inherited_type = new_type;
+		direct_decl->getAttr().FillAttributes(context, direct_decl);
 	}
 };
 
-class AttrRuleDecl : public AttrRule {
-public:
-	virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node, ptrType& type) const = 0;
-};
-
 //declarator->direct_declarator
-class AttrRuleDeclDirectDecl : public AttrRuleDecl {
+class AttrRuleDeclDirectDecl : public AttrRule {
 public:
-	void FillAttributes(AttrContext &context, symbol_ptr &tree_node, ptrType &type) const override {
-		auto p = std::dynamic_pointer_cast<CSym::declarator>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto& attr = getAttr<AttrRuleDirectDecl>(p->children[0]);
-		attr.FillAttributes(context, p->children[0], type);
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto direct_decl = tree_node->children[0];
+		direct_decl->inherited_type = tree_node->inherited_type;
+		direct_decl->getAttr().FillAttributes(context, direct_decl);
 	}
 };
 
 //init_declarator->declarator
 class AttrRuleInitDecl : public AttrRule {
 public:
-	virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node, ptrType& type) const {
-		auto p = std::dynamic_pointer_cast<CSym::init_declarator_list>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto& attr = getAttr<AttrRuleDecl>(p->children[0]);
-		attr.FillAttributes(context, p->children[0], type);
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto decl = tree_node->children[0];
+		decl->inherited_type = tree_node->inherited_type;
+		decl->getAttr().FillAttributes(context, decl);
 	}
 };
 
 //init_declarator_list->init_declarator
 class AttrRuleInitList : public AttrRule {
 public:
-	virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node, ptrType& type) const {
-		auto p = std::dynamic_pointer_cast<CSym::init_declarator_list>(tree_node);
-		p->owner = context.currentNameSpace;
-		auto attr = getAttr<AttrRuleInitDecl>(p->children[0]);
-		attr.FillAttributes(context, p->children[0], type);
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		auto init_decl = tree_node->children[0];
+		init_decl->inherited_type = tree_node->inherited_type;
+		init_decl->getAttr().FillAttributes(context, init_decl);
 	}
 };
 
@@ -97,14 +91,13 @@ public:
 class AttrRuleDeclaration : public AttrRule {
 public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::declaration>(tree_node);
-		p->owner = context.currentNameSpace;
-		TreeNodeFillAttributes(context, p->children[0]);
-		auto attr1 = getAttr(p->children[0]);
-		auto type = attr1.GetType();
+		tree_node->owner = context.currentNameSpace;
+		auto decl_spec = tree_node->children[0];
+		decl_spec->getAttr().FillAttributes(context, decl_spec);
 
-		auto& attr2 = getAttr<AttrRuleInitList>(p->children[1]);
-		attr2.FillAttributes(context, p->children[1], type);
+		auto init_decl_list = tree_node->children[1];
+		init_decl_list->inherited_type = decl_spec->type;
+		init_decl_list->getAttr().FillAttributes(context, init_decl_list);
 	}
 };
 
@@ -112,19 +105,11 @@ public:
 class AttrRuleDeclSpec : public AttrRule {
 public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::declaration_specifiers>(tree_node);
-		p->owner = context.currentNameSpace;
-		TreeNodeFillAttributes(context, p->children[0]);
-		auto attr0 = getAttr(p->children[0]);
-		m_type = attr0.GetType();
+		tree_node->owner = context.currentNameSpace;
+		auto type_spec = tree_node->children[0];
+		type_spec->getAttr().FillAttributes(context, type_spec);
+		tree_node->type = type_spec->type;
 	}
-
-	ptrType GetType() override {
-		return m_type;
-	}
-
-protected:
-	ptrType m_type;
 };
 
 #endif //COMPILER_ATTR_RULE_DECL_H

@@ -70,10 +70,7 @@ public:
         id=child_rule.getID();
     }
 
-    ptrType GetType() override{
-        return m_type;
-    }
-    const char * getID()override{
+	const char * getID()override{
         if(!id) throw std::logic_error("id null");
         return id;
     }
@@ -96,11 +93,7 @@ public:
         id=child->getText();
     }
 
-    ptrType GetType() override{
-        return C_type::newIncompleteType();
-    }
-
-    const char * getID()override{
+	const char * getID()override{
         if(!id) throw std::logic_error("id null");
         return id;
     }

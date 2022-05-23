@@ -33,40 +33,31 @@ enum class OperatorType {
 
 class AttrRule:public ProductionInfo{
 public:
-	virtual ptrType GetType() {
-		throw std::logic_error("No type provided");
-	}
 
-	virtual OperatorType GetOperator(symbol_ptr& node) {
-		throw std::logic_error("No operator provided");
-	}
-
-	virtual std::string GetID() {
-		throw std::logic_error("No ID provided");
-	}
-
-    virtual void FillAttributes(AttrContext& context, symbol_ptr& tree_node){
+	virtual void FillAttributes (AttrContext& context, symbol_ptr& tree_node){
         throw std::logic_error("Method FillAttributes is not implemented");
     }
 
-    static void FillAttributes(ProductionInfo& info, AttrContext& context, symbol_ptr& tree_node){
-        auto&attr_info =dynamic_cast<AttrRule&>(info);
-        attr_info.FillAttributes(context, tree_node);
-    }
+};
 
-    static void TreeNodeFillAttributes(AttrContext& context, symbol_ptr& tree_node){
-        auto item= std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
-		if (item == nullptr) {
-			return;
+/**
+ * In this attribute rule, we don't need any information about the lhs of the
+ * production rule, so we don't calculate them and leave them as default
+ */
+class AttrRuleDoNothing : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		for (auto& child : tree_node->children) {
+			child->getAttr().FillAttributes(context, child);
 		}
-        FillAttributes(item->production.getAttrs(), context, tree_node);
-    }
+	}
+};
 
-    template<class T=AttrRule>
-    static T& getAttr(symbol_ptr& node){
-        auto item= std::dynamic_pointer_cast<AST::NonTerminal>(node);
-        return dynamic_cast<T&>(item->production.getAttrs());
-    }
+class AttrRuleError : public AttrRule {
+public:
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->error = true;
+	}
 };
 
 
