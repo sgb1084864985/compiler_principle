@@ -456,7 +456,7 @@ make_unique<ProductionInfo>(),
     //add_expr->mul_expr
 make_unique<ProductionInfo>(),
     //add_expr->add_expr + mul_expr
-make_unique<gen_code_rule_addExpr>(),
+make_unique<ProductionInfo>(),
     //add_expr->add_expr - mul_expr
 make_unique<ProductionInfo>(),
     //mul_expr->unary_expr

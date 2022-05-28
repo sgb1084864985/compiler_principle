@@ -6,7 +6,6 @@
 #define COMPILER_C_EXPR_HPP
 
 #include "AST.h"
-#include "C_constant.h"
 #include <utility>
 
 class C_type;

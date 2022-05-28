@@ -83,7 +83,7 @@ class AttrRuleLogicExpr : public AttrRuleOpExpr {
 class AttrRuleLogicOrExpr : public AttrRuleLogicExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		bool constant = const1->getValue<bool>() || const2->getValue<bool>();
+		bool constant = C_constant::getValue<bool>(const1) || C_constant::getValue<bool>(const2);
 		tree_node->constant = C_constant::newConstant(constant);
 	}
 };
@@ -93,7 +93,7 @@ public:
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
 		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = const1->getValue<bool>() && const2->getValue<bool>();
+		bool constant = C_constant::getValue<bool>(const1) && C_constant::getValue<bool>(const2);
 		p->constant = C_constant::newConstant(constant);
 	}
 };

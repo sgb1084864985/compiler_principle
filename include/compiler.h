@@ -132,8 +132,8 @@ public:
 
 	std::string identifier;
 	vector<ptrType> params;
-	bool variable_param_length;
-	UnaryOperatorType unary_operator;
+	bool variable_param_length{};
+	UnaryOperatorType unary_operator{};
 
 
     virtual void print(std::ostream &out_port){
