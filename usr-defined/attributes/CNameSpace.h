@@ -56,8 +56,8 @@ public:
 	// this list would follow the declaration order
 	const vector<string>& getDeclarationList(){return declaration_list;};
 
-	ptr_name get(string& name); // if not found, goto parent name_table
-	ptr_name get(string&& name){return get(name);} // if not found, goto parent name_table
+	ptr_name get(const string &name); // if not found, goto parent name_table
+	ptr_name get(const string &&name){return get(name);} // if not found, goto parent name_table
 
 	// can only change local name_table
 	void insert(string& name,ptr_name& val,bool alloc=true);

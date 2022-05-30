@@ -7,7 +7,7 @@
 #include <utility>
 
 // if not found, return an empty pointer
-CNameSpace::ptr_name CNameSpace::get(std::string& name) {
+CNameSpace::ptr_name CNameSpace::get(const string &name) {
     try{
         auto ret=name_table.at(name);
         return ret;
