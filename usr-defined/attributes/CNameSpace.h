@@ -24,55 +24,65 @@ using CTS::struct_item;
 
 class CNameSpace: public NameSpace{
 public:
-    using ptrNamespace = std::shared_ptr<CNameSpace>;
+	using ptrNamespace = std::shared_ptr<CNameSpace>;
 
-    struct name_item{
-        static constexpr int NO_ALLOC=-1;
-        ptrType type;
+	struct name_item{
+		static constexpr int NO_ALLOC=-1;
+		ptrType type;
 
-        // empty if it is not a function
-        ptr_func func;
+		// empty if it is not a function
+		ptr_func func;
 
-        // empty if extern
-        // else it is the alloc order in current namespace
-        int alloc_order=NO_ALLOC;
+		// empty if extern
+		// else it is the alloc order in current namespace
+		// start from 0
+		int alloc_order=NO_ALLOC;
 
-        //        dType dt=dType::SIGNED_INTEGER;
-        //        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
+		//        dType dt=dType::SIGNED_INTEGER;
+		//        unsigned char dTypeSize{}; // use byte, eg. 1,2,4,8
 
-        name_item(ptrType& type,int alloc_order):type(type),alloc_order(alloc_order){}
-        name_item(ptrType& type,ptr_func& f):type(type),func(f){}
+		explicit name_item(ptrType& type):type(type){}
+		name_item(ptrType& type,ptr_func& f):type(type),func(f){}
 
-        bool hasFuncDefinition(){return type->isFunction() && ~!func;};
-        void setFuncDefinition(ptr_func& ptrFunc){ this->func=ptrFunc;}
-        [[nodiscard]] bool getAllocOrder() const{return alloc_order;}
-        [[nodiscard]] ptrType getType() const{return type;}
-    };
+		bool hasFuncDefinition(){return type->isFunction() && ~!func;};
+		void setFuncDefinition(ptr_func& ptrFunc){ this->func=ptrFunc;}
+		[[nodiscard]] bool getAllocOrder() const{return alloc_order;}
+		[[nodiscard]] ptrType getType() const{return type;}
+	};
 
-    using ptr_name=std::shared_ptr<name_item>;
+	using ptr_name=std::shared_ptr<name_item>;
 
 public:
-    // this list would follow the declaration order
-    const vector<string>& getDeclarationList(){return declaration_list;};
+	// this list would follow the declaration order
+	const vector<string>& getDeclarationList(){return declaration_list;};
 
-    ptr_name get(string& name); // if not found, goto parent name_table
-    // can only change local name_table
-    void insert(string& name,ptr_name& val);
-    void remove(string& name);
+	ptr_name get(string& name); // if not found, goto parent name_table
+	ptr_name get(string&& name){return get(name);} // if not found, goto parent name_table
 
-    explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
+	// can only change local name_table
+	void insert(string& name,ptr_name& val,bool alloc=true);
+	void insert(string&& name,ptr_name& val,bool alloc=true){return insert(name,val,alloc);}
+
+	void remove(string& name);
+	void remove(string&& name){ return remove(name);}
+
+	unsigned getAllocatedNumber() const{return allocated_number;}
+
+	explicit CNameSpace(symbol_ptr& tree_node, ptrNamespace parent={});
 
 private:
-    // follows the order of declaration
-    vector<string> declaration_list;
+	// follows the order of declaration
+	vector<string> declaration_list;
 
-    // corresponding ast tree
-    symbol_ptr tree_node;
+	// corresponding ast tree
+	symbol_ptr tree_node;
 
-    std::unordered_map<std::string ,ptr_name> name_table;
+	std::unordered_map<std::string ,ptr_name> name_table;
 
-    // empty if it is root name space(that is, global namespace)
-    ptrNamespace parentNamespace;
+	// empty if it is root name space(that is, global namespace)
+	ptrNamespace parentNamespace;
+
+	unsigned allocated_number=0;
 
 //    std::list<ptrCNamespace> subNamespaces;
 };

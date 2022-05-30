@@ -2,8 +2,8 @@
 // Created by zlz on 22-5-16.
 //
 
-#ifndef COMPILER_ATTR_RULE_EXPR_H
-#define COMPILER_ATTR_RULE_EXPR_H
+#ifndef COMPILER_ATTR_RULE_H
+#define COMPILER_ATTR_RULE_H
 
 #include "ProductionInfo.h"
 #include "AttrContext.h"
@@ -33,25 +33,33 @@ enum class OperatorType {
 
 class AttrRule:public ProductionInfo{
 public:
-	virtual ptrType GetType(symbol_ptr& node) {
-		throw std::logic_error("No type provided");
-	}
 
-	virtual OperatorType GetOperator(symbol_ptr& node) {
-		throw std::logic_error("No operator provided");
-	}
-
-    virtual void fillAttributes(AttrContext& context, symbol_ptr& tree_node)=0;
-
-    static void fillAttributes(ProductionInfo& info,AttrContext& context,symbol_ptr& tree_node){
-        auto&attr_info =dynamic_cast<AttrRule&>(info);
-        return attr_info.fillAttributes(context,tree_node);
+	virtual void FillAttributes (AttrContext& context, symbol_ptr& tree_node){
+        throw std::logic_error("Method FillAttributes is not implemented");
     }
 
-    static void tree_node_fillAttributes(AttrContext& context, symbol_ptr& tree_node){
-        auto item= std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
-        return fillAttributes(item->production.getAttrs(),context,tree_node);
-    }
 };
 
-#endif //COMPILER_ATTR_RULE_EXPR_H
+/**
+ * In this attribute rule, we don't need any information about the lhs of the
+ * production rule, so we don't calculate them and leave them as default
+ */
+class AttrRuleDoNothing : public AttrRule {
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->owner = context.currentNameSpace;
+		for (auto& child : tree_node->children) {
+			child->getAttr().FillAttributes(context, child);
+		}
+	}
+};
+
+class AttrRuleError : public AttrRule {
+public:
+	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+		tree_node->error = true;
+	}
+};
+
+
+
+#endif //COMPILER_ATTR_RULE_H

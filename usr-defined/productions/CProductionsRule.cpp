@@ -12,3 +12,5 @@ void CProductions::addRules() {
         productions[i].setGenCodeInfo(*C_rule_code::ruleCodeTable[i]);
     }
 }
+
+Production Production::default_production(nullptr, nullptr,function<symbol_ptr (Production& self,symbol_iterator &,Context&)>());

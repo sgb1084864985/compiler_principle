@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cassert>
 #include "ProductionInfo.h"
+#include "NameSpace.h"
 
 #ifdef DEBUG
 #define DEBUG_TEST(x) do{x}while(0);
@@ -46,42 +47,11 @@ public:
 // represent symbols in CFG.
 // should only have two subclasses: non-terminal terminal
 //////////////////////////////
-class SymbolValue{
-public:
-    [[nodiscard]] int getID() const{
-        return id;
-    }
-    void setID(int i){
-        this->id=i;
-    }
-    virtual void print(std::ostream &out_port)=0;
-    virtual bool hasError(){return false;}
-private:
-    int id=-1;
-
-};
-
-//////////////////////////////
-// represent terminals in CFG
-//////////////////////////////
-class TerminalValue:public SymbolValue{
-public:
-    ////example/////
-    // "identifier"
-    // "number"
-    // "Float"
-    ////////////////
-    virtual const char* getType()=0;
-
-    ////////////example/////////////
-    // like "i","j","1.0","if"
-    ////////////////////////////////
-    virtual const char * getText()=0;
-
-    void print(std::ostream &out_port) override{
-        out_port<<getText();
-    }
-};
+class C_type;
+class C_constant;
+using ptrType=std::shared_ptr<C_type>;
+using ptr_constant=std::shared_ptr<C_constant>;
+class SymbolValue;
 
 // symbol ptr is the pointer of SymbolValue,
 // which is the base class of NonTerminal
@@ -127,11 +97,94 @@ public:
             handler action,
             ProductionInfo& attr=*ProductionInfo::default_info)
             :left_hand_side(left_hand_side),
-            right_hand_side(right_hand_side),
-            action(std::move(action)),
-            attributes(&attr){
+             right_hand_side(right_hand_side),
+             action(std::move(action)),
+             attributes(&attr){
     }
+    static Production default_production;
 };
+
+enum class UnaryOperatorType {
+	kMinus,
+	kExclaim
+};
+
+class AttrRule;
+class SymbolValue{
+public:
+    [[nodiscard]] int getID() const{
+        return id;
+    }
+    void setID(int i){
+        this->id=i;
+    }
+
+
+    ptr_constant constant;
+    ptrType type;
+	ptrType inherited_type;
+    ptrType implicit_cast_type;
+    vector<symbol_ptr> children;
+    std::string label;
+    Production& production=Production::default_production;
+    bool error= false;
+    ptrAbstractNameSpace owner;
+
+	std::string identifier;
+	vector<ptrType> params;
+	bool variable_param_length{};
+	UnaryOperatorType unary_operator{};
+
+
+    virtual void print(std::ostream &out_port){
+        out_port << label;
+    }
+
+    virtual bool hasError(){
+        return error;
+    }
+
+    [[nodiscard]] virtual ptrAbstractNameSpace getNameSpace() const{
+        return owner;
+    }
+
+    [[nodiscard]] AttrRule& getAttr() const;
+
+    SymbolValue()= default;
+    SymbolValue(Production &production, std::string label) : production(production), label(std::move(label)) {}
+private:
+    int id=-1;
+
+};
+
+//////////////////////////////
+// represent terminals in CFG
+//////////////////////////////
+
+class TerminalValue:public SymbolValue{
+public:
+    ////example/////
+    // "identifier"
+    // "number"
+    // "Float"
+    ////////////////
+    virtual const char* getType()=0;
+
+    ////////////example/////////////
+    // like "i","j","1.0","if"
+    ////////////////////////////////
+    virtual const char * getText()=0;
+
+    void print(std::ostream &out_port) override{
+        out_port<<getText();
+    }
+
+
+};
+
+
+
+
 
 
 #endif

@@ -9,32 +9,8 @@
 namespace AST {
 
     // all subclasses of NonTerminal should have constructors whose signature is same as NonTerminal
-    class NonTerminal : public SymbolValue {
-    public:
-        vector<symbol_ptr> children;
-        std::string label;
-        Production production;
 
-        // which namespace this tree_node is in
-        ptrAbstractNameSpace owner;
-
-        bool error= false;
-
-        void print(std::ostream &out_port) override {
-            out_port << label;
-        }
-
-        bool hasError()override{
-            return error;
-        }
-
-        [[nodiscard]] virtual ptrAbstractNameSpace getNameSpace() const{
-            return owner;
-        }
-
-        NonTerminal(Production &production, std::string label) : production(production), label(std::move(label)) {}
-
-    };
+    using NonTerminal = SymbolValue;
 
     using nLeafPtr = std::shared_ptr<NonTerminal>;
     using leafPtr = std::shared_ptr<TerminalValue>;
