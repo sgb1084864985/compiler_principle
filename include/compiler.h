@@ -109,7 +109,36 @@ enum class UnaryOperatorType {
 	kExclaim
 };
 
+enum class OperatorType {
+    kEqual,
+    kMultiplyEqual,
+    kModuleEqual,
+    kDivEqual,
+    kPlusEqual,
+    kMinusEqual,
+    kLeftShiftEqual,
+    kRightShiftEqual,
+    kAndEqual,
+    kXorEqual,
+    kOrEqual,
+    kPlusPlus,
+    kMinusMinus,
+    kPlus,
+    kMinus,
+    kMultiply,
+    kAnd,
+    kOr,
+    kTilde,
+    kExclaim,
+};
+
 class AttrRule;
+
+namespace CTS{
+    class Parameters;
+    using ptrParams=std::shared_ptr<Parameters>;
+}
+
 class SymbolValue{
 public:
     [[nodiscard]] int getID() const{
@@ -131,9 +160,10 @@ public:
     ptrAbstractNameSpace owner;
 
 	std::string identifier;
-	vector<ptrType> params;
-	bool variable_param_length{};
+	CTS::ptrParams params;
+    bool lValue= false;
 	UnaryOperatorType unary_operator{};
+    OperatorType binary_operator{};
 
 
     virtual void print(std::ostream &out_port){

@@ -12,13 +12,6 @@ using std::unordered_map;
 
 class MyParser{
 public:
-//    constexpr static int terminal_num=0;
-//    constexpr static int symbol_num=0;
-//    constexpr static int state_num=0;
-//    constexpr static int production_num=0;
-
-//    constexpr static int init_symbol=0;
-
     constexpr static int VALID=0x1;
     constexpr static int SHIFT_REDUCE=0x2;
     constexpr static int FINISHED=0x4;
@@ -29,15 +22,14 @@ public:
         getCFG_data();
     }
 private:
-    // const char* symbol_table[symbol_num];
-//    int nTermToProd[symbol_num-terminal_num];
+
     vector<Production>& actions;
 
     int start_state=0;
     int symbols=0;
     int* transitions= nullptr;
     int* p_size= nullptr;
-    int* nonterm= nullptr;
+    int* non_term= nullptr;
 
     class SymbolArgs :public Iterator<symbol_ptr>{
     private:
@@ -68,13 +60,12 @@ public:
 
             if(!(transition&VALID)){
                 // TODO:error
-                std::cout<<"error"<<std::endl;
+                std::cout<<"parse error"<<std::endl;
                 exit(0);
             }
             if(transition&FINISHED){
-                std::cout<<"success!"<<std::endl;
+//                std::cout<<"parsing success!"<<std::endl;
                 break;
-                // TODO:end
             }
             if(transition&SHIFT_REDUCE){
                 value_stack.push_back(symbol);
@@ -87,7 +78,7 @@ public:
                 int len=p_size[pro_index];
                 SymbolArgs args(value_stack,(int)value_stack.size()-len);
                 symbol_ptr reducedSymbol=p(args,con);
-                reducedSymbol->setID(nonterm[pro_index]);
+                reducedSymbol->setID(non_term[pro_index]);
                 input.unget(reducedSymbol);
                 value_stack.resize(value_stack.size()-len);
                 state_stack.resize((state_stack.size()-len));

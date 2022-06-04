@@ -46,6 +46,7 @@ public:
 
 		bool hasFuncDefinition(){return type->isFunction() && ~!func;};
 		void setFuncDefinition(ptr_func& ptrFunc){ this->func=ptrFunc;}
+        [[nodiscard]] bool isDeclaration() const{return alloc_order==NO_ALLOC;}
 		[[nodiscard]] bool getAllocOrder() const{return alloc_order;}
 		[[nodiscard]] ptrType getType() const{return type;}
 	};
@@ -55,9 +56,12 @@ public:
 public:
 	// this list would follow the declaration order
 	const vector<string>& getDeclarationList(){return declaration_list;};
+    ptrNamespace getParentSpace(){return parentNamespace;}
 
 	ptr_name get(const string &name); // if not found, goto parent name_table
 	ptr_name get(const string &&name){return get(name);} // if not found, goto parent name_table
+
+    ptr_name getLocal(const string& name);
 
 	// can only change local name_table
 	void insert(string& name,ptr_name& val,bool alloc=true);

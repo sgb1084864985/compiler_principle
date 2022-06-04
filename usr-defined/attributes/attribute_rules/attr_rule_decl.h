@@ -14,13 +14,32 @@ class AttrRuleDirectDeclSingleId : public AttrRule {
 		tree_node->owner = context.currentNameSpace;
 		auto id = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0]);
 		std::string identifier = id->getText();
+        tree_node->identifier=identifier;
 		auto name_item = std::make_shared<CNameSpace::name_item>(tree_node->inherited_type);
-		auto exist = context.currentNameSpace->get(identifier);
+        tree_node->type=tree_node->inherited_type;
+
+        ptr_name exist;
+        if(name_item->type->isFunction()){
+            exist=context.currentNameSpace->get(identifier);
+        }
+        else{
+            exist=context.currentNameSpace->getLocal(identifier);
+        }
+
 		if (!exist) {
-			context.currentNameSpace->insert(identifier, name_item);
+            if(name_item->type->isFunction()){
+                name_item->func= std::make_shared<func_item>();
+                context.currentNameSpace->insert(identifier, name_item, false);
+            }
+            else{
+                context.currentNameSpace->insert(identifier, name_item);
+            }
+
 		} else {
-			tree_node->error = true;
-			context.global.error_out << "Identifier redefined!";
+            if(!exist->isDeclaration() || !exist->type->equals(name_item->type)){
+                tree_node->error = true;
+                context.global.error_out << "Identifier redefined!";
+            }
 		}
 	}
 };
@@ -35,6 +54,7 @@ public:
 		auto direct_decl = tree_node->children[0];
 		direct_decl->inherited_type = new_type;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
+        tree_node->identifier=direct_decl->identifier;
 	}
 };
 
@@ -50,8 +70,32 @@ public:
 		auto direct_decl = tree_node->children[0];
 		direct_decl->inherited_type = new_type;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
+        tree_node->identifier=direct_decl->identifier;
 	}
 };
+
+//direct_declarator->direct_declarator [ assignment_expr ]
+class AttrRuleDirectDeclArray1 : public AttrRule {
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto expr = tree_node->children[2];
+        expr->getAttr().FillAttributes(context, expr);
+        if(!expr->constant){
+            tree_node->error= true;
+            context.global.error_out<<"array size must be constant"<<std::endl;
+            return;
+        }
+        unsigned size=expr->constant->getUnsigned();
+        tree_node->inherited_type->toArray(size);
+        auto new_type=tree_node->inherited_type;
+        auto direct_decl = tree_node->children[0];
+        direct_decl->inherited_type = new_type;
+        direct_decl->getAttr().FillAttributes(context, direct_decl);
+        tree_node->identifier=direct_decl->identifier;
+    }
+};
+
 
 //declarator->direct_declarator
 class AttrRuleDeclDirectDecl : public AttrRule {
@@ -62,7 +106,26 @@ public:
 		direct_decl->inherited_type = tree_node->inherited_type;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
 		tree_node->type = direct_decl->type;
+        tree_node->identifier=direct_decl->identifier;
 	}
+};
+
+//declarator->pointer direct_declarator
+class AttrRuleDeclDirectDeclPointer : public AttrRule {
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto pointer=tree_node->children[0];
+        pointer->inherited_type=tree_node->inherited_type;
+        pointer->getAttr().FillAttributes(context,pointer);
+
+        auto direct_decl = tree_node->children[1];
+        direct_decl->inherited_type = pointer->type;
+        direct_decl->getAttr().FillAttributes(context, direct_decl);
+
+        tree_node->type = direct_decl->type;
+        tree_node->identifier=direct_decl->identifier;
+    }
 };
 
 //init_declarator->declarator
@@ -71,8 +134,9 @@ public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
 		auto decl = tree_node->children[0];
-		decl->inherited_type = tree_node->inherited_type;
+		decl->inherited_type = tree_node->inherited_type->clone();
 		decl->getAttr().FillAttributes(context, decl);
+        tree_node->identifier=decl->identifier;
 	}
 };
 
@@ -85,6 +149,21 @@ public:
 		init_decl->inherited_type = tree_node->inherited_type;
 		init_decl->getAttr().FillAttributes(context, init_decl);
 	}
+};
+
+//init_declarator_list->init_declarator_list , init_declarator
+class AttrRuleInitListMulti : public AttrRule {
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto list_head=tree_node->children[0];
+        list_head->inherited_type=tree_node->inherited_type;
+        list_head->getAttr().FillAttributes(context,list_head);
+
+        auto init_decl = tree_node->children[2];
+        init_decl->inherited_type = tree_node->inherited_type;
+        init_decl->getAttr().FillAttributes(context, init_decl);
+    }
 };
 
 //declaration->declaration_specifiers init_declarator_list ;
@@ -110,6 +189,29 @@ public:
 		type_spec->getAttr().FillAttributes(context, type_spec);
 		tree_node->type = type_spec->type;
 	}
+};
+
+//pointer->*
+class AttrRulePointer1:public AttrRule{
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto t=(tree_node->type=tree_node->inherited_type);
+        t->getDeclarator()->pointers.quantifiers.push_back(CTS::NONE);
+    }
+};
+
+//pointer->* pointer
+class AttrRulePointer2:public AttrRule{
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto t=(tree_node->type=tree_node->inherited_type);
+        t->getDeclarator()->pointers.quantifiers.push_back(CTS::NONE);
+        auto next_pointer=tree_node->children[0];
+        next_pointer->inherited_type=t;
+        next_pointer->getAttr().FillAttributes(context,next_pointer);
+    }
 };
 
 #endif //COMPILER_ATTR_RULE_DECL_H

@@ -13,13 +13,13 @@
 // Interface, should be implemented
 class codeGenerator {
 public:
-    void
+    static void
     genCode(ptrSymTable &symTable, std::shared_ptr<CSym::translation_unit> &AST_root, GlobalContext &context);
 
-    void genCodeGlobal(ptrSymTable &symTable, std::shared_ptr<CSym::translation_unit> &AST_root, code_gen_Context&context);
+    static void genCodeGlobal(ptrSymTable &symTable, std::shared_ptr<CSym::translation_unit> &AST_root, code_gen_Context&context);
     static void genCodeFuncDef(ptr_func &func, const string &func_name, code_gen_Context &context);
+    static void optimize(code_gen_Context&context);
 private:
-    std::unordered_map<void*,llvm::AllocaInst*> env;
 };
 
 

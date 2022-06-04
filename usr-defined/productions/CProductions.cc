@@ -171,6 +171,7 @@ vector<Production> CProductions::productions={
         Production("direct_declarator", "direct_declarator [ type_qualifier_list static assignment_expr ]", genTree<CSym::direct_declarator>),
         Production("direct_declarator", "direct_declarator [ type_qualifier_list assignment_expr ]", genTree<CSym::direct_declarator>),
         Production("direct_declarator", "direct_declarator [ type_qualifier_list ]", genTree<CSym::direct_declarator>),
+        Production("direct_declarator", "direct_declarator [ assignment_expr ]", genTree<CSym::direct_declarator>),
         Production("direct_declarator", "direct_declarator ( )", genTree<CSym::direct_declarator>),
         Production("direct_declarator", "direct_declarator ( parameter_type_list )", genTree<CSym::direct_declarator>),
         Production("direct_declarator", "direct_declarator ( identifier_list )", genTree<CSym::direct_declarator>),

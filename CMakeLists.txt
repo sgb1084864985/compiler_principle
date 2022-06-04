@@ -62,7 +62,13 @@ if(GRAMMAR_SYNC OR NOT HAS_BUILT)
             usr-defined/productions/C_production_printer.cpp
             semantic/ProductionInfo.cpp
     )
-    add_executable(TokenListGenerator usr-defined/token_actions/CTokenActions.cpp usr-defined/token_actions/CTokenWriter.cpp)
+    add_executable(
+            TokenListGenerator
+            usr-defined/token_actions/CTokenActions.cpp
+            usr-defined/token_actions/CTokenWriter.cpp
+            usr-defined/productions/default_production.cpp
+            semantic/ProductionInfo.cpp
+    )
 
     add_custom_command(
             OUTPUT cfg_rules.txt

@@ -13,7 +13,7 @@ class gen_code_blocklist1 : public code_gen_productionInfo
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
         auto p = std::dynamic_pointer_cast<CSym::block_item_list>(tree_node);
-        auto transform = tree_node_genCode(p->children[0], context);
+        tree_node_genCode(p->children[0], context);
 
         auto &llvm_context = context.context;
         return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*llvm_context));

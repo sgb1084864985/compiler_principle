@@ -15,19 +15,18 @@ class gen_code_rule_while1 : public code_gen_productionInfo
     {
         auto p = std::dynamic_pointer_cast<CSym::iteration_statement>(tree_node);
 
-        auto condition_node = tree_node_genCode(p->children[2], context);
         auto &builder = context.builder;
         auto &llvm_context = context.context;
 
         llvm::Function *parentFunction = builder->GetInsertBlock()->getParent();
 
-        llvm::BasicBlock *condBB = llvm::BasicBlock::Create(*llvm_context, "cond");
         llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(*llvm_context, "loop");
         llvm::BasicBlock *loopEndBB = llvm::BasicBlock::Create(*llvm_context, "loop_end");
 
-        parentFunction->getBasicBlockList().push_back(condBB);
-        builder->SetInsertPoint(condBB);
-
+        auto condition_node = tree_node_genCode(p->children[2], context);
+        if(p->children[2]->lValue){
+            condition_node=context.builder->CreateLoad(condition_node);
+        }
         builder->CreateCondBr(condition_node, loopBB, loopEndBB);
 
         parentFunction->getBasicBlockList().push_back(loopBB);
@@ -37,7 +36,11 @@ class gen_code_rule_while1 : public code_gen_productionInfo
         tree_node_genCode(p->children[4], context);
 
         // jump to condition block
-        builder->CreateBr(condBB);
+        condition_node = tree_node_genCode(p->children[2], context);
+        if(p->children[2]->lValue){
+            condition_node=context.builder->CreateLoad(condition_node);
+        }
+        builder->CreateCondBr(condition_node, loopBB, loopEndBB);
 
         parentFunction->getBasicBlockList().push_back(loopEndBB);
         builder->SetInsertPoint(loopEndBB);
@@ -70,7 +73,10 @@ class gen_code_rule_while2 : public code_gen_productionInfo
         parentFunction->getBasicBlockList().push_back(condBB);
         builder->SetInsertPoint(condBB);
         auto condition_node = tree_node_genCode(p->children[4], context);
-        builder->CreateBr(condition_node, loopBB, loopEndBB);
+        if(p->children[4]->lValue){
+            condition_node=context.builder->CreateLoad(condition_node);
+        }
+        builder->CreateCondBr(condition_node, loopBB, loopEndBB);
 
         parentFunction->getBasicBlockList().push_back(loopEndBB);
         builder->SetInsertPoint(loopEndBB);

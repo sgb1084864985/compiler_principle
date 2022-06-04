@@ -8,32 +8,32 @@
 #include "Csymbols.hpp"
 
 // unary_expr->unary_operator cast_expr
-class gen_code_unaryexpr : public code_gen_productionInfo
-{
-    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
-    {
+class gen_code_unary_expr : public code_gen_productionInfo{
+    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override {
         auto p = std::dynamic_pointer_cast<CSym::unary_expr>(tree_node);
-
-        auto op = tree_node_genCode(p->children[0], context);
-        int unaryOp = op->getSExtValue();
+        if (p->constant) {
+            return genCodeForConstant(p->constant, context, tree_node);
+        }
+        UnaryOperatorType op = p->unary_operator;
         auto val = tree_node_genCode(p->children[1], context);
-        if (op == 1)
-        {
-            auto ret = context.builder->CreateNeg(val, "neg");
-            if (p->implicit_cast_type)
-            {
-                return genCodeForCast(p->implicit_cast_type, context, ret);
-            }
+        if(p->children[1]->lValue){
+            val=context.builder->CreateLoad(val);
         }
-        
-        else if (op == 2)
-        {
-            auto ret = context.builder->CreateNot(val, "not");
-            if (p->implicit_cast_type)
-            {
-                return genCodeForCast(p->implicit_cast_type, context, ret);
-            }
+        auto ret = val;
+        switch (op) {
+            case UnaryOperatorType::kMinus:
+                ret=context.builder->CreateNeg(val);
+                break;
+            case UnaryOperatorType::kExclaim:
+                ret=context.builder->CreateNot(val);
+                break;
+            default:
+                throw std::logic_error("operator not supported!");
         }
+        if (p->implicit_cast_type) {
+            return genCodeForCast(p->implicit_cast_type, context, ret);
+        }
+        return ret;
     }
 };
 

@@ -5,8 +5,17 @@
 #ifndef COMPILER_C_CONSTANT_H
 #define COMPILER_C_CONSTANT_H
 #include <memory>
+#include <utility>
 #include <vector>
 #include "C_type.h"
+
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
+#include "llvm/IR/Verifier.h"
 
 // if is a pointer(including function pointer, dType should be UNSIGNED_INTEGER)
 enum class dType {
@@ -15,6 +24,11 @@ enum class dType {
 
 enum class TokenType{
     INTEGER,FLOAT,STRING
+};
+
+class ConstantException:public std::logic_error{
+public:
+    explicit ConstantException(const std::string& what): std::logic_error(what){}
 };
 
 //class C_type;
@@ -97,16 +111,21 @@ public:
     static ptr_constant newRIGHT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
     virtual ptrType getType()=0;
+    virtual llvm::Value *getLlvmValue(llvm::LLVMContext &context, llvm::IRBuilder<> &builder) =0;
+    virtual unsigned getUnsigned(){
+        throw ConstantException("Method C_constant::getUnsigned not implemented");
+    }
 
     static ptr_constant getBoolConstant(bool boolean);
 
 };
-
+using llvm::Value;
 namespace C_CONST{
     template<class T>
     static inline ptrType getType(){
         return C_type::newBasicType(CTS::VOID);
     }
+
     template<>ptrType getType<int>(){
         return C_type::newBasicType(CTS::INT);
     }
@@ -135,7 +154,50 @@ namespace C_CONST{
     template<> int mod<int>(int op1,int op2){
         return op1%op2;
     }
+
+    template<class T>
+    static inline Value *getLlvmValue(llvm::LLVMContext &context, T val) {
+        return llvm::ConstantInt::getSigned(llvm::Type::getIntNTy(context,sizeof (T)*8),val);
+
+    }
+
+    template<>
+    Value *getLlvmValue<double>(llvm::LLVMContext &context, double val) {
+        return llvm::ConstantFP::get(llvm::Type::getDoubleTy(context),val);
+    }
+
+
+    template<>
+    Value *getLlvmValue<float>(llvm::LLVMContext &context, float val) {
+        return llvm::ConstantFP::get(llvm::Type::getFloatTy(context),val);
+    }
+
+    template<class T>
+    static inline unsigned getUnsigned(T val) {
+        return val;
+    }
+    template<>
+    unsigned getUnsigned<float>(float val){
+        throw ConstantException("float is not integer");
+    }
+    template<>
+    unsigned getUnsigned<double>(double val){
+        throw ConstantException("float is not integer");
+    }
 }
+
+class ConstantString:public C_constant{
+    std::string str;
+public:
+    explicit ConstantString(std::string  s):str(std::move(s)){}
+    ptrType getType() override{
+        return C_type::newBasicType(CTS::CHAR, true,CTS::AUTO,CTS::CONST)->newPointerType();
+    }
+    llvm::Value *getLlvmValue(llvm::LLVMContext &context, llvm::IRBuilder<> &builder) override{
+        return builder.CreateGlobalStringPtr(str);
+    }
+    const std::string& getString(){return str;}
+};
 
 class ConstantArithmetic:public C_constant{
 public:
@@ -247,6 +309,12 @@ public:
     ptrType getType() override{
         return C_CONST::getType<T>();
     }
+    llvm::Value *getLlvmValue(llvm::LLVMContext &context, llvm::IRBuilder<> &builder) override{
+        return C_CONST::getLlvmValue<T>(context, m_data);
+    }
+    unsigned getUnsigned()override{
+        return C_CONST::getUnsigned<T>(m_data);
+    }
 private:
     T m_data;
 };
@@ -255,7 +323,7 @@ template<class T>
 T C_constant::getValue(ptr_constant& src) {
     auto p=std::dynamic_pointer_cast<ConstantSingleElement<T>>(src);
     if(!p){
-        throw std::logic_error("can not get this type value!");
+        throw ConstantException("can not get this type value!");
     }
     return p->getData();
 }

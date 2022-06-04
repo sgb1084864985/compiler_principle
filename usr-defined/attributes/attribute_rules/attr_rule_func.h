@@ -18,11 +18,22 @@ public:
 		decl_spec->getAttr().FillAttributes(context, decl_spec);
 		auto type = decl_spec->type;
 		decl->inherited_type = type;
-		decl->getAttr().FillAttributes(context, decl);
 		auto old_namespace = context.currentNameSpace;
 		context.currentNameSpace = std::make_shared<CNameSpace>(tree_node, context.currentNameSpace);
-		compound->getAttr().FillAttributes(context, compound);
+        decl->getAttr().FillAttributes(context, decl);
+        compound->getAttr().FillAttributes(context, compound);
+        auto func_item=context.currentNameSpace->get(decl->identifier);
+//        context.currentNameSpace->remove(decl->identifier);
+        if(func_item->func->idDefined()){
+            tree_node->error = true;
+            context.global.error_out << "function redefined!";
+            return;
+        }
+        func_item->func->func_namespace=compound->owner;
+        func_item->func->body=compound;
 		context.currentNameSpace = old_namespace;
+        // it must be global
+        context.currentNameSpace->insert(decl->identifier,func_item, false);
 	}
 
 protected:

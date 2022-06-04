@@ -13,4 +13,3 @@ void CProductions::addRules() {
     }
 }
 
-Production Production::default_production(nullptr, nullptr,function<symbol_ptr (Production& self,symbol_iterator &,Context&)>());

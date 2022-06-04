@@ -9,35 +9,16 @@
 #include "AttrContext.h"
 #include <stdexcept>
 
-enum class OperatorType {
-	kEqual,
-	kMultiplyEqual,
-	kModuleEqual,
-	kPlusEqual,
-	kMinusEqual,
-	kLeftShiftEqual,
-	kRightShiftEqual,
-	kAndEqual,
-	kXorEqual,
-	kOrEqual,
-	kPlusPlus,
-	kMinusMinus,
-	kPlus,
-	kMinus,
-	kMultiply,
-	kAnd,
-	kOr,
-	kTilde,
-	kExclaim,
+class NoAttrException:public std::logic_error{
+public:
+    explicit NoAttrException(const string &arg) : logic_error(arg) {}
 };
 
 class AttrRule:public ProductionInfo{
 public:
-
 	virtual void FillAttributes (AttrContext& context, symbol_ptr& tree_node){
         throw std::logic_error("Method FillAttributes is not implemented");
     }
-
 };
 
 /**
@@ -48,7 +29,10 @@ class AttrRuleDoNothing : public AttrRule {
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
 		for (auto& child : tree_node->children) {
-			child->getAttr().FillAttributes(context, child);
+            try{
+                child->getAttr().FillAttributes(context, child);
+            }
+            catch (NoAttrException&e){}
 		}
 	}
 };
@@ -60,6 +44,11 @@ public:
 	}
 };
 
+class AttrRuleNull : public AttrRule {
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+    }
+};
 
 
 #endif //COMPILER_ATTR_RULE_H

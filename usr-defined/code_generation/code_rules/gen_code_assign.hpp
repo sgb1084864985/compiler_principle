@@ -13,12 +13,11 @@ class gen_code_assign : public code_gen_productionInfo
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
         auto p = std::dynamic_pointer_cast<CSym::assignment_expr>(tree_node);
-        if (p->constant)
-        {
-            return genCodeForConstant(p->constant, context, tree_node);
-        }
 
         auto assignVal = tree_node_genCode(p->children[2], context);
+        if(p->children[2]->lValue){
+            assignVal=context.builder->CreateLoad(assignVal);
+        }
         auto id = tree_node_genCode(p->children[0], context);
         
         //only handle the "="

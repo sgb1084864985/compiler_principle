@@ -52,7 +52,11 @@ namespace CTS{
     struct func_item{
         ptrAbstractNameSpace func_namespace;
         // body is empty is not defined
-        std::shared_ptr<CSym::function_definition> body;
+        std::shared_ptr<CSym::compound_statement> body;
+    public:
+        [[nodiscard]] bool idDefined() const{
+            return body!= nullptr;
+        }
     };
     using ptr_func = std::shared_ptr<func_item>;
 
@@ -95,11 +99,11 @@ namespace CTS{
     class Parameters{
     public:
         vector<ptrType> param_list;
-        bool ellipse;
+        bool ellipse= false;
 
         Parameters(vector<ptrType> & list,bool ellipse):param_list(list),ellipse(ellipse){
         }
-
+        Parameters()=default;
         bool operator==(Parameters& other)const;
         bool operator!=(Parameters& other)const{return !(*this==other);}
 
@@ -173,6 +177,8 @@ public:
 
     // make int* from int
     void addPointer(int pointer_quantifier=CTS::NONE);
+    void toArray(unsigned int new_size);
+    void toArray(const vector<int>& new_sizes);
 
     void setStorageSpecifier(CTS::StorageSpecifier specifier);
     void setTypeSpecifier(CTS::TypeSpecifier specifier);
@@ -183,7 +189,18 @@ public:
     bool equals(ptrType& other);
     bool const_equals(ptrType& other);
 
-    bool isFunction(){return ~(!declarator->params);};
+    bool isFunction(){
+        if(!declarator->params){
+            return false;
+        }
+        if(isPointer()){
+            return false;
+        }
+        if(isArray()){
+            return false;
+        }
+        return true;
+    };
     bool isPointer(){return declarator->pointers.size()>0;}
     bool isStruct(){return getTypeSpecifier()==CTS::STRUCT;}
     bool isUnion(){return getTypeSpecifier()==CTS::UNION;}

@@ -11,7 +11,9 @@
 class GlobalContext: Context{
 public:
     std::ostream &error_out;
+    std::string file_out;
     explicit GlobalContext(std::ostream&out);
+    GlobalContext(std::ostream&out,std::string  file_out);
 };
 
 

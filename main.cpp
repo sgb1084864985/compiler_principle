@@ -14,11 +14,13 @@
 #include "CProductions.h"
 #include "CTokenTable.h"
 #include "CTokenActions.h"
+#include "CSymbolTable.h"
+#include "codeGenerator.h"
 
 using namespace std;
 int main(){
-    cout<<"Input should be a C source file"<<endl;
-    MyParser parser(CProductions::getProductions());
+    cout<<"Compiling C file..."<<endl;
+    MyParser parser(CProductions::getAndAdd());
     Context c;
 
     CTokenTable table;
@@ -33,5 +35,24 @@ int main(){
     AST::AST_Printer printer(file);
     printer.print(result);
     file.close();
+
+    fstream err("err.out",ios::out);
+    GlobalContext context(err,"main.ll");
+    try{
+        auto Stable=CSymbolTable::genSymbolTable(result,context);
+        codeGenerator::genCode(Stable,result,context);
+        err.close();
+        cout<<"Compile success"<<endl;
+    }
+    catch (logic_error&e){
+        err.close();
+        cout<<e.what()<<endl;
+    }
+    catch(exception&e){
+        err.close();
+        cout<<"unknown error"<<endl;
+        cout<<e.what()<<endl;
+    }
+
     return 0;
 }

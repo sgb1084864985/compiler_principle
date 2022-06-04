@@ -16,6 +16,47 @@ ptr_constant C_constant::newStruct(vector<ptr_constant> &constants) noexcept {
     return {};
 }
 
+using std::string;
+string fromRawString(const string& str){
+    string ret;
+    for(int i=1;i<str.size()-1;i++){
+        char c=str[i];
+        if(c=='\\'){
+            i++;
+            switch (str[i]) {
+                case 'n':ret.push_back('\n');
+                    break;
+                case 't':ret.push_back('\t');
+                    break;
+                case '\\':ret.push_back('\\');
+                    break;
+                case '\'':ret.push_back('\'');
+                    break;
+                case '\"':ret.push_back('\"');
+                    break;
+                case 'r':ret.push_back('\t');
+                    break;
+                case 'f':ret.push_back('\f');
+                    break;
+                case 'v':ret.push_back('\v');
+                    break;
+                case 'a':ret.push_back('\a');
+                    break;
+                case 'b':ret.push_back('\b');
+                    break;
+                case '?':ret.push_back('\?');
+                    break;
+                default:
+                    throw std::logic_error("invalid escape");
+            }
+        }
+        else{
+            ret.push_back(c);
+        }
+    }
+    return ret;
+}
+
 ptr_constant C_constant::fromString(std::string &str, TokenType type) noexcept {
     ptr_constant ret;
     switch (type) {
@@ -25,6 +66,8 @@ ptr_constant C_constant::fromString(std::string &str, TokenType type) noexcept {
         case TokenType::FLOAT:
             ret=C_constant::newConstant(atof(str.c_str()));
             break;
+        case TokenType::STRING:
+            ret= std::make_shared<ConstantString>(fromRawString(str));
         default:
             break;
     }

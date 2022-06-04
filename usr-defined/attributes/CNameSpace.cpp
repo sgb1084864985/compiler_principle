@@ -28,6 +28,7 @@ void CNameSpace::insert(string& name, CNameSpace::ptr_name &val,bool alloc) {
     if(alloc){
         val->alloc_order=allocated_number++;
     }
+    declaration_list.push_back(name);
 }
 
 void CNameSpace::remove(string &name) {
@@ -37,4 +38,14 @@ void CNameSpace::remove(string &name) {
 CNameSpace::CNameSpace(symbol_ptr &tree_node, CNameSpace::ptrNamespace parent)
         :tree_node(tree_node),parentNamespace(std::move(parent)) {
 
+}
+
+ptr_name CNameSpace::getLocal(const string &name) {
+    try{
+        auto ret=name_table.at(name);
+        return ret;
+    }
+    catch (std::out_of_range& ex){
+        return {};
+    };
 }

@@ -147,7 +147,7 @@ public class Constructor{
         out.println("\n\t};");
 
         out.println("\tp_size=_p_size;");
-        out.println("\tnonterm=_p_nonterm;");
+        out.println("\tnon_term=_p_nonterm;");
         out.println("\ttransitions=(int*)array;");
         out.printf("\tstart_state=%d;\n",cfg.getInitState());
         out.printf("\tsymbols=%d;\n",cfg.terminals+cfg.getNonTerminalNum());

@@ -14,6 +14,7 @@ class AttrRuleExprDoNothing : public AttrRule {
 		child->getAttr().FillAttributes(context, child);
 		tree_node->constant = child->constant;
 		tree_node->type = child->type;
+        tree_node->lValue=child->lValue;
 		tree_node->identifier = child->identifier;
 	}
 };
@@ -29,12 +30,12 @@ public:
 		// TODO: add type system
 		auto unary_expr = tree_node->children[0];
 		auto assign_expr = tree_node->children[2];
-		auto name = context.currentNameSpace->get(unary_expr->identifier);
-		if (!name) {
+
+		if (!unary_expr->lValue) {
 			tree_node->error = true;
-			context.global.error_out << "Use undeclared identifier!";
+			context.global.error_out << "not a lvalue in the left side of assignment";
 		} else {
-			if (!name->type->equals(assign_expr->type)) {
+			if (!unary_expr->type->equals(assign_expr->type)) {
 				tree_node->error = true;
 				context.global.error_out << "Illegal assignment";
 			}
@@ -43,6 +44,21 @@ public:
 		tree_node->type = assign_expr->type;
 	}
 };
+
+class AttrRuleOperator:public AttrRule{
+public:
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner=context.currentNameSpace;
+        tree_node->binary_operator=m_op_t;
+    }
+    explicit AttrRuleOperator(OperatorType op_t):m_op_t(op_t){
+
+    }
+    OperatorType getOperator(){return m_op_t;}
+private:
+    OperatorType m_op_t;
+};
+
 
 class AttrRuleOpExpr : public AttrRule {
 public:
@@ -58,6 +74,12 @@ public:
 			SetConstant(op1->constant, op2->constant, tree_node);
 		}
 		CheckType(op1->type, op2->type, context, tree_node);
+        if(op1->implicit_cast_type){
+            tree_node->type=op1->implicit_cast_type;
+        }
+        else{
+            tree_node->type=op1->type;
+        }
 	}
 
 protected:
@@ -136,6 +158,13 @@ class AttrRuleDivExpr : public AttrRuleArithExpr {
 	}
 };
 
+class AttrRuleRemExpr : public AttrRuleArithExpr {
+    void SetConstant(ptr_constant &const1, ptr_constant &const2,
+                     symbol_ptr &tree_node) override {
+        tree_node->constant = C_constant::newMod(const1, const2);
+    }
+};
+
 class AttrRuleRelationExpr : public AttrRuleOpExpr {
 public:
 	void CheckType(ptrType type1, ptrType type2, AttrContext &context,
@@ -200,7 +229,7 @@ public:
 
 class AttrRuleUnaryOperator : public  AttrRule {
 public:
-	AttrRuleUnaryOperator(const UnaryOperatorType& type) : m_op_type(type) {}
+	explicit AttrRuleUnaryOperator(const UnaryOperatorType& type) : m_op_type(type) {}
 
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
@@ -256,9 +285,9 @@ class AttrRuleConstant : public AttrRule {
 				tree_node->type = C_type::newBasicType(CTS::FLOAT);
 				break;
 			case TokenType::STRING:
-				// TODO
-				break;
-			default:
+                tree_node->type=C_type::newBasicType(CTS::CHAR, true,CTS::AUTO,CTS::CONST)->newPointerType();
+                break;
+            default:
 				tree_node->error = true;
 				context.global.error_out << "Unsupported constant type";
 		}
@@ -275,6 +304,7 @@ class AttrRulePrimaryExprParens : public AttrRule {
 		expr->getAttr().FillAttributes(context, expr);
 		tree_node->constant = expr->constant;
 		tree_node->type = expr->type;
+        tree_node->lValue=expr->lValue;
 	}
 };
 
@@ -282,6 +312,7 @@ class AttrRulePrimaryExprParens : public AttrRule {
 class AttrRulePrimaryExprId : public AttrRule {
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
+        tree_node->lValue= true;
 		auto id = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0]);
 		tree_node->identifier = id->getText();
 		auto name_item = context.currentNameSpace->get(id->getText());
@@ -305,5 +336,71 @@ class AttrRulePrimaryExprConstant : public AttrRule {
 	}
 };
 
+
+//postfix_expr->postfix_expr ( )
+class AttrRulePostfixExprFuncApp0:public AttrRule{
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto func = tree_node->children[0];
+        func->getAttr().FillAttributes(context, func);
+        if(func->type->isFunction()){
+            if(!func->type->getParameterTypes()->param_list.empty()){
+                tree_node->error= true;
+                context.global.error_out<< "too less args" <<std::endl;
+            }
+        }
+        else{
+            tree_node->error= true;
+            context.global.error_out<< "object not callable" <<std::endl;
+        }
+        tree_node->type=func->type->getReturnType();
+    }
+};
+
+
+//postfix_expr->postfix_expr ( argument_expression_list )
+class AttrRulePostfixExprFuncApp1:public AttrRule{
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto func = tree_node->children[0];
+        func->getAttr().FillAttributes(context, func);
+        tree_node->params= std::make_shared<CTS::Parameters>();
+        if(func->type->isFunction()){
+            visitArgs(tree_node->params->param_list,context,tree_node->children[2]);
+            auto func_param_types=func->type->getParameterTypes();
+            if(!func_param_types->ellipse && func_param_types->param_list.size()!=tree_node->params->param_list.size()){
+                tree_node->error= true;
+                context.global.error_out<< "arg numbers not match" <<std::endl;
+                return;
+            }
+            for(int i=0;i<func_param_types->param_list.size();i++){
+                if(!tree_node->params->param_list[i]->equals(func_param_types->param_list[i])){
+                    tree_node->error= true;
+                    context.global.error_out<<"arg types not match"<<std::endl;
+                    return;
+                }
+            }
+        }
+        else{
+            tree_node->error= true;
+            context.global.error_out<< "object not callable" <<std::endl;
+        }
+        tree_node->type=func->type->getReturnType();
+    }
+    void visitArgs(vector<ptrType>& args,AttrContext &context, symbol_ptr &tree_node){
+        tree_node->owner=context.currentNameSpace;
+        if(tree_node->children.size()==1){
+            auto expr=tree_node->children[0];
+            expr->getAttr().FillAttributes(context,expr);
+            args.push_back(expr->type);
+        }
+        else if(tree_node->children.size()==3){
+            visitArgs(args,context,tree_node->children[0]);
+            auto expr=tree_node->children[2];
+            expr->getAttr().FillAttributes(context,expr);
+            args.push_back(expr->type);
+        }
+    }
+};
 
 #endif //COMPILER_ATTR_RULE_EXPR_H

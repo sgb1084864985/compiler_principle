@@ -66,7 +66,13 @@ ptrType C_type::newMergeType(CTS::DeclarationSpecifiers &part1, CTS::ptrDelclara
 }
 
 ptrType C_type::newBasicType(CTS::TypeSpecifier type, bool Signed, CTS::StorageSpecifier storage, int quantifier) {
-    return {};
+    auto ptr=std::make_shared<C_type>();
+    ptr->declarationSpecifiers.typeSpecifier=type;
+    ptr->declarationSpecifiers.isSigned=Signed;
+    ptr->declarationSpecifiers.storageSpecifier=storage;
+    ptr->declarationSpecifiers.typeQuantifier=quantifier;
+    ptr->declarator= std::make_shared<CTS::AbstractDeclarator>();
+    return ptr;
 }
 
 ptrType C_type::newStructType(CTS::ptr_struct &struct_item, CTS::StorageSpecifier storage, int quantifier) {
@@ -77,30 +83,47 @@ ptrType C_type::newUnionType(CTS::ptr_struct &struct_item, CTS::StorageSpecifier
     return {};
 }
 
+// TODO: make it more perfect
 ptrType
 C_type::newFuncType(ptrType &retType, vector<ptrType> &param_list, CTS::StorageSpecifier storage, int functionSpecifier,
                     bool variable_length) {
-    return {};
+    auto new_type= std::make_shared<C_type>();
+    new_type->declarationSpecifiers=retType->declarationSpecifiers;
+    new_type->declarator= std::make_shared<CTS::AbstractDeclarator>();
+    new_type->declarator->params= std::make_shared<CTS::Parameters>(param_list,variable_length);
+    new_type->setStorageSpecifier(storage);
+    new_type->declarationSpecifiers.funcSpecifier=functionSpecifier;
+    return new_type;
 }
 
 ptrType
 C_type::newFuncType(ptrType &retType, CTS::ptrParams &params, CTS::StorageSpecifier storage, int functionSpecifier) {
-    return {};
+    auto new_type= std::make_shared<C_type>();
+    new_type->declarationSpecifiers=retType->declarationSpecifiers;
+    new_type->declarator= std::make_shared<CTS::AbstractDeclarator>();
+    new_type->declarator->params= std::make_shared<CTS::Parameters>(*params);
+    new_type->setStorageSpecifier(storage);
+    new_type->declarationSpecifiers.funcSpecifier=functionSpecifier;
+    return new_type;
 }
 
 ptrType C_type::newArrayType(ptrType &basicType, unsigned int dim, vector<unsigned int> &arraySizes,
                              CTS::StorageSpecifier storage, int quantifier) {
-    return {};
+    {
+        throw std::logic_error("not implemented");
+    };
 }
 
-// TODO:
 ptrType C_type::newPointerType(int pointer_quantifier) {
-    return {};
+    auto new_type= this->clone();
+    this->declarator->pointers.quantifiers.push_back(pointer_quantifier);
+    return new_type;
 }
 
-// TODO:
+// TODO: better
 ptrType C_type::clone() {
-    return {};
+    auto new_type= std::make_shared<C_type>(*this);
+    return new_type;
 }
 
 unsigned int C_type::size() {
@@ -139,30 +162,36 @@ unsigned int C_type::size() {
 
 // TODO:
 void C_type::addPointer(int pointer_quantifier) {
+    throw std::logic_error("not implemented");
 
 }
 
-// TODO:
 void C_type::setStorageSpecifier(CTS::StorageSpecifier specifier) {
-
+    declarationSpecifiers.storageSpecifier=specifier;
 }
 
 // TODO:
 void C_type::setTypeSpecifier(CTS::TypeSpecifier specifier) {
+    throw std::logic_error("not implemented");
 
 }
 
 // TODO:
 void C_type::setTypeQuantifier(CTS::TypeSpecifier quantifier) {
+    throw std::logic_error("not implemented");
 
 }
 
 // TODO:
 void C_type::setPointerTypeQuantifier(CTS::TypeSpecifier quantifier, int pointer_level) {
+    throw std::logic_error("not implemented");
 
 }
 
 bool C_type::equals(ptrType &other) {
+    if(!other){
+        throw std::logic_error("equals ptr null!");
+    }
     auto& specifier1=getDeclarationSpecifiers();
     auto& specifier2=other->getDeclarationSpecifiers();
     auto& declarator1=getDeclarator();
@@ -190,12 +219,24 @@ bool C_type::equals(ptrType &other) {
 }
 
 bool C_type::const_equals(ptrType &other) {
+    throw std::logic_error("not implemented");
+
     return false;
 }
 
 // TODO:
 ptrType C_type::getReturnType() {
     return newBasicType(getTypeSpecifier(),isSigned(),getStorageSpecifier(),getTypeQuantifier());
+}
+
+void C_type::toArray(unsigned int new_size) {
+    declarator->arrayDim++;
+    declarator->arraySizes.push_back(new_size);
+}
+
+void C_type::toArray(const vector<int> &new_sizes) {
+    declarator->arrayDim+=new_sizes.size();
+    declarator->arraySizes.insert(declarator->arraySizes.end(),new_sizes.begin(),new_sizes.end());
 }
 
 bool CTS::Parameters::operator==(CTS::Parameters &other)const{

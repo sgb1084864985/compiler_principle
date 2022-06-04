@@ -11,12 +11,14 @@
 //parameter_type_list->parameter_list , ...
 class AttrRuleParamTypeList : public AttrRule {
 public:
-	AttrRuleParamTypeList(bool variable_length) : m_variable_length(variable_length) {}
+	explicit AttrRuleParamTypeList(bool variable_length) : m_variable_length(variable_length) {}
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
 		auto param_list = tree_node->children[0];
-		tree_node->params = param_list->params;
-		tree_node->variable_param_length = m_variable_length;
+        tree_node->params= std::make_shared<CTS::Parameters>();
+        param_list->params=tree_node->params;
+        param_list->getAttr().FillAttributes(context,param_list);
+		tree_node->params->ellipse = m_variable_length;
 	}
 protected:
 	bool m_variable_length = false;
@@ -28,19 +30,20 @@ class AttrRuleParamListSingleDecl : public AttrRule {
 		tree_node->owner = context.currentNameSpace;
 		auto decl = tree_node->children[0];
 		decl->getAttr().FillAttributes(context, decl);
-		tree_node->params.push_back(decl->type);
+		tree_node->params->param_list.push_back(decl->type);
 	}
 };
 
+//parameter_list->parameter_list , parameter_declaration
 class AttrRuleParamListMultiDecl : public AttrRule {
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
 		auto list = tree_node->children[0];
-		auto decl = tree_node->children[2];
+        list->params=tree_node->params;
+        auto decl = tree_node->children[2];
 		list->getAttr().FillAttributes(context, list);
 		decl->getAttr().FillAttributes(context, decl);
-		tree_node->params = list->params;
-		tree_node->params.push_back(decl->type);
+		tree_node->params->param_list.push_back(decl->type);
 	}
 };
 

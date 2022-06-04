@@ -30,8 +30,11 @@ class gen_code_jumpexpr2: public code_gen_productionInfo
     {
         auto p = std::dynamic_pointer_cast<CSym::jump_statement>(tree_node); 
         auto retV = tree_node_genCode(p->children[1], context);
+        if(p->children[1]->lValue){
+            retV=context.builder->CreateLoad(retV);
+        }
         return context.builder->CreateRet(retV);
     }
-}
+};
 
 #endif

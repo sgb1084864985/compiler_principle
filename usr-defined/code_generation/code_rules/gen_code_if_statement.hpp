@@ -16,6 +16,9 @@ class gen_code_rule_if1 : public code_gen_productionInfo
         auto p = std::dynamic_pointer_cast<CSym::selection_statement>(tree_node);
 
         auto condition_node = tree_node_genCode(p->children[2], context);
+        if(p->children[2]->lValue){
+            condition_node=context.builder->CreateLoad(condition_node);
+        }
         auto &builder = context.builder;
         auto &llvm_context = context.context;
 
@@ -51,13 +54,16 @@ class gen_code_rule_if1 : public code_gen_productionInfo
 };
 
 // selection_statement->if ( expr ) statement
-class gen_code_rule_if1 : public code_gen_productionInfo
+class gen_code_rule_if2 : public code_gen_productionInfo
 {
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
         auto p = std::dynamic_pointer_cast<CSym::selection_statement>(tree_node);
 
         auto condition_node = tree_node_genCode(p->children[2], context);
+        if(p->children[2]->lValue){
+            condition_node=context.builder->CreateLoad(condition_node);
+        }
         auto &builder = context.builder;
         auto &llvm_context = context.context;
 
@@ -65,11 +71,10 @@ class gen_code_rule_if1 : public code_gen_productionInfo
 
         llvm::BasicBlock *thenBB =
             llvm::BasicBlock::Create(*llvm_context, "then", parentFunction);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(*llvm_context, "else");
         llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(*llvm_context, "ifcont");
-        builder->CreateCondBr(condition_node, thenBB, elseBB);
-
+        builder->CreateCondBr(condition_node, thenBB, mergeBB);
         builder->SetInsertPoint(thenBB);
+
         // handle then part statement
         tree_node_genCode(p->children[4], context);
 

@@ -19,10 +19,13 @@
 #include "llvm/IR/Value.h"
 
 using llvm::Value;
+using llvm::Type;
 class code_gen_productionInfo : public ProductionInfo
 {
 public:
-    virtual Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) = 0;
+    virtual Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) {
+        throw std::logic_error("interface not implemented");
+    }
 
     static Value *genCode(ProductionInfo &info, code_gen_Context &context, symbol_ptr &tree_node)
     {
@@ -36,10 +39,43 @@ public:
     }
 
 
-    static llvm::Type* getLlvmType(ptrType& type);
+    static Type *getLlvmType(ptrType &type, code_gen_Context &context);
     static Value* genCodeForConstant(ptr_constant & constant, code_gen_Context& context,symbol_ptr& tree_node);
     static Value* genCodeForCast(ptrType& type, code_gen_Context& context,Value* val);
 
+};
+
+class code_genInChild:public code_gen_productionInfo{
+    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
+    {
+        auto p = std::dynamic_pointer_cast<CSym::statement>(tree_node);
+        return tree_node_genCode(p->children[0], context);
+    }
+};
+
+// constant folding
+class code_genInChildC:public code_gen_productionInfo{
+    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
+    {
+        auto p = std::dynamic_pointer_cast<CSym::logical_or_expr>(tree_node);
+        if (p->constant)
+        {
+            return genCodeForConstant(p->constant, context, tree_node);
+        }
+
+        auto ret = tree_node_genCode(p->children[0], context);
+        if (p->implicit_cast_type)
+        {
+            return genCodeForCast(p->implicit_cast_type, context, ret);
+        }
+        return ret;   }
+};
+
+class code_genNull:public code_gen_productionInfo{
+    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
+    {
+        return nullptr;
+    }
 };
 
 #endif // COMPILER_CODE_GEN_PRODUCTIONINFO_H

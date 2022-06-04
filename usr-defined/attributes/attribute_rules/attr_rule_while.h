@@ -14,7 +14,7 @@ class AttrRuleWhile : public  AttrRule {
 		tree_node->owner = context.currentNameSpace;
 		auto expr = tree_node->children[2];
 		expr->getAttr().FillAttributes(context, expr);
-		if (expr->type->getTypeSpecifier() != CTS::BOOL && expr->implicit_cast_type->getTypeSpecifier() != CTS::BOOL) {
+		if (expr->type->getTypeSpecifier() != CTS::BOOL && ( !expr->implicit_cast_type || expr->implicit_cast_type->getTypeSpecifier() != CTS::BOOL)) {
 			tree_node->error = true;
 			context.global.error_out << "Condition in IF statement cannot be converted to bool";
 		}
