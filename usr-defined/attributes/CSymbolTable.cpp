@@ -12,7 +12,7 @@ CSymbolTable::ptrSymTable CSymbolTable::genSymbolTable(symbol_ptr &AST_root, Glo
     AttrContext context1(context);
     context1.currentNameSpace=table->rootNamespace;
     AST_root->getAttr().FillAttributes(context1,AST_root);
-    if(AST_root->error){
+    if(context.error || AST_root->error){
         throw std::logic_error("error occurred");
     }
     return table;

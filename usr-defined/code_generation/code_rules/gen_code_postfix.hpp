@@ -12,7 +12,7 @@
 class gen_code_postfix_expr1:public code_gen_productionInfo{
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
-        auto p = std::dynamic_pointer_cast<CSym::identifier_list>(tree_node);
+        auto p = std::dynamic_pointer_cast<CSym::postfix_expr>(tree_node);
         if(p->constant){
             return genCodeForConstant(p->constant,context,tree_node);
         }
@@ -55,6 +55,23 @@ class gen_code_postfix_expr3:public code_gen_productionInfo{
             auto val=tree_node_genCode(expr,context);
             if(expr->lValue){val=context.builder->CreateLoad(val);}
             args.push_back(val);
+        }
+    }
+};
+
+
+//postfix_expr->postfix_expr [ expr ]
+class gen_code_postfix_array:public code_gen_productionInfo{
+    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
+    {
+        auto p = std::dynamic_pointer_cast<CSym::identifier_list>(tree_node);
+        auto array= tree_node_genCode(p->children[0],context);
+        auto index= getRValue(p->children[2],context);
+        if(p->children[0]->type->isArray()){
+            return context.builder->CreateGEP(array, {llvm::ConstantInt::getNullValue(Type::getInt32Ty(*context.context)),index});
+        }
+        else{
+            return context.builder->CreateGEP(array, index);
         }
     }
 };

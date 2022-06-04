@@ -645,7 +645,7 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     //postfix_expr->postfix_expr --
     make_unique<AttrRule>(),
     //postfix_expr->postfix_expr [ expr ]
-    make_unique<AttrRule>(),
+    make_unique<AttrRulePostfixExprArray>(),
 
     //postfix_expr->postfix_expr ( argument_expression_list )
     make_unique<AttrRulePostfixExprFuncApp1>(),

@@ -122,7 +122,10 @@ ptrType C_type::newPointerType(int pointer_quantifier) {
 
 // TODO: better
 ptrType C_type::clone() {
-    auto new_type= std::make_shared<C_type>(*this);
+    auto new_type= std::make_shared<C_type>();
+    new_type->declarationSpecifiers=declarationSpecifiers;
+    new_type->declarator= std::make_shared<CTS::AbstractDeclarator>(*declarator);
+//    new_type->declarator->params= std::make_shared<CTS::Parameters>(*declarator->params);
     return new_type;
 }
 
@@ -237,6 +240,33 @@ void C_type::toArray(unsigned int new_size) {
 void C_type::toArray(const vector<int> &new_sizes) {
     declarator->arrayDim+=new_sizes.size();
     declarator->arraySizes.insert(declarator->arraySizes.end(),new_sizes.begin(),new_sizes.end());
+}
+
+bool C_type::isIntegerType() const {
+    switch (declarationSpecifiers.typeSpecifier) {
+        case CTS::FLOAT:
+        case CTS::STRUCT:
+        case CTS::DOUBLE:
+        case CTS::UNION:
+        case CTS::COMPLEX:
+        case CTS::IMAGINARY:
+        case CTS::type_unset:
+        case CTS::VOID:
+            return false;
+        default:
+            return true;
+    }
+}
+
+ptrType C_type::getArrayElementType() {
+    assert(isArray());
+    auto new_type=clone();
+    new_type->declarator->arrayDim=0;
+    new_type->declarator->arraySizes.clear();
+    for(int i=0;i<declarator->arrayDim-1;i++){
+        declarator->pointers.quantifiers.push_back(CTS::CONST);
+    }
+    return new_type;
 }
 
 bool CTS::Parameters::operator==(CTS::Parameters &other)const{

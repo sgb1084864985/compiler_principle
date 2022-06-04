@@ -205,6 +205,7 @@ public:
     bool isStruct(){return getTypeSpecifier()==CTS::STRUCT;}
     bool isUnion(){return getTypeSpecifier()==CTS::UNION;}
     bool isArray(){return declarator->arrayDim>0;}
+    bool isIntegerType() const;
 
     // int,float,...
     bool isBasicType(){
@@ -229,6 +230,7 @@ public:
     const vector<int>& getPointerQuantifiers(){return declarator->pointers.quantifiers;}
 
     ptrType getReturnType();
+    ptrType getArrayElementType();
     CTS::ptrParams getParameterTypes(){return  declarator->params;}
 
     CTS::DeclarationSpecifiers& getDeclarationSpecifiers(){return declarationSpecifiers;}

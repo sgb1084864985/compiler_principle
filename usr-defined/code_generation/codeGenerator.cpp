@@ -63,6 +63,8 @@ void codeGenerator::genCodeFuncDef(ptr_func &func, const string &func_name, code
         context.builder->CreateRet(ret_value);
     }
     if(llvm::verifyFunction(*llvmFun,&llvm::outs())){
+        std::cout<<"\ncode:\n"<<std::endl;
+        context.module->print(llvm::outs(), nullptr);
         throw std::logic_error("function define error");
     }
 }

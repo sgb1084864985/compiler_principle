@@ -12,7 +12,9 @@ class GlobalContext: Context{
 public:
     std::ostream &error_out;
     std::string file_out;
+    bool error= false;
     explicit GlobalContext(std::ostream&out);
+    [[nodiscard]] bool hasError()const{return error;}
     GlobalContext(std::ostream&out,std::string  file_out);
 };
 

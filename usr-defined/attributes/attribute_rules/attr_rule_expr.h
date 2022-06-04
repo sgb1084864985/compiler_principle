@@ -403,4 +403,29 @@ class AttrRulePostfixExprFuncApp1:public AttrRule{
     }
 };
 
+//postfix_expr->postfix_expr [ expr ]
+class AttrRulePostfixExprArray : public AttrRule {
+    void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
+        tree_node->owner = context.currentNameSpace;
+        auto array = tree_node->children[0];
+        array->getAttr().FillAttributes(context, array);
+        if(!array->type->isArray() && !array->type->isPointer()){
+            tree_node->error= true;
+            context.global.error_out<<"Not an array or pointer, can not use operator []"<<std::endl;
+            return;
+        }
+
+        auto index=tree_node->children[2];
+        index->getAttr().FillAttributes(context,index);
+
+        if(!index->type->isIntegerType()){
+            tree_node->error= true;
+            context.global.error_out<<"value in [] is not a integer"<<std::endl;
+            return;
+        }
+        tree_node->type=array->type->getArrayElementType();
+        tree_node->lValue= true;
+    }
+};
+
 #endif //COMPILER_ATTR_RULE_EXPR_H

@@ -24,7 +24,9 @@ class code_gen_productionInfo : public ProductionInfo
 {
 public:
     virtual Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) {
-        throw std::logic_error("interface not implemented");
+        std::cout<<"In production:"<<std::endl;
+        std::cout<<tree_node->production.left_hand_side<<" -> "<<tree_node->production.right_hand_side<<std::endl;
+        throw std::logic_error("Method genCode not implemented");
     }
 
     static Value *genCode(ProductionInfo &info, code_gen_Context &context, symbol_ptr &tree_node)
@@ -42,7 +44,14 @@ public:
     static Type *getLlvmType(ptrType &type, code_gen_Context &context);
     static Value* genCodeForConstant(ptr_constant & constant, code_gen_Context& context,symbol_ptr& tree_node);
     static Value* genCodeForCast(ptrType& type, code_gen_Context& context,Value* val);
-
+    static Value* getRValue(symbol_ptr &tree_node, code_gen_Context &context){
+        auto item = std::dynamic_pointer_cast<AST::NonTerminal>(tree_node);
+        auto val=genCode(item->production.getGenCodeInfo(), context, tree_node);
+        if(tree_node->lValue){
+            val=context.builder->CreateLoad(val);
+        }
+        return val;
+    }
 };
 
 class code_genInChild:public code_gen_productionInfo{
@@ -68,7 +77,8 @@ class code_genInChildC:public code_gen_productionInfo{
         {
             return genCodeForCast(p->implicit_cast_type, context, ret);
         }
-        return ret;   }
+        return ret;
+    }
 };
 
 class code_genNull:public code_gen_productionInfo{

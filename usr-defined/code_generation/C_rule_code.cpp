@@ -564,7 +564,7 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
         //postfix_expr->postfix_expr --
         make_unique<code_gen_productionInfo>(),
         //postfix_expr->postfix_expr [ expr ]
-        make_unique<code_gen_productionInfo>(),
+        make_unique<gen_code_postfix_array>(),
         //postfix_expr->postfix_expr ( argument_expression_list )
         make_unique<gen_code_postfix_expr3>(),
         //postfix_expr->( type_name ) { initializer_list }
@@ -596,7 +596,7 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
         //primary_expr->id // id is identifier, like abc
         make_unique<gen_code_primary_expr1>(),
         //primary_expr->constant
-        make_unique<code_gen_productionInfo>(),
+        make_unique<code_genInChildC>(),
         //primary_expr->String // String is not a token
         make_unique<code_gen_productionInfo>(),
         //primary_expr->generic_selection
