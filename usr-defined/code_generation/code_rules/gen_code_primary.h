@@ -19,7 +19,9 @@ class gen_code_primary_expr1:public code_gen_productionInfo{
         if(name_item->type->isFunction()){
             return context.module->getFunction(node->getText());
         }
-        return context.env[name_item.get()];
+        auto val=context.env[name_item.get()];
+        assert(val);
+        return val;
     }
 };
 
@@ -28,9 +30,7 @@ class gen_code_primary_expr2:public code_gen_productionInfo{
     Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
     {
         auto p = std::dynamic_pointer_cast<CSym::identifier_list>(tree_node);
-        if(p->constant){
-            return genCodeForConstant(p->constant,context,tree_node);
-        }
+
         return tree_node_genCode(tree_node->children[1],context);
     }
 };

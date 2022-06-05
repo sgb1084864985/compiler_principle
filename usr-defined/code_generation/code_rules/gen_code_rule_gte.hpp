@@ -8,29 +8,15 @@
 #include "Csymbols.hpp"
 
 // relational_expr->relational_expr >= shift_expr
-class gen_code_rule_gteExpr : public code_gen_productionInfo
+class gen_code_rule_gteExpr : public gen_code_BinaryExpr
 {
-    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
-    {
-        auto p = std::dynamic_pointer_cast<CSym::relational_expr>(tree_node);
-        if (p->constant)
-        {
-            return genCodeForConstant(p->constant, context, tree_node);
+    Value * operation(code_gen_Context &context, symbol_ptr &tree_node, symbol_ptr &op1, symbol_ptr &op2, Value *v1, Value *v2) override{
+        if(tree_node->type->isSigned()){
+            return context.builder->CreateICmpSGE(v1,v2,"gte");
         }
-        auto v1 = tree_node_genCode(p->children[0], context);
-        auto v2 = tree_node_genCode(p->children[2], context);
-        if(p->children[0]->lValue){
-            v1=context.builder->CreateLoad(v1);
+        else{
+            return context.builder->CreateICmpUGE(v1,v2,"gte");
         }
-        if(p->children[2]->lValue){
-            v2=context.builder->CreateLoad(v2);
-        }
-        auto ret = context.builder->CreateICmpSGE(v1, v2, "gte");
-        if (p->implicit_cast_type)
-        {
-            return genCodeForCast(p->implicit_cast_type, context, ret);
-        }
-        return ret;
     }
 };
 

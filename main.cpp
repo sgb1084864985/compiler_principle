@@ -17,6 +17,12 @@
 #include "CSymbolTable.h"
 #include "codeGenerator.h"
 
+// FP type arithmetic
+// implicit cast
+// error catch
+// initializer
+// ++, --
+
 using namespace std;
 int main(){
     cout<<"Compiling C file..."<<endl;
@@ -36,20 +42,16 @@ int main(){
     printer.print(result);
     file.close();
 
-    fstream err("err.out",ios::out);
-    GlobalContext context(err,"main.ll");
+    GlobalContext context(cout,"main.ll");
     try{
         auto Stable=CSymbolTable::genSymbolTable(result,context);
         codeGenerator::genCode(Stable,result,context);
-        err.close();
         cout<<"Compile success"<<endl;
     }
     catch (logic_error&e){
-        err.close();
         cout<<e.what()<<endl;
     }
     catch(exception&e){
-        err.close();
         cout<<"unknown error"<<endl;
         cout<<e.what()<<endl;
     }

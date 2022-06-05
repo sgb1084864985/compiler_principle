@@ -9,29 +9,14 @@
 #include "gen_code_compstmt1.hpp"
 #include "gen_code_compstmt2.hpp"
 #include "gen_code_exdel.hpp"
-#include "gen_code_block1.hpp"
-#include "gen_code_block2.hpp"
 #include "gen_code_blocklist1.hpp"
 #include "gen_code_blocklist2.hpp"
 #include "gen_code_if_statement.hpp"
 #include "gen_code_loop_statement.hpp"
 #include "gen_code_jumpexpr.hpp"
-#include "gen_code_add2mul.hpp"
-#include "gen_code_and2eq.hpp"
+
 #include "gen_code_assign.hpp"
-#include "gen_code_assign2cond.hpp"
-#include "gen_code_castexp2unary.hpp"
-#include "gen_code_cond2logicOr.hpp"
-#include "gen_code_eq2rel.hpp"
-#include "gen_code_expr2assign1.hpp"
-#include "gen_code_expr2assign2.hpp"
-#include "gen_code_exprstmt1.hpp"
-#include "gen_code_exprstmt2.hpp"
-#include "gen_code_logic_or2and.hpp"
-#include "gen_code_logicand2or.hpp"
-#include "gen_code_mul2unary.hpp"
-#include "gen_code_or2xor.hpp"
-#include "gen_code_rel2sh.hpp"
+
 #include "gen_code_rule_andExpr.hpp"
 #include "gen_code_rule_divExpr.hpp"
 #include "gen_code_rule_eqExpr.hpp"
@@ -43,14 +28,36 @@
 #include "gen_code_rule_neqExpr.hpp"
 #include "gen_code_rule_orExpr.hpp"
 #include "gen_code_rule_remExpr.hpp"
-#include "gen_code_rule_shlExpr.hpp"
 #include "gen_code_rule_subExpr.hpp"
 #include "gen_code_rule_xorExpr.hpp"
-#include "gen_code_sh2add.hpp"
-#include "gen_code_unary2postfix.hpp"
 #include "gen_code_unaryexp.hpp"
+#include "gen_code_logic_or.hpp"
+
+//#include "gen_code_logicand2or.hpp"
+//#include "gen_code_cond2logicOr.hpp"
+//#include "gen_code_expr2assign1.hpp"
+//#include "gen_code_expr2assign2.hpp"
+//#include "gen_code_assign2cond.hpp"
+
+
+//#include "gen_code_xor2and.hpp"
+//#include "gen_code_add2mul.hpp"
+//#include "gen_code_and2eq.hpp"
+//#include "gen_code_sh2add.hpp"
+//#include "gen_code_unary2postfix.hpp"
+//#include "gen_code_rule_shlExpr.hpp"
+//#include "gen_code_mul2unary.hpp"
+//#include "gen_code_or2xor.hpp"
+//#include "gen_code_rel2sh.hpp"
+//#include "gen_code_exprstmt1.hpp"
+//#include "gen_code_exprstmt2.hpp"
+//#include "gen_code_eq2rel.hpp"
+//#include "gen_code_block1.hpp"
+//#include "gen_code_block2.hpp"
+//#include "gen_code_castexp2unary.hpp"
+
 //#include "gen_code_unaryOp.hpp"
-#include "gen_code_xor2and.hpp"
+
 
 using std::unique_ptr;
 using std::make_unique;
@@ -426,13 +433,13 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
         //static_assert_declaration->_Static_assert ( constant_expr , str )
         make_unique<code_gen_productionInfo>(),
         //expr->assignment_expr
-        make_unique<gen_code_expr2assign2>(),
+        make_unique<code_genInChildC>(),
         //expr->expr , assignment_expr
-        make_unique<gen_code_expr2assign1>(),
+        make_unique<code_gen_productionInfo>(),
         //constant_expr->conditional_expr
         make_unique<code_genInChild>(),
         //assignment_expr->conditional_expr
-        make_unique<gen_code_assign2cond>(),
+        make_unique<code_genInChildC>(),
         //assignment_expr->unary_expr assignment_operator assignment_expr
         make_unique<gen_code_assign>(),
         //assignment_operator->=
@@ -458,15 +465,15 @@ unique_ptr<ProductionInfo> C_rule_code::ruleCodeTable[]={
         //assignment_operator->|=
         make_unique<code_gen_productionInfo>(),
         //conditional_expr->logic_or_expr
-        make_unique<gen_code_cond2or>(),
+        make_unique<code_genInChildC>(),
         //conditional_expr->logic_or_expr ? expr : conditional_expr
         make_unique<code_gen_productionInfo>(),
         //logic_or_expr->logic_and_expr
-        make_unique<gen_code_logic_or2and>(),
+        make_unique<code_genInChildC>(),
         //logic_or_expr->logic_or_expr || logic_and_expr
         make_unique<gen_code_logic_or>(),
         //logic_and_expr->or_expr
-        make_unique<gen_code_logicand2or>(),
+        make_unique<code_genInChildC>(),
         //logic_and_expr->logic_and_expr && or_expr
         make_unique<gen_code_rule_andExpr>(),
         //or_expr->xor_expr

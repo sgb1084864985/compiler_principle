@@ -3,9 +3,8 @@ int printf(char* format,...);
 int number[8];
 
 void quick_sort(int first,int last){
-    int i, j;
+    int i, j, pivot, temp;
     if(first<last){
-        int pivot,temp;
         pivot=first;
         i=first;
         j=last;
@@ -50,7 +49,7 @@ int main(){
     number[4]=2323;
     number[5]=67;
     number[6]=10332;
-    number[7]=-1;
+    number[7]=1;
     print_array(n);
     quick_sort(0,n-1);
     print_array(n);

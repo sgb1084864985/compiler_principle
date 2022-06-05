@@ -37,6 +37,13 @@ void codeGenerator::genCodeGlobal(ptrSymTable &symTable, std::shared_ptr<CSym::t
                 genCodeFuncDef(item->func,name,context);
             }
         }
+        else{
+            auto type=code_gen_productionInfo::getLlvmType(item->type,context);
+            context.module->getOrInsertGlobal(name,type);
+            auto var=context.module->getGlobalVariable(name);
+            var->setInitializer(llvm::Constant::getNullValue(type));
+            context.env[item.get()]=var;
+        }
     }
 }
 
@@ -49,7 +56,7 @@ void codeGenerator::genCodeFuncDef(ptr_func &func, const string &func_name, code
     auto param_space=std::static_pointer_cast<CNameSpace>(func->func_namespace)->getParentSpace();
     for(auto& param: llvmFun->args()){
         auto param_no=param.getArgNo();
-        const string&param_name=param_space->getDeclarationList()[param_no+1];
+        const string&param_name=param_space->getDeclarationList()[param_no];
         llvm::Type* param_type=llvmFun->getFunctionType()->getParamType(param_no);
         auto ptr=context.builder->CreateAlloca(param_type, nullptr,llvm::Twine(param_name));
         context.env[param_space->getLocal(param_name).get()]=ptr;

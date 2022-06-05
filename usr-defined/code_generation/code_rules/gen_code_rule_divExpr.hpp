@@ -8,29 +8,20 @@
 #include "Csymbols.hpp"
 
 // mul_expr->mul_expr / unary_expr
-class gen_code_rule_divExpr : public code_gen_productionInfo
+class gen_code_rule_divExpr : public gen_code_BinaryExpr
 {
-    Value *genCode(code_gen_Context &context, symbol_ptr &tree_node) override
-    {
-        auto p = std::dynamic_pointer_cast<CSym::mul_expr>(tree_node);
-        if (p->constant)
-        {
-            return genCodeForConstant(p->constant, context, tree_node);
+    Value * operation(code_gen_Context &context, symbol_ptr &tree_node, symbol_ptr &op1, symbol_ptr &op2, Value *v1, Value *v2) override{
+        if(tree_node->type->isFPType()){
+            return context.builder->CreateFDiv(v1,v2,"f_div");
         }
-        auto v1 = tree_node_genCode(p->children[0], context);
-        auto v2 = tree_node_genCode(p->children[2], context);
-        if(p->children[0]->lValue){
-            v1=context.builder->CreateLoad(v1);
+        else{
+            if(tree_node->type->isSigned()){
+                return context.builder->CreateSDiv(v1,v2,"div");
+            }
+            else{
+                return context.builder->CreateUDiv(v1,v2,"div");
+            }
         }
-        if(p->children[2]->lValue){
-            v2=context.builder->CreateLoad(v2);
-        }
-        auto ret = context.builder->CreateSDiv(v1, v2, "div");
-        if (p->implicit_cast_type)
-        {
-            return genCodeForCast(p->implicit_cast_type, context, ret);
-        }
-        return ret;
     }
 };
 

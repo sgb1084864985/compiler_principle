@@ -24,10 +24,10 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<AttrRuleDoNothing>(),
 
     //external_declaration->function_definition
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //external_declaration->declaration
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleSetDeclare>(),
 
     //function_definition->declaration_specifiers declarator declaration_list compound_statement
     make_unique<AttrRuleError>(),
@@ -36,22 +36,22 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<AttrRuleFunc>(),
 
     //statement->labeled_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //statement->compound_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //statement->expression_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //statement->selection_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //statement->iteration_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //statement->jump_statement
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
     //labeled_statement->id : statement
     make_unique<AttrRule>(),
     //labeled_statement->case constant_expr : statement
@@ -66,13 +66,13 @@ unique_ptr<ProductionInfo> C_RuleAttributesPool::ruleAttrTable[]={
     make_unique<AttrRuleCompound>(),
 
     //block_item_list->block_item
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //block_item_list->block_item_list block_item
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleDoNothing>(false),
 
     //block_item->declaration
-    make_unique<AttrRuleDoNothing>(),
+    make_unique<AttrRuleSetDeclare>(),
 
     //block_item->statement
     make_unique<AttrRuleDoNothing>(),

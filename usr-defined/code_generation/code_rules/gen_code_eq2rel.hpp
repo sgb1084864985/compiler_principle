@@ -22,7 +22,7 @@ class gen_code_eq2rel : public code_gen_productionInfo
         
         if (p->implicit_cast_type)
         {
-            return genCodeForCast(p->implicit_cast_type, context, ret);
+            return genCodeForCast(p->implicit_cast_type, context, ret, <#initializer#>);
         }
         return ret;
     }

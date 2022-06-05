@@ -177,3 +177,18 @@ ptr_constant C_constant::newNOT(ptr_constant &op1) {
     }
     return p->_not();
 }
+
+ptr_constant C_constant::newLOGIC_OR(ptr_constant &op1, ptr_constant &op2){
+    auto p=std::dynamic_pointer_cast<ConstantArithmetic>(op1);
+    if(!p){
+        throw std::logic_error("arithmetic operation not in supported for the type !");
+    }
+    return p->_logic_or(op2);
+}
+ptr_constant C_constant::newLOGIC_AND(ptr_constant &op1, ptr_constant &op2) {
+    auto p=std::dynamic_pointer_cast<ConstantArithmetic>(op1);
+    if(!p){
+        throw std::logic_error("arithmetic operation not in supported for the type !");
+    }
+    return p->_logic_and(op2);
+}

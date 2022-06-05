@@ -14,10 +14,8 @@ class gen_code_assign : public code_gen_productionInfo
     {
         auto p = std::dynamic_pointer_cast<CSym::assignment_expr>(tree_node);
 
-        auto assignVal = tree_node_genCode(p->children[2], context);
-        if(p->children[2]->lValue){
-            assignVal=context.builder->CreateLoad(assignVal);
-        }
+        auto assignVal = getRValue(p->children[2], context);
+
         auto id = tree_node_genCode(p->children[0], context);
         
         //only handle the "="

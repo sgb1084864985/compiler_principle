@@ -9,14 +9,27 @@
 
 class AttrRuleExprDoNothing : public AttrRule {
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
-		tree_node->owner = context.currentNameSpace;
-		auto child = tree_node->children[0];
-		child->getAttr().FillAttributes(context, child);
-		tree_node->constant = child->constant;
-		tree_node->type = child->type;
-        tree_node->lValue=child->lValue;
-		tree_node->identifier = child->identifier;
+        try{
+            tree_node->owner = context.currentNameSpace;
+            auto child = tree_node->children[0];
+            child->getAttr().FillAttributes(context, child);
+            tree_node->constant = child->constant;
+            tree_node->type = child->type;
+            tree_node->lValue=child->lValue;
+            tree_node->identifier = child->identifier;
+        }
+        catch (AttrException& e){
+            tree_node->error= true;
+            if(throw_except){
+                throw e;
+            }
+        }
 	}
+public:
+    AttrRuleExprDoNothing()=default;
+    explicit AttrRuleExprDoNothing(bool throw_except):throw_except(throw_except){}
+private:
+    bool throw_except= false;
 };
 
 //assignment_expr->unary_expr assignment_operator assignment_expr
@@ -32,16 +45,22 @@ public:
 		auto assign_expr = tree_node->children[2];
 
 		if (!unary_expr->lValue) {
-			tree_node->error = true;
-			context.global.error_out << "not a lvalue in the left side of assignment";
+            emitError(context,tree_node,"not a lvalue in the left side of assignment");
+            return;
 		} else {
 			if (!unary_expr->type->equals(assign_expr->type)) {
-				tree_node->error = true;
-				context.global.error_out << "Illegal assignment";
-			}
+                if(C_type::implicitlyConvertable(assign_expr->type,unary_expr->type)){
+                    assign_expr->implicit_cast_type=unary_expr->type;
+//                    tree_node->constant=assign_expr->constant->newCast(unary_expr->type);
+                }
+                else{
+                    emitError(context,tree_node,"assignment conversion failure");
+                }
+			} else{
+//                tree_node->constant = assign_expr->constant;
+            }
 		}
-		tree_node->constant = assign_expr->constant;
-		tree_node->type = assign_expr->type;
+		tree_node->type = unary_expr->type;
 	}
 };
 
@@ -70,32 +89,39 @@ public:
 		op1->getAttr().FillAttributes(context, op1);
 		op2->getAttr().FillAttributes(context, op2);
 
-		if (op1->constant != nullptr && op2->constant != nullptr) {
-			SetConstant(op1->constant, op2->constant, tree_node);
-		}
-		CheckType(op1->type, op2->type, context, tree_node);
+		CheckType(op1, op2, context, tree_node);
+        setResultType(op1,op2,context,tree_node);
+
+        if (op1->constant != nullptr && op2->constant != nullptr) {
+            SetConstant(op1->constant, op2->constant, tree_node);
+        }
+	}
+
+protected:
+    virtual void setResultType(symbol_ptr & op1,symbol_ptr &op2,AttrContext &context,
+                               symbol_ptr &tree_node){
         if(op1->implicit_cast_type){
             tree_node->type=op1->implicit_cast_type;
         }
         else{
             tree_node->type=op1->type;
         }
-	}
-
-protected:
+    }
 	virtual void
-	CheckType(ptrType type1, ptrType type2, AttrContext &context,
-			  symbol_ptr &tree_node) = 0;
+	CheckType(symbol_ptr &op1, symbol_ptr &op2, AttrContext &context,
+              symbol_ptr &tree_node) {
+        CheckType_(op1,op2,context,tree_node);
+    }
+
 	virtual void SetConstant(ptr_constant &const1, ptr_constant &const2,
 							 symbol_ptr &tree_node) = 0;
 };
 
 class AttrRuleLogicExpr : public AttrRuleOpExpr {
-	void CheckType(ptrType type1, ptrType type2, AttrContext &context,
-				   symbol_ptr &tree_node) override {
-		if (type1->getTypeSpecifier() != CTS::BOOL || type2->getTypeSpecifier() != CTS::BOOL) {
-			tree_node->error = true;
-			context.global.error_out << "Illegal operand type in logical expression";
+	void CheckType(symbol_ptr &op1, symbol_ptr &op2, AttrContext &context,
+                   symbol_ptr &tree_node) override {
+		if (!op1->type->canToBool() || !op2->type->canToBool()) {
+            emitError(context,tree_node,"Illegal operand type in logical expression");
 		}
 	}
 	void SetConstant(ptr_constant &const1, ptr_constant &const2, symbol_ptr &tree_node) override = 0;
@@ -105,8 +131,7 @@ class AttrRuleLogicExpr : public AttrRuleOpExpr {
 class AttrRuleLogicOrExpr : public AttrRuleLogicExpr {
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		bool constant = C_constant::getValue<bool>(const1) || C_constant::getValue<bool>(const2);
-		tree_node->constant = C_constant::newConstant(constant);
+		tree_node->constant = C_constant::newLOGIC_OR(const1,const2);
 	}
 };
 
@@ -114,20 +139,12 @@ class AttrRuleLogicAndExpr : public AttrRuleLogicExpr {
 public:
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		bool constant = C_constant::getValue<bool>(const1) && C_constant::getValue<bool>(const2);
-		p->constant = C_constant::newConstant(constant);
-	}
+        tree_node->constant = C_constant::newLOGIC_AND(const1,const2);
+    }
 };
 
 class AttrRuleArithExpr : public AttrRuleOpExpr {
-	void CheckType(ptrType type1, ptrType type2, AttrContext &context,
-				   symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		if (!type1->equals(type2)) {
-			p->error = true;
-		}
-	}
+
 };
 
 class AttrRuleAddExpr : public AttrRuleArithExpr {
@@ -167,16 +184,13 @@ class AttrRuleRemExpr : public AttrRuleArithExpr {
 
 class AttrRuleRelationExpr : public AttrRuleOpExpr {
 public:
-	void CheckType(ptrType type1, ptrType type2, AttrContext &context,
-				   symbol_ptr &tree_node) override {
-		auto p = std::dynamic_pointer_cast<CSym::expr>(tree_node);
-		if (!type1->equals(type2)) {
-			p->error = true;
-		}
-	}
 
 	void SetConstant(ptr_constant &const1, ptr_constant &const2,
 					 symbol_ptr &tree_node) override = 0;
+    void setResultType(symbol_ptr & op1,symbol_ptr &op2,AttrContext &context,
+                               symbol_ptr &tree_node)override{
+        tree_node->type=C_type::newBasicType(CTS::BOOL);
+    }
 };
 
 class AttrRuleEqExpr : public AttrRuleRelationExpr {
@@ -258,8 +272,7 @@ public:
 					tree_node->constant = C_constant::newNOT(cast_expr->constant);
 					break;
 				default:
-					tree_node->error = true;
-					context.global.error_out << "Unsupported unary operator";
+                    emitError(context,tree_node,"Unsupported unary operator");
 			}
 		}
 		tree_node->type = cast_expr->type;
@@ -282,14 +295,14 @@ class AttrRuleConstant : public AttrRule {
 				tree_node->type = C_type::newBasicType(CTS::INT);
 				break;
 			case TokenType::FLOAT:
-				tree_node->type = C_type::newBasicType(CTS::FLOAT);
+				tree_node->type = C_type::newBasicType(CTS::DOUBLE);
 				break;
 			case TokenType::STRING:
                 tree_node->type=C_type::newBasicType(CTS::CHAR, true,CTS::AUTO,CTS::CONST)->newPointerType();
                 break;
             default:
-				tree_node->error = true;
-				context.global.error_out << "Unsupported constant type";
+                emitError(context,tree_node,"Unsupported constant type");
+
 		}
 		string value = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0])->getText();
 		tree_node->constant = C_constant::fromString(value, type);
@@ -317,8 +330,7 @@ class AttrRulePrimaryExprId : public AttrRule {
 		tree_node->identifier = id->getText();
 		auto name_item = context.currentNameSpace->get(id->getText());
 		if (!name_item) {
-			tree_node->error = true;
-			context.global.error_out << "Use of undeclared identifier";
+            emitError(context,tree_node,"Use of undeclared identifier");
 		} else {
 			tree_node->type = name_item->getType();
 		}
@@ -345,13 +357,12 @@ class AttrRulePostfixExprFuncApp0:public AttrRule{
         func->getAttr().FillAttributes(context, func);
         if(func->type->isFunction()){
             if(!func->type->getParameterTypes()->param_list.empty()){
-                tree_node->error= true;
-                context.global.error_out<< "too less args" <<std::endl;
+                emitError(context,tree_node,"Too much args");
+
             }
         }
         else{
-            tree_node->error= true;
-            context.global.error_out<< "object not callable" <<std::endl;
+            emitError(context,tree_node,"Object not callable");
         }
         tree_node->type=func->type->getReturnType();
     }
@@ -369,21 +380,17 @@ class AttrRulePostfixExprFuncApp1:public AttrRule{
             visitArgs(tree_node->params->param_list,context,tree_node->children[2]);
             auto func_param_types=func->type->getParameterTypes();
             if(!func_param_types->ellipse && func_param_types->param_list.size()!=tree_node->params->param_list.size()){
-                tree_node->error= true;
-                context.global.error_out<< "arg numbers not match" <<std::endl;
-                return;
+                emitError(context,tree_node,"Arg numbers not match");
+
             }
             for(int i=0;i<func_param_types->param_list.size();i++){
                 if(!tree_node->params->param_list[i]->equals(func_param_types->param_list[i])){
-                    tree_node->error= true;
-                    context.global.error_out<<"arg types not match"<<std::endl;
-                    return;
+                    emitError(context,tree_node,"Arg types not match");
                 }
             }
         }
         else{
-            tree_node->error= true;
-            context.global.error_out<< "object not callable" <<std::endl;
+            emitError(context,tree_node,"Object not callable");
         }
         tree_node->type=func->type->getReturnType();
     }
@@ -410,17 +417,14 @@ class AttrRulePostfixExprArray : public AttrRule {
         auto array = tree_node->children[0];
         array->getAttr().FillAttributes(context, array);
         if(!array->type->isArray() && !array->type->isPointer()){
-            tree_node->error= true;
-            context.global.error_out<<"Not an array or pointer, can not use operator []"<<std::endl;
-            return;
+            emitError(context,tree_node,"Not an array or pointer, can not use operator []");
         }
 
         auto index=tree_node->children[2];
         index->getAttr().FillAttributes(context,index);
 
         if(!index->type->isIntegerType()){
-            tree_node->error= true;
-            context.global.error_out<<"value in [] is not a integer"<<std::endl;
+            emitError(context,tree_node,"Value in [] is not a integer");
             return;
         }
         tree_node->type=array->type->getArrayElementType();

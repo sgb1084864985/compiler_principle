@@ -23,7 +23,7 @@ public:
     // reference:
     // https://github.com/mukul-rathi/bolt/blob/master/src/llvm-backend/llvm_ir_codegen/ir_codegen_visitor.h
     GlobalContext& global;
-    std::unordered_map<void*,llvm::AllocaInst*> env;
+    std::unordered_map<void*,llvm::Value*> env;
     vector<llvm::Function*> defined_functions;
     ptrSymTable symTable;
 

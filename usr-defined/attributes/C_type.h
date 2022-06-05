@@ -27,14 +27,23 @@ namespace CTS{
 
     enum TypeSpecifier{
         type_unset,
-        VOID=1,CHAR,SHORT,INT,
+        VOID=1,BOOL,CHAR,SHORT,INT,
         LONG,LONGLONG,FLOAT,
-        DOUBLE,BOOL,COMPLEX,
+        DOUBLE,COMPLEX,
         IMAGINARY,STRUCT,UNION,
 
         // not implemented now
         ENUM,
     };
+
+    static inline double Strength(TypeSpecifier t){
+        static double strength[]{-1,
+                                 -1,0,0.5,1,2,
+                                 3,4,5,6,
+                                 7,-1,
+                                 -1,-1,-1};
+        return strength[t];
+    }
 
     enum TypeQuantifier{
         CONST=0X1,
@@ -189,7 +198,7 @@ public:
     bool equals(ptrType& other);
     bool const_equals(ptrType& other);
 
-    bool isFunction(){
+    [[nodiscard]] bool isFunction()const{
         if(!declarator->params){
             return false;
         }
@@ -201,28 +210,31 @@ public:
         }
         return true;
     };
-    bool isPointer(){return declarator->pointers.size()>0;}
-    bool isStruct(){return getTypeSpecifier()==CTS::STRUCT;}
-    bool isUnion(){return getTypeSpecifier()==CTS::UNION;}
-    bool isArray(){return declarator->arrayDim>0;}
-    bool isIntegerType() const;
+    [[nodiscard]] bool isPointer()const{return declarator->pointers.size()>0;}
+    [[nodiscard]] bool isStruct() const{return getTypeSpecifier()==CTS::STRUCT;}
+    [[nodiscard]] bool isUnion() const{return getTypeSpecifier()==CTS::UNION;}
+    [[nodiscard]] bool isArray()const{return declarator->arrayDim>0;}
+    static bool StrongerThan(C_type& t1,C_type&t2);
+    bool canToBool();
+    [[nodiscard]] bool isIntegerType() const;
+    [[nodiscard]] bool isFPType() const;
 
     // int,float,...
-    bool isBasicType(){
+    [[nodiscard]] bool isBasicType() const {
         return !isPointer() && !isFunction() && !isStruct() && !isUnion() &&!isArray();
     }
-    bool isSigned(){
+    [[nodiscard]] bool isSigned() const{
         return getDeclarationSpecifiers().isSigned;
     }
 
-    CTS::TypeSpecifier getTypeSpecifier(){
+    [[nodiscard]] CTS::TypeSpecifier getTypeSpecifier() const {
         return getDeclarationSpecifiers().typeSpecifier;
     };
-    CTS::StorageSpecifier getStorageSpecifier(){
+    [[nodiscard]] CTS::StorageSpecifier getStorageSpecifier() const{
         return getDeclarationSpecifiers().storageSpecifier;
     }
-    int getTypeQuantifier(){return getDeclarationSpecifiers().typeQuantifier;}
-    int getFunctionSpecifier(){return getDeclarationSpecifiers().funcSpecifier;}
+    [[nodiscard]] int getTypeQuantifier() const{return getDeclarationSpecifiers().typeQuantifier;}
+    [[nodiscard]] int getFunctionSpecifier() const{return getDeclarationSpecifiers().funcSpecifier;}
 
     int getArrayDim(){return declarator->arrayDim;}
     const vector<unsigned int>& getArraySizes(){return declarator->arraySizes;}
@@ -233,8 +245,9 @@ public:
     ptrType getArrayElementType();
     CTS::ptrParams getParameterTypes(){return  declarator->params;}
 
-    CTS::DeclarationSpecifiers& getDeclarationSpecifiers(){return declarationSpecifiers;}
+    [[nodiscard]] const CTS::DeclarationSpecifiers & getDeclarationSpecifiers() const {return declarationSpecifiers;}
     CTS::ptrDelclarator& getDeclarator(){return declarator;}
+    static bool implicitlyConvertable(ptrType&from, ptrType&to);
 private:
     CTS::DeclarationSpecifiers declarationSpecifiers;
     CTS::ptrDelclarator declarator;

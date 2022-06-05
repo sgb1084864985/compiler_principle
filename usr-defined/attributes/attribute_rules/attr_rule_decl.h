@@ -12,11 +12,13 @@
 class AttrRuleDirectDeclSingleId : public AttrRule {
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
+        tree_node->type=tree_node->inherited_type;
+
+        if(tree_node->inheritedContext.isAbstractDeclare){ return;}
 		auto id = std::dynamic_pointer_cast<TerminalValue>(tree_node->children[0]);
 		std::string identifier = id->getText();
         tree_node->identifier=identifier;
 		auto name_item = std::make_shared<CNameSpace::name_item>(tree_node->inherited_type);
-        tree_node->type=tree_node->inherited_type;
 
         ptr_name exist;
         if(name_item->type->isFunction()){
@@ -32,13 +34,18 @@ class AttrRuleDirectDeclSingleId : public AttrRule {
                 context.currentNameSpace->insert(identifier, name_item, false);
             }
             else{
+                if(context.inGlobal()){
+                    name_item->type->setStorageSpecifier(CTS::STATIC);
+                }
                 context.currentNameSpace->insert(identifier, name_item);
             }
 
 		} else {
-            if(!exist->isDeclaration() || !exist->type->equals(name_item->type)){
-                tree_node->error = true;
-                context.global.error_out << "Identifier redefined!";
+            if(!exist->isDeclaration()){
+                emitError(context,tree_node,"Identifier redefined!");
+            }
+            if(!exist->type->equals(name_item->type)){
+                emitError(context,tree_node,"Redeclaration of different type");
             }
 		}
 	}
@@ -53,6 +60,7 @@ public:
 		auto new_type = C_type::newFuncType(tree_node->inherited_type, params);
 		auto direct_decl = tree_node->children[0];
 		direct_decl->inherited_type = new_type;
+        direct_decl->inheritedContext=tree_node->inheritedContext;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
         tree_node->identifier=direct_decl->identifier;
 	}
@@ -64,6 +72,10 @@ public:
 	void FillAttributes(AttrContext &context, symbol_ptr &tree_node) override {
 		tree_node->owner = context.currentNameSpace;
 		auto param_list = tree_node->children[2];
+        param_list->inheritedContext=tree_node->inheritedContext;
+        if(param_list->inheritedContext.isDeclare){
+            param_list->inheritedContext.isAbstractDeclare= true;
+        }
 		param_list->getAttr().FillAttributes(context, param_list);
 		auto params = param_list->params;
 		auto new_type = C_type::newFuncType(tree_node->inherited_type, params);
@@ -82,8 +94,7 @@ public:
         auto expr = tree_node->children[2];
         expr->getAttr().FillAttributes(context, expr);
         if(!expr->constant){
-            tree_node->error= true;
-            context.global.error_out<<"array size must be constant"<<std::endl;
+            emitError(context,tree_node,"Array size must be constant!");
             return;
         }
         unsigned size=expr->constant->getUnsigned();
@@ -91,6 +102,7 @@ public:
         auto new_type=tree_node->inherited_type;
         auto direct_decl = tree_node->children[0];
         direct_decl->inherited_type = new_type;
+        direct_decl->inheritedContext=tree_node->inheritedContext;
         direct_decl->getAttr().FillAttributes(context, direct_decl);
         tree_node->identifier=direct_decl->identifier;
     }
@@ -104,6 +116,7 @@ public:
 		tree_node->owner = context.currentNameSpace;
 		auto direct_decl = tree_node->children[0];
 		direct_decl->inherited_type = tree_node->inherited_type;
+        direct_decl->inheritedContext=tree_node->inheritedContext;
 		direct_decl->getAttr().FillAttributes(context, direct_decl);
 		tree_node->type = direct_decl->type;
         tree_node->identifier=direct_decl->identifier;
@@ -121,6 +134,7 @@ public:
 
         auto direct_decl = tree_node->children[1];
         direct_decl->inherited_type = pointer->type;
+        direct_decl->inheritedContext=tree_node->inheritedContext;
         direct_decl->getAttr().FillAttributes(context, direct_decl);
 
         tree_node->type = direct_decl->type;
@@ -135,6 +149,7 @@ public:
 		tree_node->owner = context.currentNameSpace;
 		auto decl = tree_node->children[0];
 		decl->inherited_type = tree_node->inherited_type->clone();
+        decl->inheritedContext=tree_node->inheritedContext;
 		decl->getAttr().FillAttributes(context, decl);
         tree_node->identifier=decl->identifier;
 	}
@@ -147,6 +162,7 @@ public:
 		tree_node->owner = context.currentNameSpace;
 		auto init_decl = tree_node->children[0];
 		init_decl->inherited_type = tree_node->inherited_type;
+        init_decl->inheritedContext=tree_node->inheritedContext;
 		init_decl->getAttr().FillAttributes(context, init_decl);
 	}
 };
@@ -158,10 +174,12 @@ public:
         tree_node->owner = context.currentNameSpace;
         auto list_head=tree_node->children[0];
         list_head->inherited_type=tree_node->inherited_type;
+        list_head->inheritedContext=tree_node->inheritedContext;
         list_head->getAttr().FillAttributes(context,list_head);
 
         auto init_decl = tree_node->children[2];
         init_decl->inherited_type = tree_node->inherited_type;
+        init_decl->inheritedContext=init_decl->inheritedContext;
         init_decl->getAttr().FillAttributes(context, init_decl);
     }
 };
@@ -176,6 +194,7 @@ public:
 
 		auto init_decl_list = tree_node->children[1];
 		init_decl_list->inherited_type = decl_spec->type;
+        init_decl_list->inheritedContext=tree_node->inheritedContext;
 		init_decl_list->getAttr().FillAttributes(context, init_decl_list);
 	}
 };

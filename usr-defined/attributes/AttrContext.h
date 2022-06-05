@@ -12,8 +12,12 @@ class AttrContext:Context {
 public:
     GlobalContext& global;
     ptrCNamespace currentNameSpace;
+    ptrCNamespace globalNameSpace;
 
     explicit AttrContext(GlobalContext& global):global(global){}
+    [[nodiscard]] bool inGlobal() const{
+        return currentNameSpace==globalNameSpace;
+    }
 };
 
 

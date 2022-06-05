@@ -26,8 +26,12 @@ Type *code_gen_productionInfo::getLlvmType(ptrType &type, code_gen_Context &cont
         case CTS::SHORT:
             basic_type=Type::getIntNTy(*context.context,sizeof(short)*8);
             break;
+//        case CTS::BOOL:
         case CTS::CHAR:
             basic_type=Type::getIntNTy(*context.context,sizeof(char)*8);
+            break;
+        case CTS::VOID:
+            basic_type=Type::getVoidTy(*context.context);
             break;
         default:
             throw std::logic_error("type not supported yet");
@@ -60,6 +64,35 @@ code_gen_productionInfo::genCodeForConstant(ptr_constant &constant, code_gen_Con
     return constant->getLlvmValue(*context.context,*context.builder);
 }
 
-Value *code_gen_productionInfo::genCodeForCast(ptrType &type, code_gen_Context &context, Value *val) {
-    return nullptr;
+Value *code_gen_productionInfo::genCodeForCast(ptrType &type, code_gen_Context &context, Value *val,
+                                               ptrType &src_type) {
+    if(src_type->isIntegerType()){
+        if(type->isFPType()){
+            if(src_type->isSigned()){
+                return context.builder->CreateSIToFP(val, getLlvmType(type,context));
+            }
+            else{
+                return context.builder->CreateUIToFP(val, getLlvmType(type,context));
+            }
+        }
+        if(type->isIntegerType()){
+            return context.builder->CreateIntCast(val, getLlvmType(type,context),src_type->isSigned());
+        }
+    }
+    else{
+        if(src_type->isFPType()){
+            if(type->isIntegerType()){
+                if(type->isSigned()){
+                    return context.builder->CreateFPToSI(val, getLlvmType(type,context));
+                }
+                else{
+                    return context.builder->CreateFPToUI(val, getLlvmType(type,context));
+                }
+            }
+            if(type->isFPType()){
+                return context.builder->CreateFPCast(val, getLlvmType(type,context));
+            }
+        }
+    }
+    throw std::logic_error("not supported type conversion");
 }

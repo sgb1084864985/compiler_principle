@@ -21,7 +21,7 @@ class gen_code_rel2sh : public code_gen_productionInfo
         auto v1 = tree_node_genCode(p->children[0], context);
         if (p->implicit_cast_type)
         {
-            return genCodeForCast(p->implicit_cast_type, context, v1);
+            return genCodeForCast(p->implicit_cast_type, context, v1, <#initializer#>);
         }
         return v1;
     }

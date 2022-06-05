@@ -10,25 +10,25 @@ ptrType C_type::newIncompleteType() {
 
 ptrType C_type::newIncompleteType(bool Signed) {
     auto ptr=std::make_shared<C_type>();
-    ptr->getDeclarationSpecifiers().isSigned=Signed;
+    ptr->declarationSpecifiers.isSigned=Signed;
     return ptr;
 }
 
 ptrType C_type::newIncompleteType(CTS::StorageSpecifier specifier) {
     auto ptr=std::make_shared<C_type>();
-    ptr->getDeclarationSpecifiers().storageSpecifier=specifier;
+    ptr->declarationSpecifiers.storageSpecifier=specifier;
     return ptr;
 }
 
 ptrType C_type::newConstIncompleteType(int quantifier) {
     auto ptr=std::make_shared<C_type>();
-    ptr->getDeclarationSpecifiers().typeQuantifier=quantifier;
+    ptr->declarationSpecifiers.typeQuantifier=quantifier;
     return ptr;
 }
 
 ptrType C_type::newFuncIncompleteType(int functionSpecifier) {
     auto ptr=std::make_shared<C_type>();
-    ptr->getDeclarationSpecifiers().funcSpecifier=functionSpecifier;
+    ptr->declarationSpecifiers.funcSpecifier=functionSpecifier;
     return ptr;
 }
 
@@ -116,7 +116,7 @@ ptrType C_type::newArrayType(ptrType &basicType, unsigned int dim, vector<unsign
 
 ptrType C_type::newPointerType(int pointer_quantifier) {
     auto new_type= this->clone();
-    this->declarator->pointers.quantifiers.push_back(pointer_quantifier);
+    new_type->declarator->pointers.quantifiers.push_back(pointer_quantifier);
     return new_type;
 }
 
@@ -243,6 +243,7 @@ void C_type::toArray(const vector<int> &new_sizes) {
 }
 
 bool C_type::isIntegerType() const {
+    if(!isBasicType())return false;
     switch (declarationSpecifiers.typeSpecifier) {
         case CTS::FLOAT:
         case CTS::STRUCT:
@@ -269,6 +270,50 @@ ptrType C_type::getArrayElementType() {
     return new_type;
 }
 
+bool C_type::implicitlyConvertable(ptrType &from, ptrType &to) {
+    if(from->isBasicType()){
+        if(!to->isBasicType()){
+            return false;
+        }
+        if(from->getTypeSpecifier()==CTS::VOID){
+            return false;
+        }
+        if(from->isStruct()){return false;}
+        if(from->isUnion()){return false;}
+        if(from->getTypeSpecifier()==CTS::COMPLEX || from->getTypeSpecifier()==CTS::IMAGINARY){return false;}
+        return true;
+    }
+    if(to->isBasicType()){return false;}
+    if(from->getTypeSpecifier()!=to->getTypeSpecifier()){
+        return false;
+    }
+    if(from->isArray() && to->isPointer()){
+        if(from->getArrayDim()==to->getArrayDim()+1 && from->declarator->pointers.size()==to->declarator->pointers.size()-1){
+            return true;
+        }
+    }
+    return false;
+}
+
+// assert they are convertable
+bool C_type::StrongerThan(C_type &t1, C_type &t2) {
+    assert(t1.isBasicType() && t2.isBasicType());
+    double s1=CTS::Strength(t1.getTypeSpecifier());
+    double s2=CTS::Strength(t2.getTypeSpecifier());
+    assert(s1!=-1 && s2!=-1);
+    return s1>=s2;
+}
+
+bool C_type::canToBool() {
+    if(!isBasicType())return false;
+    return CTS::Strength(getTypeSpecifier())>=CTS::Strength(CTS::BOOL);
+}
+
+bool C_type::isFPType() const {
+    if(!isBasicType())return false;
+    return getTypeSpecifier()==CTS::FLOAT || getTypeSpecifier()==CTS::DOUBLE;
+}
+
 bool CTS::Parameters::operator==(CTS::Parameters &other)const{
     if(ellipse!=other.ellipse)return false;
     if(param_list.size()!=other.param_list.size()){
@@ -282,7 +327,7 @@ bool CTS::Parameters::operator==(CTS::Parameters &other)const{
     return true;
 }
 
-// TODO:
+// TODO: better
 bool CTS::AbstractDeclarator::operator==(CTS::AbstractDeclarator &other) const {
     auto declarator1=this;
     auto declarator2=&other;
@@ -303,7 +348,7 @@ bool CTS::AbstractDeclarator::operator==(CTS::AbstractDeclarator &other) const {
         return false;
     }
 
-    if(declarator1->params && declarator2->params && *(declarator1->params) == *(declarator2->params)){
+    if(declarator1->params && declarator2->params && *(declarator1->params) != *(declarator2->params)){
         return false;
     }
 

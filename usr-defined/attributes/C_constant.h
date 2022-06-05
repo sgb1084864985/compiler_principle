@@ -110,6 +110,10 @@ public:
 
     static ptr_constant newRIGHT_SHIFT(ptr_constant& op1,ptr_constant& op2);
 
+    virtual ptr_constant newCast(ptrType& type){
+        throw ConstantException("Method C_constant::newCast not implemented");
+    }
+
     virtual ptrType getType()=0;
     virtual llvm::Value *getLlvmValue(llvm::LLVMContext &context, llvm::IRBuilder<> &builder) =0;
     virtual unsigned getUnsigned(){
@@ -213,6 +217,8 @@ public:
     virtual ptr_constant _lt(ptr_constant& other)=0;
     virtual ptr_constant _ge(ptr_constant& other)=0;
     virtual ptr_constant _gt(ptr_constant& other)=0;
+    virtual ptr_constant _logic_or(ptr_constant& other)=0;
+    virtual ptr_constant _logic_and(ptr_constant& other)=0;
     virtual ptr_constant _not()=0;
 };
 
@@ -303,6 +309,20 @@ public:
         }
         return getBoolConstant(m_data>p_other->m_data);
     }
+    ptr_constant _logic_and(ptr_constant &other) override {
+        auto p_other=std::dynamic_pointer_cast<ConstantSingleElement<T>>(other);
+        if(!p_other){
+            throw std::logic_error("constant operation not in same type !");
+        }
+        return getBoolConstant(m_data&&p_other->m_data);
+    }
+    ptr_constant _logic_or(ptr_constant &other) override {
+        auto p_other=std::dynamic_pointer_cast<ConstantSingleElement<T>>(other);
+        if(!p_other){
+            throw std::logic_error("constant operation not in same type !");
+        }
+        return getBoolConstant(m_data||p_other->m_data);
+    }
     ptr_constant _not() override {
         return getBoolConstant(!m_data);
     }
@@ -315,9 +335,44 @@ public:
     unsigned getUnsigned()override{
         return C_CONST::getUnsigned<T>(m_data);
     }
+    ptr_constant newCast(ptrType& type)override;
 private:
     T m_data;
 };
+
+namespace C_CONST {
+    template<class From,class To>
+    ptr_constant CastTo(ConstantSingleElement<From>& val){
+        auto new_val=std::make_shared<ConstantSingleElement<To>>(static_cast<To>(val.getData()));
+        return new_val;
+    }
+}
+
+template<class T>
+ptr_constant ConstantSingleElement<T>::newCast(ptrType &type) {
+    assert(type->isBasicType());
+    switch (type->getTypeSpecifier()) {
+        case CTS::BOOL:
+            return C_CONST::CastTo<T,bool>(*this);
+        case CTS::CHAR:
+            return C_CONST::CastTo<T,char>(*this);
+        case CTS::SHORT:
+            return C_CONST::CastTo<T,short>(*this);
+        case CTS::INT:
+            return C_CONST::CastTo<T,int>(*this);
+        case CTS::LONG:
+            return C_CONST::CastTo<T,long>(*this);
+        case CTS::LONGLONG:
+            return C_CONST::CastTo<T,long long >(*this);
+        case CTS::DOUBLE:
+            return C_CONST::CastTo<T,double>(*this);
+        case CTS::FLOAT:
+            return C_CONST::CastTo<T,float>(*this);
+        default:
+            // type not supported
+            assert(0);
+    }
+}
 
 template<class T>
 T C_constant::getValue(ptr_constant& src) {
@@ -332,8 +387,6 @@ template<class T>
 ptr_constant C_constant::newConstant(T values) {
     return std::make_shared<ConstantSingleElement<T>>(values);
 }
-
-
 
 
 #endif //COMPILER_C_CONSTANT_H

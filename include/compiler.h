@@ -59,6 +59,10 @@ class SymbolValue;
 using symbol_ptr=std::shared_ptr<SymbolValue>;
 using symbol_iterator=Iterator<symbol_ptr>;
 
+struct InheritedContext{
+    bool isDeclare= false;
+    bool isAbstractDeclare= false;
+};
 
 // represents one cfg rule.
 class Production{
@@ -148,7 +152,7 @@ public:
         this->id=i;
     }
 
-
+    InheritedContext inheritedContext;
     ptr_constant constant;
     ptrType type;
 	ptrType inherited_type;

@@ -21,7 +21,7 @@ class gen_code_xor2and : public code_gen_productionInfo
         auto ret = tree_node_genCode(p->children[0], context);
         if (p->implicit_cast_type)
         {
-            return genCodeForCast(p->implicit_cast_type, context, ret);
+            return genCodeForCast(p->implicit_cast_type, context, ret, <#initializer#>);
         }
         return ret;
     }
